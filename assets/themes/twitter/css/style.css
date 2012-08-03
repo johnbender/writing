@@ -1,6 +1,8 @@
 /* Override some defaults */
 html, body {
   background-color: #eee;
+  font-size: 14px;
+  line-height: 1.4em;
 }
 .navbar {
   margin-bottom: 0;
@@ -140,7 +142,7 @@ pre .doc {
 }
 
 code {
-  padding: 0 3px;
+  padding: 0.15em 0.4em;
 }
 
 .builtin {
