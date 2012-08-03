@@ -6,8 +6,12 @@ html, body {
   margin-bottom: 0;
 }
 
-.container {
-  width: 800px;
+h2, h3 {
+  margin: 0.5em 0 0.2em 0;
+}
+
+img {
+  margin: 1em;
 }
 
 .container > footer {
@@ -40,7 +44,6 @@ html, body {
 .topbar .btn {
   border: 0;
 }
-
 
 /* tag_box ======================================================== */
 
@@ -84,7 +87,8 @@ pre {
   -mox-border-radius: 3px;
   border-radius: 3px;
   font-size: 13px;
-  margin-top: 10px;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
 pre.comment  {
@@ -133,6 +137,10 @@ pre .doc {
   color: #646EF1;
   font-weight: bold;
   font-family: monospace;
+}
+
+code {
+  padding: 0 3px;
 }
 
 .builtin {
