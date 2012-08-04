@@ -1,8 +1,9 @@
 /* Override some defaults */
 html, body {
-  background-color: #eee;
+  background-color: #888;
   font-size: 14px;
   line-height: 1.4em;
+  background-image: url(../../../images/diag-bg.png);
 }
 
 iframe {
@@ -17,8 +18,16 @@ h2, h3 {
   margin: 0.5em 0 0.2em 0;
 }
 
+h4 {
+  margin: 1em 0 0 0;
+}
+
 img {
   margin: 1em;
+}
+
+ol {
+  margin: 1em 0 1em 2em;
 }
 
 .container, .navbar {
@@ -28,22 +37,23 @@ img {
 }
 
 .container > footer {
-  margin-top: 20px;
+  margin-top: 1.5em;
 }
 .container > footer p {
   text-align: center; /* center align it with the container */
+  margin-bottom: 1.5em;
 }
 
 /* The white background content wrapper */
 .content {
   background-color: #fff;
   padding: 20px;
-  -webkit-border-radius: 0 0 6px 6px;
-     -moz-border-radius: 0 0 6px 6px;
-          border-radius: 0 0 6px 6px;
-  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-     -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-          box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+.content, .navbar {
+  -webkit-box-shadow: 0px 1px 4px rgba(0,0,0,.35);
+     -moz-box-shadow: 0px 1px 4px rgba(0,0,0,.35);
+          box-shadow: 0px 1px 4px rgba(0,0,0,.35);
 }
 
 .navbar-inner {
@@ -55,7 +65,7 @@ img {
 /* Page header tweaks */
 .page-header {
   background-color: #f5f5f5;
-  padding: 20px 20px 10px;
+  padding: 20px 20px;
   margin: -20px -20px 20px;
 }
 
@@ -63,110 +73,59 @@ img {
   border: 0;
 }
 
-/* tag_box ======================================================== */
-
 .tag_box {
 	list-style:none;
 	margin:0;
-	padding:5px 0 ;
 	overflow:hidden;
 }
+
 .tag_box li {
-	line-height:28px;
+	line-height: 1.7em;
 }
+
 .tag_box.inline li {
 	float:left;
 }
+
 .tag_box a {
 	padding: 3px 6px;
-	margin: 2px;
+	margin: 0.1em;
 	background: #eee;
-	color:#005F6B;
-	border-radius: 3px;
+	border-radius: 2px;
 	text-decoration:none;
 }
+
 .tag_box a span{
 	vertical-align:super;
 	font-size:0.8em;
 }
+
 .tag_box a.active {
 	background:#57A957;
 	border:1px solid #4C964D;
 	color:#FFF;
 }
 
-pre {
-  padding: 1em;
-  overflow-y: hidden;
-  color: #d3d3d3;
+
+code {
+  /* font-lock-variable-name-face */
+  font-weight: bold;
+  color: #08C;
+  padding: 0.18em 0.2em;
+}
+
+pre, code {
   -webkit-border-radius: 3px;
-  -mox-border-radius: 3px;
+  -moz-border-radius: 3px;
   border-radius: 3px;
-  font-size: 13px;
-  margin-top: 1em;
-  margin-bottom: 1em;
+}
+
+pre {
+  margin: 1em 0;
 }
 
 pre code {
   font-weight: normal;
-  color: black;
-}
-
-pre.comment  {
-  /* font-lock-comment-face */
-  color: #777;
-}
-.comment-delimiter {
-  /* font-lock-comment-delimiter-face */
-  color: #777;
-}
-.constant {
-  /* font-lock-constant-face */
-  color: #52c62b;
-  font-weight: bold;
-}
-.function-name {
-  /* font-lock-function-name-face */
-  color: #ffffbb;
-  font-weight: bold;
-}
-.keyword {
-  /* font-lock-keyword-face */
-  color: #888;
-}
-.string {
-  /* font-lock-string-face */
-  color: #ffffcc;
-}
-.type {
-  /* font-lock-type-face */
-  color: #c2cff1;
-  font-weight: bold;
-}
-
-pre .variable-name {
-  /* font-lock-variable-name-face */
-  color: #f3f3f3 !important;
-}
-
-pre .doc {
-	color: #c2cff1;
-}
-
-.entry-content p .variable-name, code {
-  /* font-lock-variable-name-face */
-  color: #646EF1;
-  font-weight: bold;
-}
-
-code {
-  padding: 0.15em 0.4em;
-}
-
-.builtin {
-  /* font-lock-builtin-face */
-  color: #c2cff1;
-  font-weight: bold;
 }
 
 .hll { background-color: #ffffcc }
@@ -239,3 +198,65 @@ code {
 .vi { color: #000000 } /* Name.Variable.Instance */
 .il { color: #0000cf; font-weight: bold } /* Literal.Number.Integer.Long */
 
+
+.builtin {
+  /* font-lock-builtin-face */
+  color: #62124b;
+}
+.comment {
+  /* font-lock-comment-face */
+  color: #aea79f;
+}
+
+.comment-delimiter {
+  /* font-lock-comment-delimiter-face */
+  color: #aea79f;
+  font-style: italic;
+}
+
+.function-name {
+  /* font-lock-function-name-face */
+  color: #860e73;
+  font-weight: bold;
+}
+.keyword {
+  /* font-lock-keyword-face */
+  color: #f47321;
+  font-weight: bold;
+}
+.string, pre.sh_sourceCode .sh_string {
+  /* font-lock-string-face */
+  color: #dd1144;
+}
+
+pre.sh_sourceCode > code > span {
+  color: #333;
+}
+
+.variable-name {
+  /* font-lock-variable-name-face */
+  color: #8b005a;
+}
+
+b .variable-name {
+  color: white;
+}
+
+.css-property {
+  /* css-property */
+  color: #8b005a;
+}
+.css-selector {
+  /* css-selector */
+  color: #860e73;
+  font-weight: bold;
+}
+
+.type {
+  /* font-lock-type-face */
+  color: #83a525;
+}
+.constant {
+  /* font-lock-constant-face */
+  color: #f68d47;
+}

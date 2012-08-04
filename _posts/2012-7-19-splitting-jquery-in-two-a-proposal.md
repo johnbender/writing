@@ -1,6 +1,6 @@
 ---
 layout: post
-tags : [jquery, category theory, DOM]
+tags : [jquery, category theory]
 title: Splitting jQuery in Two, A Proposal
 ---
 {% include JB/setup %}
