@@ -6,6 +6,10 @@ html, body {
   background-image: url(../../../images/diag-bg.png);
 }
 
+p {
+  font-size: 14px;
+}
+
 iframe {
   margin: 1em 0;
 }
@@ -28,6 +32,10 @@ img {
 
 ol {
   margin: 1em 0 1em 2em;
+}
+
+li {
+  margin-bottom: 0.5em;
 }
 
 .container, .navbar {
@@ -81,6 +89,7 @@ ol {
 
 .tag_box li {
 	line-height: 1.7em;
+  margin-bottom: 0;
 }
 
 .tag_box.inline li {
