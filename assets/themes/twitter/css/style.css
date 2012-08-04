@@ -4,6 +4,11 @@ html, body {
   font-size: 14px;
   line-height: 1.4em;
 }
+
+iframe {
+  margin: 1em 0;
+}
+
 .navbar {
   margin-bottom: 0;
 }
@@ -39,6 +44,12 @@ img {
   -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
      -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
           box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+.navbar-inner {
+  -webkit-border-radius: 0;
+     -moz-border-radius: 0;
+          border-radius: 0;
 }
 
 /* Page header tweaks */
@@ -227,3 +238,4 @@ code {
 .vg { color: #000000 } /* Name.Variable.Global */
 .vi { color: #000000 } /* Name.Variable.Instance */
 .il { color: #0000cf; font-weight: bold } /* Literal.Number.Integer.Long */
+
