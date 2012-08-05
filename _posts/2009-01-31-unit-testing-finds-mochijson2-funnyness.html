@@ -1,13 +1,12 @@
---- 
+---
 layout: post
 title: testing = mochijson2 funnyness feature
-tags: 
+tags:
 - erlang
-- programming
 status: publish
 type: post
 published: true
-meta: 
+meta:
   _edit_last: "1"
 ---
 [Update] I filed a ticket on the mochiweb google code site, and they pointed out that this <strong>IS</strong> expected behaviour. Mochijson2 expects binary strings, which makes good sense since when you decode with mochijson2, strings are converted to just that! Also, string operations in Erlang are faster on binary strings (or so I've been told). See the gist for an example.
@@ -28,7 +27,7 @@ Blah, blah worthless post, _but_ I am constantly reminded why testing makes the 
 
 Look, [ these desks are old < => programming is hard ].
 
-If you [ fall of the desk  < => don't build unit tests ] you're going to be hurt and everyone is going to laugh at you for your clumsiness. Most people think the story ends there, but it doesn't. When you get home, you'll still be angry and you might kick your dog. Your dog, being angry and sad from the physical pain you've caused him will bite the mailman. And finally, ultimately,  the mailman will go to work the next day with an Uzi and kill everyone. 
+If you [ fall of the desk  < => don't build unit tests ] you're going to be hurt and everyone is going to laugh at you for your clumsiness. Most people think the story ends there, but it doesn't. When you get home, you'll still be angry and you might kick your dog. Your dog, being angry and sad from the physical pain you've caused him will bite the mailman. And finally, ultimately,  the mailman will go to work the next day with an Uzi and kill everyone.
 
 That, is how [ falling of a desk < => failing to get test coverage ] causes loss of life.
 
