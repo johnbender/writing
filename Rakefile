@@ -49,8 +49,15 @@ task :'gh-pages' do
     cp -r _site/* .;
     git add .;
     git commit -m "updating gh-pages";
-    git push origin +gh-pages;
     git checkout master;
+  CMD
+end
+
+desc "Publish gh-pages to the appropriate repo/branch"
+task :publish do
+  exec(<<-CMD)
+    set -e
+    git push publish gh-pages/master
   CMD
 end
 
