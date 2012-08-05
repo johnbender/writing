@@ -1,17 +1,14 @@
---- 
+---
 layout: post
 title: "You got your type class in my jQuery: Applicative Functors"
-tags: 
-- functional
-- programming
+tags:
 - javascript
 - jquery
-- pattern
-- programming
+- haskell
 status: publish
 type: post
 published: true
-meta: 
+meta:
   _edit_last: "1"
 ---
 <p>Previously we saw how jQuery's <code>$()</code> can behave like Haskell's Functor typeclass, when it wraps raw DOM objects and how provides its own version of <code>fmap</code> (<code>$.map</code>) for lifting functions into that wrapper to work with those DOM objects. In this post I'll explain Haskell's Applicative typeclass, how it's slightly different from the Functor, and demonstrate how defining functions on <code>$.fn</code> behaves in a similar fashion to the Applicative function <code>pure</code>.</p>
@@ -102,7 +99,7 @@ foo.apply(<span class="string"><span class="js2-error">"wow", [1, 2]);</span></s
     e.id = <span class="string">""</span>;
     <span class="keyword">return</span> e;
   });
-  
+
   <span class="keyword">return</span> <span class="builtin">this</span>;
 };
 
@@ -155,7 +152,7 @@ or in terms of the Applicative
     <pre>
 <span class="variable-name">$.</span>fn<span class="variable-name">.</span>ap <span class="variable-name">::</span> (f a <span class="variable-name">-&gt;</span> f b) <span class="variable-name">-&gt;</span> f a <span class="variable-name">-&gt;</span> f b</pre>
 
-which is is pretty close to what we're looking for 
+which is is pretty close to what we're looking for
 
 <pre>
 (<span class="function-name">&lt;*&gt;</span>) <span class="variable-name">::</span> f (a <span class="variable-name">-&gt;</span> b) <span class="variable-name">-&gt;</span> f a <span class="variable-name">-&gt;</span> f b

@@ -1,19 +1,20 @@
---- 
+---
 layout: post
 title: "An idea for simplifying Sinatra: less DSL, more Ruby"
-tags: 
-- uncategorized
+tags:
+- ruby
+- sinatra
 status: draft
 type: post
 published: false
-meta: 
+meta:
   _edit_last: "1"
 ---
 I've been using Sinatra quite a bit lately and its really a great way to get an application up and running. When looking at a basic Sinatra app its extremely easy to discern what code will be executing for a given route, and leaving aside the benefits this provides for reasoning about your application it also shortens ramp-up time for people new to your project's code base. Even better when you want to extend Sinatra's dsl it's pretty easy:
 
 ..code.. -http://www.sinatrarb.com/extensions.html
 
-For the most part it's an incredibly painless and quick way to develop web applications. 
+For the most part it's an incredibly painless and quick way to develop web applications.
 
 <h3>A different way</h3>
 
@@ -37,7 +38,7 @@ With those two changes we can do something like the following:
 
 ..example of method definition with route default parameter.
 
-In this way we lose the scope ambiguity. Also any public method that gets mixed in and defines a default for route will be called by that route. 
+In this way we lose the scope ambiguity. Also any public method that gets mixed in and defines a default for route will be called by that route.
 
 Our extensions can now look like plain old Ruby modules without any of the acrobatics required for a Sinatra extension:
 

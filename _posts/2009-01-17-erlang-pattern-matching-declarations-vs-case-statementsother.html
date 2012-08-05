@@ -1,13 +1,12 @@
---- 
+---
 layout: post
 title: "Erlang: Pattern Matching Declarations vs Case Statements/Other"
-tags: 
+tags:
 - erlang
-- pattern
 status: publish
 type: post
 published: true
-meta: 
+meta:
   _edit_last: "1"
 ---
 [Update] I did some refactoring that I've been meaning to do thanks to ayrnieu in #erlang.
@@ -26,9 +25,9 @@ As you can see my goal is to be able to query Mnesia, or rather to produce a sta
 
 <script src="http://gist.github.com/48410.js"></script>
 
-The tuple is "filtered" down the function definitions, and when each tuple (columns, operations, etc) is handled it is translated into a string and thus not matched again until ultimately the final definition concatenates all the pieces together to build/return our query. I REALLY like the way this works in that its short and simple. Also the tuples could in theory be replaced by an appropriate string built outside the function and it would still work, which makes it more flexible. 
+The tuple is "filtered" down the function definitions, and when each tuple (columns, operations, etc) is handled it is translated into a string and thus not matched again until ultimately the final definition concatenates all the pieces together to build/return our query. I REALLY like the way this works in that its short and simple. Also the tuples could in theory be replaced by an appropriate string built outside the function and it would still work, which makes it more flexible.
 
-It has other issues, such as its fragile ordering requirement. If its not ordered properly it may break, or worse just not form the comprehension properly. Which leads me to wonder if there's a better way to implement this, even if its not _quite_ as concise. 
+It has other issues, such as its fragile ordering requirement. If its not ordered properly it may break, or worse just not form the comprehension properly. Which leads me to wonder if there's a better way to implement this, even if its not _quite_ as concise.
 
 The following is a quick hack and not tested but another way to handle it might look like:
 
