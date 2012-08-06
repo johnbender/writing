@@ -2,13 +2,14 @@
 layout: post
 title: Leveraging Your Insecurities
 tags:
-- language
+- communication
 status: publish
 type: post
 published: true
 meta:
   _edit_last: "1"
 ---
+
 <strong>update</strong>: This article has been <a href="http://news.ycombinator.com/item?id=3621425" title="Hacker News Discussion">posted to Hacker News</a>. If you enjoy it and are a member there please upvote/comment.
 
 I believe mine is a fairly common condition as a software developer. I know, or at least believe, that I'm smart enough to be paid well for the work that I do, but the state of my intelligence relative to the "great minds" in the communities of which I'm a part (JavaScript and Ruby) is an unknown. My tendency is to assume, as a baseline, that nearly any developer I don't know is smarter and more capable than I am.
