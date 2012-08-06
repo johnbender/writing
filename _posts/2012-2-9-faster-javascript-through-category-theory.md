@@ -1,4 +1,16 @@
-# Faster Javascript Through Category Theory
+---
+layout: post
+title: Faster Javascript Through Category Theory
+tags:
+- javascript
+- jquery
+- math
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: "1"
+---
 
 This post started out as a [gist](https://gist.github.com/7242a7434195565b4a9d) that I was using to work through what I've learned about category theory by applying it to something I already know: JavaScript. The surprising result was a clearly defined set of JavaScript functions and jQuery helpers that could be optimized to reduce execution time.
 

@@ -10,6 +10,7 @@ published: true
 meta:
   _edit_last: "1"
 ---
+
 [Update] Thanks to Charlie in the comments for pointing me to jQuery's <code>$.fn.proxy</code> method.
 
 Developers have traditionally used JavaScript for relatively simple DOM manipulations and XHR, but as more functionality moves to the client, the techniques used by those developers have been slow to evolve. One consequence of this slow evolution is systems comprised entirely of jQuery and a series of nested event bindings. While jQuery is an extremely effective browser API, hiding the clumsy and often bug ridden out of the box equivelants, developers need effective solutions for organizing and reusing their code.
@@ -18,7 +19,7 @@ Developers have traditionally used JavaScript for relatively simple DOM manipula
 
 Relegating code to event bindings breaks down in even very simple situations for a few important reasons. First the state that's closed over is often hard to track and bindings can easily be shadowed.
 
-    <pre>
+<pre>
 (<span class="keyword">function</span>( <span class="js2-function-param">$</span> ) {
   <span class="keyword">function</span> <span class="function-name">other</span>() {
     <span class="comment">// ...
