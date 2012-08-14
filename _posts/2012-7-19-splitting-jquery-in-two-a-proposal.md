@@ -241,5 +241,5 @@ Ultimately the ideas here are a rough sketch.
 3. The benefits here will vary widely depending on the complexity of the "user-friendliness" built into a given jQuery method. Disclaim all the things!
 4. `alterOne` was, again, suggested by Yehuda during our discussion.
 5. The reader will have noted the conspicuous absence of IE in my performance test results. For whatever reason there was a consistent exception raised when executing the test code in IE that I haven't had time to investigate. For serious consideration of the content in this post those numbers need to be included.
-6. perf links: [chained, sequence, or composed](http://jsperf.com/chained-sequence-or-composition-removeattr/2), [user friendlyness overhead](http://jsperf.com/user-friendliness-overhead-for-remove-attr/2), [additional function call overhead](http://jsperf.com/additional-function-call-overhead-for-remove-attr)
+6. perf links: [chained, sequence, or composed](http://jsperf.com/chained-sequence-or-composition-removeattr/2), [user friendlyness overhead](http://jsperf.com/user-friendliness-overhead-for-remove-attr/2), [additional function call overhead](http://jsperf.com/additional-function-call-overhead-for-remove-attr/3)
 7. Special thanks to [Tim Goh](http://twitter.com/keyist) for reviewing this post.
