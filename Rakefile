@@ -40,6 +40,21 @@ module JB
   end #Path
 end #JB
 
+desc "Build the cv from the latest"
+task :cv do
+  exec(<<-CMD)
+    git submodule init;
+    git submodule update;
+    cd _cv;
+    git fetch;
+    git rebase origin/master;
+    PUBLIC=true rake html;
+    cd -
+    cp _cv/cv.html .
+    cp _cv/vendor/css/cv.css assets/themes/twitter/css/cv.css
+  CMD
+end
+
 desc "Compile the site and commit to the gh-pages branch"
 task :'gh-pages' do
   exec(<<-CMD)
