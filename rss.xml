@@ -1,0 +1,23 @@
+---
+layout: nil
+title : RSS Feed
+---
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>{{ site.title }}</title>
+    <description>johnbender.us</description>
+    <link href="{{ site.production_url }}"/>
+    <lastBuildDate>{{ site.time | date_to_xmlschema }}</lastBuildDate>
+
+    {% for post in site.posts %}
+    <item>
+      <title>{{ post.title | xml_escape }}</title>
+      <description>{{ post.title | xml_escape }}</description>
+      <link href="{{ site.production_url }}{{ post.url }}"/>
+      <pubDate>Tue, 29 Aug 2006 09:00:00 -0400</pubDate>
+      <pubDate>{{ post.date | date_to_xmlschema }}</pubDate>
+    </item>
+    {% endfor %}
+  </channel>
+</rss>
