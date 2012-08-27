@@ -48,7 +48,7 @@ task :cv do
     cd _cv;
     git fetch;
     git rebase origin/master;
-    PUBLIC=true rake html;
+    PUBLIC=true rake clean html;
     cd -
     cp _cv/cv.html .
     cp _cv/vendor/css/cv.css assets/themes/twitter/css/cv.css
