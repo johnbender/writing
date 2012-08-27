@@ -1,6 +1,6 @@
 ---
 layout: post
-tags : [jquery, javascript, math]
+tags : [javascript, jquery, math]
 title: Splitting jQuery in Two, A Proposal
 ---
 {% include JB/setup %}
