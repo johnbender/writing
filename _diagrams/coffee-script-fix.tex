@@ -1,0 +1,41 @@
+\documentclass[11hpt]{article}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage[all]{xy}
+\usepackage{syntax}
+
+\begin{document}
+
+\begin{grammar}
+<\lambda t> ::= \lit{() ->} <t>
+  \alt \lit{->} <t>
+
+<v> ::= \lit{true}
+  \alt \lit{false}
+
+<t> ::= <v>
+  \alt <\lambda t>\lit{()}
+  \alt <\lambda t> <t>
+
+\end{grammar}
+
+
+\begin{equation}
+\langle\lambda t\rangle() \to \langle t \rangle
+\end{equation}
+
+\begin{equation}
+\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle \to \langle t_{1} \rangle
+\end{equation}
+
+\begin{equation}
+\frac{t : T_{2}}{\langle\lambda t\rangle : T_{*} \to T_{2}}
+\end{equation}
+
+\begin{equation}
+\frac{t : T_{*} \to T_{2}}{\langle\lambda t\rangle() : T_{2}}
+\end{equation}
+
+\begin{equation}
+\frac{t : T_{*} \to T_{2}}{\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle : T_{2}}
+\end{equation}

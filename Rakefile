@@ -78,7 +78,7 @@ end
 
 desc "use the right cmd to prevent asset mis linking"
 task :serve do
-  `jekyll --serve --pygments --url localhost`
+  `jekyll --auto --serve --pygments --url localhost`
 end
 
 # Usage: rake post title="A Title" [date="2012-02-09"]
