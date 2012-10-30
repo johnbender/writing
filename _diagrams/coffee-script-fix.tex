@@ -6,6 +6,8 @@
 
 \begin{document}
 
+\section{Grammar}
+
 \begin{grammar}
 
 <\lambda t> ::= \lit*{() ->} <t>
@@ -15,10 +17,31 @@
   \alt \lit*{false}
 
 <t> ::= <v>
+  \alt <\lambda t>
   \alt <\lambda t>\lit*{()}
   \alt <\lambda t> <t>
-
 \end{grammar}
+
+\section{Grammar Examples}
+
+\begin{equation}
+\lit*{true}
+\end{equation}
+
+\begin{equation}
+\langle\lambda \lit*{false} \rangle \ \lit*{()}
+\end{equation}
+
+
+\begin{equation}
+\langle\lambda \lit*{true} \rangle \ \lit*{true}
+\end{equation}
+
+\begin{equation}
+\langle\lambda\lambda \lit*{true} \rangle \lit*{()} \ \langle\lambda \lit*{true} \rangle
+\end{equation}
+
+\section{Evaluation Rules/Relation}
 
 \begin{equation}
 \langle\lambda t\rangle \lit*{()} \to \langle t \rangle
@@ -27,6 +50,8 @@
 \begin{equation}
 \langle\lambda t_{1}\rangle \ \langle t_{2} \rangle \to \langle t_{1} \rangle
 \end{equation}
+
+\section{Type Rules}
 
 \begin{equation}
 \frac{t : T_{1}}{\langle \lambda t \rangle: \top \to T_{1}}
