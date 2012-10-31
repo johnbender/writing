@@ -3,6 +3,7 @@
 \usepackage{mathtools}
 \usepackage[all]{xy}
 \usepackage{syntax}
+\usepackage{trfrac}
 
 \begin{document}
 
@@ -44,25 +45,66 @@
 \section{Evaluation Rules/Relation}
 
 \begin{equation}
-\langle\lambda t\rangle \lit*{()} \to \langle t \rangle
+\langle\lambda t\rangle \lit*{()} \rightarrow \langle t \rangle
 \end{equation}
 
 \begin{equation}
-\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle \to \langle t_{1} \rangle
+\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle \rightarrow \langle t_{1} \rangle
 \end{equation}
 
 \section{Type Rules}
 
 \begin{equation}
-\frac{t : T_{1}}{\langle \lambda t \rangle: \top \to T_{1}}
+\lit*{true}: Bool
 \end{equation}
 
 \begin{equation}
-\dfrac{\langle\lambda t\rangle : \top \to T_{1}}{\langle\lambda t\rangle \lit*{()}: T_{1}}
+\lit*{false} : Bool
 \end{equation}
 
 \begin{equation}
-\frac{\langle \lambda t \rangle : \top \to T_{1} \ \ \ \langle t_{2} \rangle : T_{2} }{\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle : T_{1}}
+\frac{t : T_{1}}{\langle \lambda t \rangle: \top \rightarrow T_{1}}
+\end{equation}
+
+\begin{equation}
+\dfrac{\langle\lambda t\rangle : \top \rightarrow T_{1}}{\langle\lambda t\rangle \lit*{()}: T_{1}}
+\end{equation}
+
+\begin{equation}
+\frac{\langle \lambda t \rangle : \top \rightarrow T_{1} \ \ \ \langle t_{2} \rangle : T_{2} }{\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle : T_{1}}
+\end{equation}
+
+\section{Type Derivations}
+
+\begin{equation}
+\trfrac{\trfrac{no premise}{\lit*{false} : Bool}}{\langle \lambda \lit*{true} \rangle: \top \rightarrow Bool}
+\end{equation}
+
+\begin{equation}
+\trfrac{
+  \trfrac{
+    \trfrac{no premise}{\lit*{true} : Bool}
+  }{
+    \langle \lambda \lit*{true} \rangle : \top \rightarrow Bool
+  }
+  \qquad
+  \trfrac{
+    \trfrac{
+      \trfrac{
+        \trfrac{no premise}{\lit*{false} : Bool}
+      }{
+        \langle \lambda \lit*{false} \rangle : \top \rightarrow Bool
+      }
+    }{
+      \langle \lambda \lambda \lit*{false} \rangle : \top \rightarrow (\top \rightarrow Bool)
+    }
+  }{
+    \langle \lambda \lambda \lit*{false} \rangle \lit*{()}: (\top \rightarrow Bool)
+  }
+}{
+    \langle \lambda \lit*{true} \rangle \ \langle \lambda \lambda \lit*{false} \rangle \lit*{()}: Bool
+}
 \end{equation}
 
 \end{document}
+

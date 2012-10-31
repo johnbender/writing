@@ -54,11 +54,13 @@ explanation as formalism for evaluation
 
 if then else example?
 
+!! deeper discusion of grammar required. eg, why the ::== and what each line means. important for eval/type rule understanding !!
+
 show basic type information applied, including type rules
 
 ## CoffeeScript Grammar
 
-You could consider this a problem with the grammar and parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. You wind up down a troublesome path if `doSomething` happens to return a function. In an ideal world the author would arrive at these conclusions early during the process of creating the language grammar, and it might be interesting to use the formalism of operational semantics to help "boil down" the way these terms can be evaluated, hopefully revealing the ambiguity.
+You could consider this a problem with the grammar and parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language grammar, and it might be interesting to use the formalism of operational semantics to help "boil down" the way these terms can be evaluated, hopefully revealing the ambiguity.
 
 Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types as though we were designing the language should be illustrative. In the interest of keeping this post semi-sane in length the subset will be the minimum necessary to reproduce the aformentioned ambiguity. Returning to the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly:
 
@@ -89,9 +91,6 @@ It's interesting to note that neither case makes it particularly obvious there's
 <div class="center">
 <img src="/assets/images/diagrams/cs-grammar.png"></img>
 </div>
-
-
-!! deeper discusion of grammar required. eg, why the ::== and what each line means. important for eval/type rule understanding !!
 
 `v`, `\t` and `t` all represent meta terms. In the case of `\t` it was easier to create a meta term in place of repeating each possible lambda form in `t`. `v` on the other hand has special meaning as it did in the operational semantics example. It represents the set of acceptable final results of evaluating expressions in our CoffeeScript subset. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation of, and application of a single argument to, lambda terms (`\t`).
 
@@ -133,11 +132,12 @@ With the grammar in place the next step is to define both the evaluation rules a
 (\t) t' --> t
 ```
 
-The impact of the evaluation strategy (call-by-value l-to-r) for our little language is that the arguments applied to lambda terms in the second evaluation rule must be as "evaluated" as far as possible, before the invocation can take place. For example `(-> true) (-> (-> false))()` would take a step first to `(-> true) (-> false)` as a result of the `()` operator before applying the second lambda term as an argument to the first producing `true`. Ultimately this is unimportant in addressing the particular set of ambiguous expressions we've chosen but is noted here for completeness. Otherwise both evaluation rules are simple. Given the `()` operator or the application of a fully evaluated term, a lambda expression will return its subterm.
+The impact of the evaluation strategy (call-by-value l-to-r) for our little language is that the arguments applied to lambda terms in the second evaluation rule must be as "evaluated" as far as possible, before the invocation can take place. For example `(-> true) (-> (-> false))()` would take a step first to `(-> true) (-> false)` as a result of the `()` operator before applying the second lambda term as an argument to the first producing `true`. Ultimately this is unimportant in addressing the particular set of ambiguous expressions we've chosen but is noted here for completeness. Otherwise both evaluation rules are simple. Given the `()` operator or the application of a fully evaluated term, a lambda expression will evaluate to its subterm.
 
-So far it's not at all obvious there might be an issue. Defining lambdas with a `-> t` actually feels really nice. In addition preparing for lambdas with arguments by allowing for a tuple preceding the arrow is a great idea. The only realy obvious issue, which is unrelated to the problem at hand, is that it's possible to evaluate to a lambda term and consequently get nowhere.
+So far it's not obvious there might be an issue. Defining lambdas with a `-> t` is appealing, and preparing for arguments with a null tuple preceding the arrow makes sense. Continuing on, the application of type rules to our language is the last step to having a complete picture of how it works.
 
-Finaly the application of type rules to prevent our language from "going wrong", and hopefully to help identify its ambigous nature.
+
+# Type Rules
 
 ```
 true : Bool
@@ -148,19 +148,55 @@ false : Bool
 ----------------
 \t : T_1 --> T_2
 
-t : T_1 --> T_2
+\t : T_1 --> T_2
 ---------------
  (\t)() : T_2
 
-t : T_1 --> T_2
+\t : T_1 --> T_2
 ---------------
  (\t) t' : T_2
 ```
 
+The type rules are fairly intuitive. Given the statment above the line, the statment below the line is the type. For those type rules without a premise (the statement above the line) like `true : Bool` and `false : Bool`, we take them to be true out of hand. One extremely important note: because neither of the lambda expressions make use of arguments, Top (`Top`) is used to represent the acceptance of any type. So when `t` in `\t` has the type `T_1` it means that `\t` will, under invocation or application, result in an expresion of typ `T_1` regardless of what it's applied to or invoked with. As an example:
 
-walk through the thought process of establishing evaluation rules
+```
+(-> true) : \top --> Bool
 
-pinpoint the spot at which you must choose to support both
+(-> true) (-> false) : Bool
+```
+
+When using the second lambda as an "argument", it's ignored establishing the type from the result of the first lambda term (`true`). From this it's clear that the type of the "argument" doesn't matter.
+
+At first, this notation might look arbitrary but it makes it easy to establish the type of a term by "stacking" the type rules on one another. For example the term `(-> true)`:
+
+```
+(no premise)
+------------
+true : Bool
+-------------------
+\true : \top --> Bool
+
+```
+
+Beginning with the most basic type rule for one of the values `true` (lacking a premise) the stack expands outward from the subterms to establish the original term's type. This stacking is referred to as a derevation tree. Taking the more complex term from earlier `(-> true) (-> (-> false))()`, it's clear why:
+
+
+```
+                       (no premise)
+                       ------------
+                       false : Bool
+                       -----------------
+(no premise)           \false : \top --> Bool
+------------           ----------------------------------
+true : Bool             \\false : \top --> (\top --> Bool)
+--------------------   ----------------------------------
+\true : \top --> Bool   (\\false)() : \top --> Bool
+---------------------------------------------------------
+            \true (\\false)() : Bool
+```
+
+Since there are two subterms involved in application, each branch extends upward until it reaches the atomic value types `true : Bool` and `false : Bool`.
+
 
 prefer the space after the function because it's a more common use case
 
