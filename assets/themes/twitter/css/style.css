@@ -378,3 +378,8 @@ div.center > img {
   max-height: 400px;
   margin: 3em auto 3em auto;
 }
+
+div.side-by-side > img {
+  max-height: 250px;
+  margin: 2em 4em;
+}

@@ -63,11 +63,11 @@
 \end{equation}
 
 \begin{equation}
-\frac{t : T_{1}}{\langle \lambda t \rangle: \top \rightarrow T_{1}}
+\frac{t : T}{\langle \lambda t \rangle: \top \rightarrow T}
 \end{equation}
 
 \begin{equation}
-\dfrac{\langle\lambda t\rangle : \top \rightarrow T_{1}}{\langle\lambda t\rangle \lit*{()}: T_{1}}
+\dfrac{\langle\lambda t\rangle : \top \rightarrow T}{\langle\lambda t\rangle \lit*{()}: T}
 \end{equation}
 
 \begin{equation}
@@ -76,14 +76,22 @@
 
 \section{Type Derivations}
 
+
+\trtopgap=1pt
+\trbotgap=1pt
+
 \begin{equation}
-\trfrac{\trfrac{no premise}{\lit*{false} : Bool}}{\langle \lambda \lit*{true} \rangle: \top \rightarrow Bool}
+\trfrac{
+  \trfrac{}{\lit*{false} : Bool}
+}{
+  \langle \lambda \lit*{true} \rangle: \top \rightarrow Bool
+}
 \end{equation}
 
 \begin{equation}
 \trfrac{
   \trfrac{
-    \trfrac{no premise}{\lit*{true} : Bool}
+    \trfrac{}{\lit*{true} : Bool}
   }{
     \langle \lambda \lit*{true} \rangle : \top \rightarrow Bool
   }
@@ -91,7 +99,7 @@
   \trfrac{
     \trfrac{
       \trfrac{
-        \trfrac{no premise}{\lit*{false} : Bool}
+        \trfrac{}{\lit*{false} : Bool}
       }{
         \langle \lambda \lit*{false} \rangle : \top \rightarrow Bool
       }
