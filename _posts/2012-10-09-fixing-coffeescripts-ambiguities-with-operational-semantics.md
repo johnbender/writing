@@ -90,63 +90,80 @@ It's interesting to note that neither case makes it visually obvious there's a p
 
 Having identified the subset of CoffeeScript necessary for reproducing the original issue, we can begin with a precise definiton of terms in the form of a language grammar.
 
-<div class="side-by-side">
-  <img src="/assets/images/diagrams/cs-grammar-meta-terms.png"></img>
-  <img src="/assets/images/diagrams/cs-grammar-terms.png"></img>
+<div class="center">
+  <img src="/assets/images/diagrams/cs-grammar.png"></img>
 </div>
 
 `v`, `\t` and `t` all represent meta terms. In the case of `\t` it was easier to create a meta term in place of repeating each possible lambda form in `t`. `v` on the other hand has special meaning as it did in the operational semantics example. It represents the set of acceptable final results of evaluating expressions in our CoffeeScript subset. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation and application of lambda terms (`\t`).
 
-Some examples of translated into the grammar, starting with the most basic:
+Some examples translated into the grammar will be usefull to clarify how it's set up.
 
 ```coffeescript
 true
 ```
 
-![translation]()
+<div class="center">
+  <img src="/assets/images/diagrams/cs-grammar-true.png"></img>
+</div>
 
 ```coffeescript
 (-> false)()
 ```
 
-![translation]()
+<div class="center">
+  <img src="/assets/images/diagrams/cs-grammar-lambda-invocation.png"></img>
+</div>
+
 
 ```coffeescript
 (() -> true) true
 ```
 
-![translation]()
+<div class="center">
+  <img src="/assets/images/diagrams/cs-grammar-lambda-application.png"></img>
+</div>
 
 ```coffeescript
 (-> (() -> true))() (-> true)
 ```
 
-![translation]()
+<div class="center">
+  <img src="/assets/images/diagrams/cs-grammar-lambda-complex.png"></img>
+</div>
 
-Note that `\t` representations include information about their subterms and that all of the translated expresions are valid CoffeeScript [!!].
+The most important part to note that may not have been clear from the grammar definition is that lambda subterm information is captured. Equations 2, 3, and 4 all illustrate this. As a result of including that subterm information it's reasonable to ask whether there's value in providing a grammar that, in translation, looks a lot like it's own language. First, the grammar abstracts over the two different lambda forms, which makes reasoning about evaluation and types easier by reducing the number of rules required for each. Second, differentiating values (`true`, `false`, and `-> t`)from other terms is important for knowing when evaluation has finished or stalled ("gotten stuck").
 
-## Evaluation Relation
+## Inference Rules
 
-With the grammar in place the next step is to define both the evaluation rules and strategy so that our terms can perform some computation. To keep things simple our language subset will use the call-by-value, left to right strategy [!!] employed by CoffeeScript and numerous other languages (C, Java, Python etc). As you might have guessed by looking at the grammer there are only two evaluation rules, both of which are concerned with evaluation of lambda terms.
+With the grammar in place the next step is to define both the inference rules and strategy so that our terms can perform some computation. To keep things simple the language subset will use the call-by-value, left to right strategy [!!] employed by CoffeeScript and numerous other languages (C, Java, Python etc). There are three inference rules.
 
-```
-(\t)() --> t
+<div class="center">
+  <img src="/assets/images/diagrams/cs-inference-rules.png"></img>
+</div>
 
-(\t) t' --> t
-```
+The first two are simple, but the use of the value meta term in Equation 6 and the whole of Equation 7 warrant futher discussion
 
-The impact of the evaluation strategy (call-by-value l-to-r) for our little language is that the arguments applied to lambda terms in the second evaluation rule must be as "evaluated" as far as possible, before the invocation can take place. For example `(-> true) (-> (-> false))()` would take a step first to `(-> true) (-> false)` as a result of the `()` operator before applying the second lambda term as an argument to the first producing `true`. Ultimately this is unimportant in addressing the particular set of ambiguous expressions we've chosen but is noted here for completeness. Otherwise both evaluation rules are simple. Given the `()` operator or the application of a fully evaluated term, a lambda expression will evaluate to its subterm.
+<div class="center">
+  <img src="/assets/images/diagrams/cs-inference-rules-application.png"></img>
+</div>
 
-So far it's not obvious there might be an issue. Defining lambdas with a `-> t` is appealing, and preparing for arguments with a null tuple preceding the arrow makes sense. Continuing on, the application of type rules to our language is the last step to having a complete picture of how it works.
+The impact of the evaluation strategy (call-by-value l-to-r) for this language is that the arguments applied to lambda terms must be as "evaluated" as possible, before application can take place. For example `(-> true) (-> false)()` would "take a step" first to `(-> true) false` as a result of the `()` operator before applying the second lambda term as an argument to the first producing `true`. This is captured in Equation 6 by specifying that the term to which the lambda term is applied must be a in the set of values from the grammar.
 
+<div class="center">
+  <img src="/assets/images/diagrams/cs-inference-rules-application-argument.png"></img>
+</div>
+
+In addition Equation 7 stipulates in the premise that if the term that a lambda would otherwise be applied to can take a step of evaluation it should. Taken together these three rules define how the CoffeeScript subset performs computation. Unfortunately it's not obvious thusfar that there might be an issue. Defining lambdas with a `-> t` is appealing, and preparing for arguments with a null tuple preceding the arrow makes sense. The application of type rules to our language is the last step to having a complete picture of how it works.
 
 ## Type Rules
+
+Type rules are similar in construction to evaluation rules consisting of a premise and conclusion. As with evaluation rules the premise establishes the preconditions for the conclusion.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules.png"></img>
 </div>
 
-The type rules are fairly intuitive. Given the statment above the line called the *premise*, the statment below the line called the *consequent* or *conclusion* is the type of the term. For those type rules without a premise like `true : Bool` and `false : Bool`, we take them to be true out of hand. That is, the terms `true` and `false` both have the type `Bool`. The others are more complicated.
+The type rules for this subset of CoffeeScript are fairly intuitive. For the type rules without a premise like `true : Bool` and `false : Bool`, we take them to be true out of hand. That is, the terms `true` and `false` both have the type `Bool`. The others are more complicated.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-term.png"></img>
@@ -164,29 +181,33 @@ Equation 10 shows how to determine the type of lambda invocation like `(-> true)
   <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
 </div>
 
-Equation 11 is the type rule for lambda applications such as `(-> true) false`. The premise says that if the lambda term `\t` on the left has the type `\top \to T_1` and the term on the right as the type `T_2` the conclusion is that the application of the lambda term will have the type `T_1`. Again, the type of an application, like invocation, is only concerned with the type of the lambda's subterm `t`.
+Equation 11 is the type rule for lambda applications such as `(-> true) false`. The premise says that if the lambda term `\t` on the left has the type `\top \to T_1` and the term on the right as the type `T_2` the conclusion is that the application of the lambda term will have the type `T_1`. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t`.
 
 ## Type Rule Stacking
 
-This notation might look odd but it makes it easy to establish the type of a term by "stacking" the type rules on one another. For example the term `(-> true)`:
+This notation makes it easy to establish the type of a term by stacking the type rules on one another. For example:
+
+```coffeescript
+(-> true)
+```
 
 <div class="center">
-  <img style="height: 100px" src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
+  <img src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
 </div>
 
-Beginning with the most basic type rule for one of the values `true`, which lacks a premise, the stack expands outward from the subterms to establish the original term's type. This stacking is referred to as a derevation tree. Taking the more complex term from earlier `(-> true) (-> (-> false))()`, it's clear why:
+Beginning with the most basic type rule for one of the values `true`, which lacks a premise, the stack expands outward from the subterm to establish the parent term's type. This stacking is referred to as a derevation tree. Taking the more complex term from earlier it's clear why:
+
+```coffeescript
+(-> true) (-> (-> false))()
+```
 
 <div class="center">
-  <img style="height: 200px" src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
+  <img src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
 </div>
 
 Since there are two subterms involved in application, each branch extends upward until it reaches the atomic value types `true : Bool` and `false : Bool`.
 
-
-prefer the space after the function because it's a more common use case
-
-show proof that there's only one way to evaluate each term inductively, "appendix" again
-
+At this point the definition of this CoffeeScript subset is complete enough to describe the original issue in terms of a typing problem. That is, just using the inference rules defined earlier, it's clear that the evaluation of `(-> true)() ->false` "gets stuck" from the following derivation tree
 
 # footnotes
 

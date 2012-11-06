@@ -5,23 +5,29 @@
 \usepackage{syntax}
 \usepackage{trfrac}
 
+\renewcommand{\syntleft}{\normalfont\itshape}
+\renewcommand{\syntright}{}
+
+\trtopgap=1pt
+\trbotgap=1pt
+
 \begin{document}
 
 \section{Grammar}
 
 \begin{grammar}
-
 <\lambda t> ::= \lit*{() ->} <t>
   \alt \lit*{->} <t>
 
 <v> ::= \lit*{true}
   \alt \lit*{false}
+  \alt <\lambda t>
 
 <t> ::= <v>
-  \alt <\lambda t>
   \alt <\lambda t>\lit*{()}
   \alt <\lambda t> <t>
 \end{grammar}
+
 
 \section{Grammar Examples}
 
@@ -30,27 +36,37 @@
 \end{equation}
 
 \begin{equation}
-\langle\lambda \lit*{false} \rangle \ \lit*{()}
-\end{equation}
-
-
-\begin{equation}
-\langle\lambda \lit*{true} \rangle \ \lit*{true}
+\lambda \lit*{false}  \ \lit*{()}
 \end{equation}
 
 \begin{equation}
-\langle\lambda\lambda \lit*{true} \rangle \lit*{()} \ \langle\lambda \lit*{true} \rangle
+\lambda \lit*{true}  \ \lit*{true}
+\end{equation}
+
+\begin{equation}
+\lambda\lambda \lit*{true}  \lit*{()} \ \lambda \lit*{true}
 \end{equation}
 
 \section{Evaluation Rules/Relation}
 
 \begin{equation}
-\langle\lambda t\rangle \lit*{()} \rightarrow \langle t \rangle
+\lambda t \lit*{()} \rightarrow  t
 \end{equation}
 
 \begin{equation}
-\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle \rightarrow \langle t_{1} \rangle
+\lambda t \  v  \rightarrow  t
 \end{equation}
+
+\begin{equation}
+\trfrac{
+   t_{2}  \rightarrow  t_{2}'
+}{
+  \lambda t_{1} \  t_{2}  \rightarrow \lambda t_{1} \  t_{2}'
+}
+\end{equation}
+
+
+\newpage
 
 \section{Type Rules}
 
@@ -63,28 +79,24 @@
 \end{equation}
 
 \begin{equation}
-\frac{t : T}{\langle \lambda t \rangle: \top \rightarrow T}
+\frac{t : T}{ \lambda t : \top \rightarrow T}
 \end{equation}
 
 \begin{equation}
-\dfrac{\langle\lambda t\rangle : \top \rightarrow T}{\langle\lambda t\rangle \lit*{()}: T}
+\dfrac{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
 \end{equation}
 
 \begin{equation}
-\frac{\langle \lambda t \rangle : \top \rightarrow T_{1} \ \ \ \langle t_{2} \rangle : T_{2} }{\langle\lambda t_{1}\rangle \ \langle t_{2} \rangle : T_{1}}
+\frac{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
 \end{equation}
 
 \section{Type Derivations}
 
-
-\trtopgap=1pt
-\trbotgap=1pt
-
 \begin{equation}
 \trfrac{
-  \trfrac{}{\lit*{false} : Bool}
+  \trfrac{}{\lit*{true} : Bool}
 }{
-  \langle \lambda \lit*{true} \rangle: \top \rightarrow Bool
+   \lambda \lit*{true} : \top \rightarrow Bool
 }
 \end{equation}
 
@@ -93,7 +105,7 @@
   \trfrac{
     \trfrac{}{\lit*{true} : Bool}
   }{
-    \langle \lambda \lit*{true} \rangle : \top \rightarrow Bool
+     \lambda \lit*{true}  : \top \rightarrow Bool
   }
   \qquad
   \trfrac{
@@ -101,18 +113,49 @@
       \trfrac{
         \trfrac{}{\lit*{false} : Bool}
       }{
-        \langle \lambda \lit*{false} \rangle : \top \rightarrow Bool
+         \lambda \lit*{false}  : \top \rightarrow Bool
       }
     }{
-      \langle \lambda \lambda \lit*{false} \rangle : \top \rightarrow (\top \rightarrow Bool)
+       \lambda \lambda \lit*{false}  : \top \rightarrow (\top \rightarrow Bool)
     }
   }{
-    \langle \lambda \lambda \lit*{false} \rangle \lit*{()}: (\top \rightarrow Bool)
+     \lambda \lambda \lit*{false}  \lit*{()}: (\top \rightarrow Bool)
   }
 }{
-    \langle \lambda \lit*{true} \rangle \ \langle \lambda \lambda \lit*{false} \rangle \lit*{()}: Bool
+     \lambda \lit*{true}  \  \lambda \lambda \lit*{false}  \lit*{()}: Bool
 }
 \end{equation}
+
+\begin{equation}
+  \trfrac{
+    \trfac{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
+  }{
+    \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true} \ \lambda \lit*{false}
+  }
+\end{equation}
+
+\begin{equation}
+  \trfrac{
+    \trfrac{
+      \trfrac{
+        \trfrac{}{\lit*{true} : Bool}
+      }{
+         \lambda \lit*{true} : \top \rightarrow Bool
+      }
+    }{
+       \lambda \lit*{true}  \lit*{()} : Bool
+    }
+    \qquad
+    \trfrac{
+      \trfrac{}{\lit*{false} : Bool}
+    }{
+       \lambda \lit*{false} : \top \rightarrow Bool
+    }
+  }{
+     \lambda \lit*{true}  \lit*{()} \ \lambda \lit*{false} : \ ??
+  }
+\end{equation}
+
 
 \end{document}
 

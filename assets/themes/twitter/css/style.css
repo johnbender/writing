@@ -374,8 +374,7 @@ div.center {
 }
 
 div.center > img {
-  max-width: 100%;
-  max-height: 400px;
+  max-width: 75%;
   margin: 3em auto 3em auto;
 }
 
