@@ -7,7 +7,7 @@ tags:
 - math
 status: draft
 type: post
-published: true
+published: false
 meta:
   _edit_last: "1"
 ---
@@ -60,9 +60,9 @@ show basic type information applied, including type rules
 
 ## CoffeeScript Grammar
 
-You might consider this a problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language grammar, and it might be interesting to use the formalism of operational semantics to help "boil down" the way these terms can be evaluated, hopefully revealing the ambiguity.
+You might consider this a problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
 
-Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types as though we were designing the language should be illustrative. In the interest of keeping this post semi-sane in length the subset will be the minimum necessary to reproduce the aformentioned ambiguity. Returning to the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly:
+In the interest of keeping this post a semi-digestable length the subset will be the minimum necessary to reproduce the aformentioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly:
 
 ```coffeescript
 (-> true) () ->  false
@@ -86,9 +86,7 @@ Which of course translates into JavaScript similarly to the original example:
 // !!! => true(function(){ return false; });
 ```
 
-It's interesting to note that neither case makes it visually obvious there's a problem.
-
-Having identified the subset of CoffeeScript necessary for reproducing the original issue, we can begin with a precise definiton of terms in the form of a language grammar.
+Here the use of atomic boolean values alleviates the need for arguments in the lambda syntax. Again, simplicity in reproducing the issue is preferred for the sake of brevity. Having identified the subset of CoffeeScript necessary for reproducing the original issue, we can begin with a precise definiton of terms in the form of a language grammar.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-grammar.png"></img>
@@ -185,7 +183,7 @@ Equation 11 is the type rule for lambda applications such as `(-> true) false`. 
 
 ## Type Rule Stacking
 
-This notation makes it easy to establish the type of a term by stacking the type rules on one another. For example:
+This notation makes it easy to establish the type of a term by stacking the type rules on one another. Taking a very timple example, some diagrams will illustrate how this works:
 
 ```coffeescript
 (-> true)
@@ -195,7 +193,7 @@ This notation makes it easy to establish the type of a term by stacking the type
   <img src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
 </div>
 
-Beginning with the most basic type rule for one of the values `true`, which lacks a premise, the stack expands outward from the subterm to establish the parent term's type. This stacking is referred to as a derevation tree. Taking the more complex term from earlier it's clear why:
+Equation 13 is the stack, a derivation tree. It explains how the reader can derive the type at the bottom from it's subterms. Starting with equation 14, the subterm `true` is typed by the type rule *true*. That can then be "stacked" by using it to replace the premise of type rule *lambda* in equation 15. The type derivation expands from the subterm to establish each subsequent parent term's type. Make sure to note that type derivations are never really accompanied by the full form of the type rules in equations (just the labels like *lambda* and *true*) but it's helpful here for illustration here. Taking the more complex term from earlier it's clear why they are ommited:
 
 ```coffeescript
 (-> true) (-> (-> false))()
@@ -205,9 +203,35 @@ Beginning with the most basic type rule for one of the values `true`, which lack
   <img src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
 </div>
 
-Since there are two subterms involved in application, each branch extends upward until it reaches the atomic value types `true : Bool` and `false : Bool`.
+Since there are two subterms involved in application, each branch extends upward until it reaches the atomic value types `true : Bool` and `false : Bool`. The subterm on the left is identical to equation 13. On the right, the nested lambdas and invocation make for a taller stack of type rules to reach the atomic `false`.
 
-At this point the definition of this CoffeeScript subset is complete enough to describe the original issue in terms of a typing problem. That is, just using the inference rules defined earlier, it's clear that the evaluation of `(-> true)() ->false` "gets stuck" from the following derivation tree
+## Not Quite There
+
+At this point the CoffeeScript subset has enough definition to describe the original issue in terms of evaluation or typing. That is, using the inference rules it's clear that the evaluation of `(-> true)() -> false` "gets stuck" from the following derivation tree:
+
+<div class="center">
+  <img src="/assets/images/diagrams/cs-eval-derivation-original-issue.png"></img>
+</div>
+
+After the invocation of the left lambda term the evaluation gets stuck because the right lambda term can't be evaluated any further and no rule exists to handle the application of the term `true` to `(-> false)`. Additionally, a derivation tree based on the typing rules highlight that the term is untypable:
+
+<div class="center">
+  <img src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
+</div>
+
+Once the derivation tree reaches the outermost term it breaks because once again we have no type definition for the application of `true` to a lambda term like `(-> false)`.
+
+So what's been gained thusfar by applying the formalism of operational semantics and type derivations? It's clear that types, inferred or otherwise, would prevent at least the original case `(-> true)() -> false` as you can see from the type derivation. Unfortunately type derivation or type inference would only alert the end user and not an author in the middle of creating a language and then only if the result of the leftmost lambda term is not a lambda term. That is, if the leftmost lambda term evaluates to a lambda term the the whole thing is well typed. This means type information/derivations alone can't help identify this syntactic ambiguity.
+
+## Detecting Ambiguity
+
+Still, there is clearly an important difference here. Even if the two terms will *not* result in a type error under evaluation (eg, `(-> (-> true))() -> false`, `(-> (-> true)) () -> false`), they have different type derivations. The fact that the syntactic difference is seemingly very small in spite of the fact that the type derivation is different may suggest a way to detect ambiguities.
+
+First, some formulation of syntactic difference is necessary so that it can be measured. Since this particular problem is small the definition can start out simple. Taking the Levenshtein Distance as a function of string size should work for a start. For the syntax/string representation of two terms `a` and `b`:
+
+insert image
+
+*For two terms with inconsistent types, we say they are more or less ambigous based on the calculation Levenshtein Distance/max(Length<sub>1</sub>, Length<sub>2</sub>)*.
 
 # footnotes
 

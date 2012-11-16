@@ -5,6 +5,9 @@
 \usepackage{syntax}
 \usepackage{trfrac}
 
+\newcommand{\rulelabel}[1] {
+\small(\emph{#1})
+}
 \renewcommand{\syntleft}{\normalfont\itshape}
 \renewcommand{\syntright}{}
 
@@ -50,15 +53,15 @@
 \section{Evaluation Rules/Relation}
 
 \begin{equation}
-\lambda t \lit*{()} \rightarrow  t
+\lambda t \lit*{()} \rightarrow  t \quad \rulelabel{e-app}
 \end{equation}
 
 \begin{equation}
-\lambda t \  v  \rightarrow  t
+\lambda t_{1} \ t_{2}  \rightarrow  t_{1} \quad \rulelabel{e-inv}
 \end{equation}
 
 \begin{equation}
-\trfrac{
+\trfrac[\quad \rulelabel{e-value}]{
    t_{2}  \rightarrow  t_{2}'
 }{
   \lambda t_{1} \  t_{2}  \rightarrow \lambda t_{1} \  t_{2}'
@@ -71,47 +74,64 @@
 \section{Type Rules}
 
 \begin{equation}
-\lit*{true}: Bool
+\lit*{true}: Bool \quad \rulelabel{t-true}
 \end{equation}
 
 \begin{equation}
-\lit*{false} : Bool
+\lit*{false} : Bool \quad \rulelabel{t-false}
 \end{equation}
 
 \begin{equation}
-\frac{t : T}{ \lambda t : \top \rightarrow T}
+\trfrac[\quad\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
 \end{equation}
 
 \begin{equation}
-\dfrac{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
+\trfrac[\quad\rulelabel{t-inv}]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
 \end{equation}
 
 \begin{equation}
-\frac{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
+\trfrac[\quad\rulelabel{t-app}]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
 \end{equation}
 
 \section{Type Derivations}
 
 \begin{equation}
-\trfrac{
-  \trfrac{}{\lit*{true} : Bool}
+\trfrac[\rulelabel{t-lambda}]{
+  \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 }{
    \lambda \lit*{true} : \top \rightarrow Bool
 }
 \end{equation}
 
 \begin{equation}
-\trfrac{
-  \trfrac{
-    \trfrac{}{\lit*{true} : Bool}
+\trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
+\quad \Leftarrow \quad
+\lit*{true}: Bool \quad \rulelabel{t-true}
+\end{equation}
+
+\begin{equation}
+\trfrac[\rulelabel{t-lambda}]{
+  \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
+}{
+   \lambda \lit*{true} : \top \rightarrow Bool
+}
+\quad \Leftarrow \quad
+\trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
+\end{equation}
+
+
+\begin{equation}
+\trfrac[\rulelabel{t-app}]{
+  \trfrac[\rulelabel{t-lambda}]{
+    \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
   }{
      \lambda \lit*{true}  : \top \rightarrow Bool
   }
   \qquad
-  \trfrac{
-    \trfrac{
-      \trfrac{
-        \trfrac{}{\lit*{false} : Bool}
+  \trfrac[\rulelabel{t-inv}]{
+    \trfrac[\rulelabel{t-lambda}]{
+      \trfrac[\rulelabel{t-lambda}]{
+        \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
       }{
          \lambda \lit*{false}  : \top \rightarrow Bool
       }
@@ -126,19 +146,21 @@
 }
 \end{equation}
 
+\newpage
+
 \begin{equation}
-  \trfrac{
-    \trfac{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
-  }{
-    \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true} \ \lambda \lit*{false}
-  }
+\trfrac[\ \small{(\text{??})}]{
+  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
+}{
+  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \ ??
+}
 \end{equation}
 
 \begin{equation}
-  \trfrac{
-    \trfrac{
-      \trfrac{
-        \trfrac{}{\lit*{true} : Bool}
+  \trfrac[\ \small{(\text{??})}]{
+    \trfrac[\rulelabel{t-inv}]{
+      \trfrac[\rulelabel{t-lambda}]{
+        \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
       }{
          \lambda \lit*{true} : \top \rightarrow Bool
       }
@@ -146,14 +168,18 @@
        \lambda \lit*{true}  \lit*{()} : Bool
     }
     \qquad
-    \trfrac{
-      \trfrac{}{\lit*{false} : Bool}
+    \trfrac[\rulelabel{t-lambda}]{
+      \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
     }{
        \lambda \lit*{false} : \top \rightarrow Bool
     }
   }{
      \lambda \lit*{true}  \lit*{()} \ \lambda \lit*{false} : \ ??
   }
+\end{equation}
+
+\begin{equation}
+  \frac{\text{lev}(a, b)}{\text{max}(\text{len}(a), \text{len}(b))}
 \end{equation}
 
 
