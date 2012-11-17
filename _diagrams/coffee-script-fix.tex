@@ -6,7 +6,7 @@
 \usepackage{trfrac}
 
 \newcommand{\rulelabel}[1] {
-\small(\emph{#1})
+  \small(\emph{#1})
 }
 \renewcommand{\syntleft}{\normalfont\itshape}
 \renewcommand{\syntright}{}
@@ -39,7 +39,7 @@
 \end{equation}
 
 \begin{equation}
-\lambda \lit*{false}  \ \lit*{()}
+\lambda \lit*{false}\lit*{()}
 \end{equation}
 
 \begin{equation}
@@ -149,15 +149,15 @@
 \newpage
 
 \begin{equation}
-\trfrac[\ \small{(\text{??})}]{
+\trfrac[\small{(\text{??})}]{
   \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
 }{
-  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \ ??
+  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true} \ \lambda \lit*{false}
 }
 \end{equation}
 
 \begin{equation}
-  \trfrac[\ \small{(\text{??})}]{
+  \trfrac[\small{(\text{??})}]{
     \trfrac[\rulelabel{t-inv}]{
       \trfrac[\rulelabel{t-lambda}]{
         \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
