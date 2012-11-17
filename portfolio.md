@@ -10,7 +10,7 @@ The following is a selection of my best work. It includes essays available elsew
 
 ## Essays
 
-[Faster JavaScript with Category Theory](/2012/02/09/faster-javascript-through-category-theory/) - This essay covers my initial work on formalizing the relationship between vanilla DOM manipulation functions and their relationship to jQuery methods using Category Theory. It forms the basis for one of talks and for two other essays.
+[Faster JavaScript with Category Theory](/2012/02/09/faster-javascript-through-category-theory/) - This essay covers my initial work on formalizing the relationship between vanilla DOM manipulation functions and jQuery methods using Category Theory. It forms the basis for one talk and two essays.
 
 [A Natural Transformation in JavaScript](/2012/03/22/a-natural-transformation-in-javascript/) - A natural transformation was a logical progression after constructing two categories and a functor in the previous essay on JavaScript and Category Theory.
 
