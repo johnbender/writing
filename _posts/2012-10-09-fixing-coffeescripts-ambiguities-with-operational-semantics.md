@@ -33,15 +33,21 @@ doSomething() ->  false
 ```
 
 ```javascript
-var doSomething = function(){ return true };
+var doSomething = function(){
+  return true
+};
 
 // and
 
-doSomething(function(){ return false; });
+doSomething(function(){
+  return false;
+});
 
 // vs
 
-doSomething()(function(){ return false; });
+doSomething()(function(){
+  return false;
+});
 
 // !!! => true(function(){ return false; });
 ```
@@ -50,11 +56,14 @@ The goal then is to apply some formalism to CoffeeScript in the hopes of finding
 
 ## Operational Semantics
 
-Operational Semantics is one way [!!] to formalise the meaning of a programming language constructs by defining the way terms evaluate or reduce to values. We'll build a basic understanding of how it works by borrowing examples from Pierce's book Types and Programming Lanaguages. This includes a basic language dealing with boolean values to start:
+Operational Semantics is one way [!!] to formalise the meaning of a programming language constructs by defining the way terms evaluate or reduce to values. We'll build a basic understanding of how it works by borrowing heavily from Pierce's book Types and Programming Lanaguages. This includes a basic language dealing with boolean values.
 
-boolean grammar
+<div class="center">
+  <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
+</div>
 
-The grammar definition is made of up of two "meta variables" `t` and `v`. The first, `t`, represents all of the possible ways to construct terms in the language. Make sure to note that the term `if t then t else` has sub terms represented with the meta variable `t`. This captures the ability to use `true`, `false`, or another `if t then t else t` in place of each sub term `t`. The second meta variable `v` represents the set of terms that are acceptable as the final result of evaluation. That means if evaluation "gets stuck" at an `if t then t else t` term something has gone wrong. Some sample terms:
+
+The grammar definition is made of up of two "meta variables" `t` and `v`. The first, `t`, represents all of the possible ways to construct terms in the language. Make sure to note that the term `if t then t else t` has sub terms represented with the meta variable `t`. This captures the ability to use `true`, `false`, or another `if t then t else t` in place of each sub term `t`. The second meta variable `v` represents the set of terms that are acceptable as the final result of evaluation. That means if evaluation "gets stuck" at an `if t then t else t` term something has gone wrong. Some sample terms:
 
 ```haskell
 -- simple values
@@ -68,23 +77,34 @@ if true then false else true
 if false then false else if true then false else true
 ```
 
-With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In spite of the fact that the language defined here is exceptionally simple there is some subtlety that might not otherwise be obvious without a complete definition.
+With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In spite of the fact that the language defined here is exceptionally simple there is some subtlety that might not be obvious without a complete definition.
 
-evaluation rules
+<div class="center">
+  <img src="/assets/images/diagrams/bool-inference-rules.png"></img>
+</div>
 
-These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. Equations 1 and 2 are fairly simple in that they represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Equation 3 is more interesting in its construction and how captures an important subtlety of the evaluation strategy.
+These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. All of them are "tagged" with a name preceeded by an "_e-_" (for evaluation) which will be helpful later when defining a new set of inference rules for CoffeeScript.
 
-equation 3
+Equations 1 and 2 (_e-true_, _e-false_) are fairly simple. They represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Equation 3, _e-if_ is more interesting in its construction and how it captures an important subtlety of the evaluation strategy.
 
-There are two parts to this rule. Above the line is the _premise_ and below is the _conclusion_. The premise establishes a requirement or precondition that's required for the application of the conclusion to a given term. In this case the premise says that if the first term `t` can be evaluated then the parent term, `if t then t else t` should evaluate to `if t' then t else t`. The importance of this rule is
+<div class="center">
+  <img src="/assets/images/diagrams/bool-inference-rules-guard.png"></img>
+</div>
 
-!! deeper discusion of grammar required. eg, why the ::== and what each line means. important for eval/type rule understanding !!
+There are two parts to this rule. Above the line is the _premise_ and below is the _conclusion_. The premise establishes a requirement or precondition for applying the conclusion to a given term. In this case the premise says that if the first subterm `t` can be evaluated to `t'` then the parent term `if t then t else t` should evaluate to `if t' then t else t`. The importance here is that evaluation will focus on the guard term and not the other subterms. A different evaluation strategy might fully evaluate the second or third subterms before evaluating the first subterm representing a different evaluation strategy.
 
-show basic type information applied, including type rules
+```haskell
+-- parenthesis are supplied for clarity only
+if (if true then false else false) then (if false then true else false) else false
+```
+
+This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard to `false`, and finally the entire parent term to `false`. Obviously that first evaluation is unnecessary because the guard term evaluates to `false` which is why _e-if_ is defined.
+
+With the grammar and evaluation relation in place someone interested in implementing this simple language has enough information to do so without being left wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules like the property that there is one and only one way to evaluate each term at each step (Determinacy of Evaluation). The next step then is to turn back to CoffeeScript and begin applying these techniques.
 
 ## CoffeeScript Grammar
 
-You might consider this problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
+First, you might consider this problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
 
 In the interest of keeping this post a semi-digestable length the subset will be the minimum necessary to reproduce the aformentioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly:
 
@@ -116,17 +136,9 @@ Here the use of atomic boolean values alleviates the need for arguments in the l
   <img src="/assets/images/diagrams/cs-grammar.png"></img>
 </div>
 
-If you've never seen a language grammar before it might appear a bit confusing. On the left hand side of each `::=` assignment is a meta variable that can be used in other parts of the grammar. In the case of `\t` it was easier to create a meta term in place of repeating each possible lambda form in `t`. `v` on the other hand has special meaning. It represents the set of acceptable final results of evaluating expressions which will be covered shortly. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation and application of lambda terms (`\t`).
+To reiterate, the left hand side of each `::=` assignment is a meta variable that can be used in other parts of the grammar. In the case of `\t` it was easier to create a meta term in place of repeating each possible lambda form in `t`. `v` on the other hand is the set of acceptable final results of evaluating. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation and application of lambda terms (`\t`).
 
 The monospace font portions of terms like `true`, `false`, `->`, `() ->`, and `()` are parts of the language that cannot be represented by meta variables and will sometimes be replaced when forms are expressed using the grammar. Some translated examples should help to clarify:
-
-```coffeescript
-true
-```
-
-<div class="center">
-  <img src="/assets/images/diagrams/cs-grammar-true.png"></img>
-</div>
 
 ```coffeescript
 (-> false)()
@@ -155,7 +167,7 @@ true
 
 The most important part to note that may not have been clear from the grammar definition is that the grammar representation of a lambda term captures the subterm be it `true`, `false` or another lambda. Equations 2, 3, and 4 are examples.
 
-As a result of including that subterm information it's reasonable to ask whether there's value in providing a grammar that, in translation, looks a lot like it's own language. First, maps the two different lambda forms to one form in the grammar, which makes talking about evaluation and types easier. Second, differentiating values (`true`, `false`, and `-> t`) from other terms by calling them values is important for knowing when evaluation has finished or stalled ("gotten stuck").
+As a result of including that subterm information it's reasonable to ask whether there's value in providing a grammar that, in translation, looks a lot like it's own language. First, it maps the two different lambda forms to one form in the grammar, which makes reasoning about evaluation and types easier. Second, differentiating values (`true`, `false`, and `-> t`) from other terms by calling them values is important for knowing when evaluation has finished.
 
 ## Inference Rules
 
@@ -265,6 +277,8 @@ First, some formulation of syntactic difference is necessary so that it can be m
 insert image
 
 *For two terms with inconsistent types, we say they are more or less ambigous based on the calculation Levenshtein Distance/max(Length<sub>1</sub>, Length<sub>2</sub>)*.
+
+In this case at least it seems that the type of the term is different so it's not necessary to know the full derivation. In another language though it may be that the two terms with the same type, having different type derivations might have very similar syntax and I'm simply not clever enough to come up with an example.
 
 # footnotes
 
