@@ -7,7 +7,7 @@ tags:
 - math
 status: draft
 type: post
-published: false
+published: true
 meta:
   _edit_last: "1"
 ---
@@ -46,13 +46,37 @@ doSomething()(function(){ return false; });
 // !!! => true(function(){ return false; });
 ```
 
+The goal then is to apply some formalism to CoffeeScript in the hopes of finding a way to prevent these types of issues for language designers. With that in mind, a good place to would be the way in which the language evaluates to produce expressions like the second one that "go wrong" in some fashion.
+
 ## Operational Semantics
 
-borrowing from pierce heavily
+Operational Semantics is one way [!!] to formalise the meaning of a programming language constructs by defining the way terms evaluate or reduce to values. We'll build a basic understanding of how it works by borrowing examples from Pierce's book Types and Programming Lanaguages. This includes a basic language dealing with boolean values to start:
 
-explanation as formalism for evaluation
+boolean grammar
 
-if then else example?
+The grammar definition is made of up of two "meta variables" `t` and `v`. The first, `t`, represents all of the possible ways to construct terms in the language. Make sure to note that the term `if t then t else` has sub terms represented with the meta variable `t`. This captures the ability to use `true`, `false`, or another `if t then t else t` in place of each sub term `t`. The second meta variable `v` represents the set of terms that are acceptable as the final result of evaluation. That means if evaluation "gets stuck" at an `if t then t else t` term something has gone wrong. Some sample terms:
+
+```haskell
+-- simple values
+true
+false
+
+-- a simple compound term
+if true then false else true
+
+-- a more complex compund term
+if false then false else if true then false else true
+```
+
+With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In spite of the fact that the language defined here is exceptionally simple there is some subtlety that might not otherwise be obvious without a complete definition.
+
+evaluation rules
+
+These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. Equations 1 and 2 are fairly simple in that they represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Equation 3 is more interesting in its construction and how captures an important subtlety of the evaluation strategy.
+
+equation 3
+
+There are two parts to this rule. Above the line is the _premise_ and below is the _conclusion_. The premise establishes a requirement or precondition that's required for the application of the conclusion to a given term. In this case the premise says that if the first term `t` can be evaluated then the parent term, `if t then t else t` should evaluate to `if t' then t else t`. The importance of this rule is
 
 !! deeper discusion of grammar required. eg, why the ::== and what each line means. important for eval/type rule understanding !!
 

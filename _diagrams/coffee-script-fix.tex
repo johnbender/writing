@@ -6,7 +6,7 @@
 \usepackage{trfrac}
 
 \newcommand{\rulelabel}[1] {
-  \small(\emph{#1})
+  \quad \small(\emph{#1})
 }
 \renewcommand{\syntleft}{\normalfont\itshape}
 \renewcommand{\syntright}{}
@@ -16,8 +16,34 @@
 
 \begin{document}
 
-\section{Grammar}
+\section{Boolean Grammar}
+\begin{grammar}
+  <t> ::= <v>
+  \alt \lit*{if} <t> \lit*{then} <t> \lit*{else} <t>
 
+  <v> ::= \lit*{true}
+  \alt \lit*{false}
+\end{grammar}
+
+\section{Boolean Evaluation Rules}
+\begin{equation}
+\lit*{if} \ \lit*{true} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{2} \rulelabel{e-true}
+\end{equation}
+
+\begin{equation}
+\lit*{if} \ \lit*{false} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{3} \rulelabel{e-false}
+\end{equation}
+
+\begin{equation}
+\trfrac[\rulelabel{e-if}]{
+   t_{1}  \rightarrow  t_{1}'
+}{
+  \lit*{if} \ t_{1} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \\
+  \to \lit*{if} \ t_{1}' \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3}
+}
+\end{equation}
+
+\section{CS Grammar}
 \begin{grammar}
 <\lambda t> ::= \lit*{() ->} <t>
   \alt \lit*{->} <t>
@@ -30,7 +56,6 @@
   \alt <\lambda t>\lit*{()}
   \alt <\lambda t> <t>
 \end{grammar}
-
 
 \section{Grammar Examples}
 
@@ -53,15 +78,15 @@
 \section{Evaluation Rules/Relation}
 
 \begin{equation}
-\lambda t \lit*{()} \rightarrow  t \quad \rulelabel{e-app}
+\lambda t \lit*{()} \rightarrow  t \rulelabel{e-app}
 \end{equation}
 
 \begin{equation}
-\lambda t_{1} \ t_{2}  \rightarrow  t_{1} \quad \rulelabel{e-inv}
+\lambda t_{1} \ t_{2}  \rightarrow  t_{1} \rulelabel{e-inv}
 \end{equation}
 
 \begin{equation}
-\trfrac[\quad \rulelabel{e-value}]{
+\trfrac[\rulelabel{e-value}]{
    t_{2}  \rightarrow  t_{2}'
 }{
   \lambda t_{1} \  t_{2}  \rightarrow \lambda t_{1} \  t_{2}'
@@ -74,23 +99,23 @@
 \section{Type Rules}
 
 \begin{equation}
-\lit*{true}: Bool \quad \rulelabel{t-true}
+\lit*{true}: Bool \rulelabel{t-true}
 \end{equation}
 
 \begin{equation}
-\lit*{false} : Bool \quad \rulelabel{t-false}
+\lit*{false} : Bool \rulelabel{t-false}
 \end{equation}
 
 \begin{equation}
-\trfrac[\quad\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
+\trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
 \end{equation}
 
 \begin{equation}
-\trfrac[\quad\rulelabel{t-inv}]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
+\trfrac[\rulelabel{t-inv}]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
 \end{equation}
 
 \begin{equation}
-\trfrac[\quad\rulelabel{t-app}]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
+\trfrac[\rulelabel{t-app}]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
 \end{equation}
 
 \section{Type Derivations}
@@ -106,7 +131,7 @@
 \begin{equation}
 \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 \quad \Leftarrow \quad
-\lit*{true}: Bool \quad \rulelabel{t-true}
+\lit*{true}: Bool \rulelabel{t-true}
 \end{equation}
 
 \begin{equation}
