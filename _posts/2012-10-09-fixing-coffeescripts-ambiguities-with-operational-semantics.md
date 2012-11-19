@@ -1,9 +1,9 @@
 ---
 layout: post
-title: Fixing CoffeeScript
+title: Fixing CoffeeScript with Math Envy
 tags:
-- javascript
 - coffeescript
+- javascript
 - math
 status: draft
 type: post
@@ -12,22 +12,18 @@ meta:
   _edit_last: "1"
 ---
 
-Ashkenas quote from language panel
+At Strange Loop 2011 while participating in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel) Jeremy Ashkenas was asked, "What's the worst idea that was ever introduced into programming languages?" He responded, "... mathematics envy". I can't completely disagree with Mr. Ashkenas. Math appears to get in the way on occasion [!!], but it struck me as odd given that much of software and computing is built on the work of great mathematicians [!!]. One need look no further than the optimizing compiler at the heart of V8 on which much of Jeremy's code executes [!!].
 
-it appears to be popular for it's terse syntax
+Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations have all been cited. From my conversations with developers using the language most of these issues rarely cause serious problems in practice, but it left me wondering if there was some way to avoid them during the creation of the language. Could the timely application of mathematics have prevented these ambiguities early in CoffeeScript's genesis?
 
-has been criticised as _too_ flexible in some cases
+What follows is the description of one such syntactic ambiguity, the formal definition of a CoffeeScript subset to reproduce it, and utimately a rigorous definition of syntactic ambiguity itself. Much of the background needed to understand the math is covered, but the post follows my thought process fairly closely. All of it is eventually relevant but if you're looking for a TL;DR you can skip to the section on <b>Detecting Ambiguity</b> toward the bottom.
 
 ## CoffeeScript Confusion
 
 ```coffeescript
 deSomething = () -> true
 
-# and
-
 doSomething () ->  false
-
-# vs
 
 doSomething() ->  false
 ```
@@ -37,20 +33,17 @@ var doSomething = function(){
   return true
 };
 
-// and
-
 doSomething(function(){
   return false;
 });
 
-// vs
-
 doSomething()(function(){
   return false;
 });
-
 // !!! => true(function(){ return false; });
 ```
+
+Before diving in you might consider this problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
 
 The goal then is to apply some formalism to CoffeeScript in the hopes of finding a way to prevent these types of issues for language designers. With that in mind, a good place to would be the way in which the language evaluates to produce expressions like the second one that "go wrong" in some fashion.
 
@@ -62,8 +55,7 @@ Operational Semantics is one way [!!] to formalise the meaning of a programming 
   <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
 </div>
 
-
-The grammar definition is made of up of two "meta variables" `t` and `v`. The first, `t`, represents all of the possible ways to construct terms in the language. Make sure to note that the term `if t then t else t` has sub terms represented with the meta variable `t`. This captures the ability to use `true`, `false`, or another `if t then t else t` in place of each sub term `t`. The second meta variable `v` represents the set of terms that are acceptable as the final result of evaluation. That means if evaluation "gets stuck" at an `if t then t else t` term something has gone wrong. Some sample terms:
+The grammar definition is made of up of two "meta variables" `t` and `v`. Assigned to those meta variables is a set of possible terms in the language each separated by a `|`. `t` represents all of the ways to construct terms in the language. `v` is the set of terms that are acceptable as the final result of evaluation. That means if evaluation "gets stuck" at an `if t then t else t` term something has gone wrong. Note that the term `if t then t else t` has sub terms represented with the meta variable `t`. This captures the ability to use `true`, `false`, or another `if t then t else t` in place of each sub term `t`. Also, `v` is referenced in `t` to represent that both `true` and `false` are terms in `t`.
 
 ```haskell
 -- simple values
@@ -73,8 +65,8 @@ false
 -- a simple compound term
 if true then false else true
 
--- a more complex compund term
-if false then false else if true then false else true
+-- a more complex compund term, parens for clarity
+if false then false else (if true then false else true)
 ```
 
 With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In spite of the fact that the language defined here is exceptionally simple there is some subtlety that might not be obvious without a complete definition.
@@ -83,7 +75,7 @@ With the building blocks of the example language in place the next step is to es
   <img src="/assets/images/diagrams/bool-inference-rules.png"></img>
 </div>
 
-These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. All of them are "tagged" with a name preceeded by an "_e-_" (for evaluation) which will be helpful later when defining a new set of inference rules for CoffeeScript.
+These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. All of them are tagged with a name preceded by an "_e-_" for evaluation. The tags will be helpful later when differentiating between inference rules and type rules for CoffeeScript.
 
 Equations 1 and 2 (_e-true_, _e-false_) are fairly simple. They represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Equation 3, _e-if_ is more interesting in its construction and how it captures an important subtlety of the evaluation strategy.
 
@@ -98,21 +90,17 @@ There are two parts to this rule. Above the line is the _premise_ and below is t
 if (if true then false else false) then (if false then true else false) else false
 ```
 
-This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard to `false`, and finally the entire parent term to `false`. Obviously that first evaluation is unnecessary because the guard term evaluates to `false` which is why _e-if_ is defined.
+This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard `if true then false else false` to `false`, and finally the full term to `false`. Obviously that evaluation of the second subterm is unnecessary because the guard term evaluates to `false`.
 
-With the grammar and evaluation relation in place someone interested in implementing this simple language has enough information to do so without being left wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules like the property that there is one and only one way to evaluate each term at each step (Determinacy of Evaluation). The next step then is to turn back to CoffeeScript and begin applying these techniques.
+With the grammar and evaluation relation in place someone interested in implementing this simple language has enough information to do so without being left wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step (Determinacy of Evaluation). The next step then is to turn back to CoffeeScript and begin applying these techniques.
 
 ## CoffeeScript Grammar
 
-First, you might consider this problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
-
-In the interest of keeping this post a semi-digestable length the subset will be the minimum necessary to reproduce the aformentioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly:
+In the interest of keeping this post semi-digestable the grammar will represent a small subset of CoffeeScript necessary to reproduce the aformentioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lamda expressions directly.
 
 ```coffeescript
 (-> true) () ->  false
 # => true
-
-# vs
 
 (-> true)() ->  false
 # !!! => true(function(){ return false; });
@@ -122,21 +110,19 @@ Which of course translates into JavaScript similarly to the original example:
 
 ```javascript
 (function(){ return true; })(function(){ return false; });
-
-// vs
+// => true
 
 (function(){ return true; })()(function(){ return false; });
-
 // !!! => true(function(){ return false; });
 ```
 
-Here the use of atomic boolean values alleviates the need for arguments in the lambda syntax. Again, simplicity in reproducing the issue is preferred for the sake of brevity. Having identified the subset of CoffeeScript necessary for reproducing the original issue, we can begin with a precise definiton of terms in the form of a language grammar.
+Here the use of atomic boolean values alleviates the need for arguments in the lambda syntax. Again, simplicity in reproducing the issue is preferred for the sake of brevity. Next is a precise definiton of terms in the form of a language grammar.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-grammar.png"></img>
 </div>
 
-To reiterate, the left hand side of each `::=` assignment is a meta variable that can be used in other parts of the grammar. In the case of `\t` it was easier to create a meta term in place of repeating each possible lambda form in `t`. `v` on the other hand is the set of acceptable final results of evaluating. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation and application of lambda terms (`\t`).
+To reiterate, the left hand side of each `::=` assignment is a meta variable that can be used in other parts of the grammar. In the case of `\t` it was easier to create a meta term than to repeat each possible lambda form in `t`. `v` on the other hand is the set of acceptable final results of evaluating. Finally `t` is total set of terms and possible compound terms. Notable among them is the invocation and application of lambda terms (`\t`).
 
 The monospace font portions of terms like `true`, `false`, `->`, `() ->`, and `()` are parts of the language that cannot be represented by meta variables and will sometimes be replaced when forms are expressed using the grammar. Some translated examples should help to clarify:
 
@@ -255,6 +241,8 @@ After the invocation of the left lambda term the evaluation gets stuck because t
 
 Once the derivation tree reaches the outermost term it breaks because once again we have no type definition for the application of `true` to a lambda term like `(-> false)`.
 
+!! application of inference rules is one way to detect different between terms where type inference isn't possible
+
 So what's been gained thusfar by applying the formalism of operational semantics and type derivations? It's clear that types, inferred or otherwise, would prevent at least the original case `(-> true)() -> false` as you can see from the type derivation. Unfortunately type derivation or type inference would only alert the end user and not an author in the middle of creating a language and then only if the result of the leftmost lambda term is not a lambda term. That is, if the leftmost lambda term evaluates to a lambda term the the whole thing is well typed. This means type information/derivations alone can't help identify this syntactic ambiguity.
 
 ## Detecting Ambiguity
@@ -282,5 +270,7 @@ In this case at least it seems that the type of the term is different so it's no
 
 # footnotes
 
+!! See the confusion over Monads/Functors due in part to their relationship with mathematics
+!! Turing, Church, Algorithms
 !! Tested at http://coffeescript.org/.
 !! Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
