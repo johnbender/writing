@@ -6,7 +6,7 @@ header : Portfolio
 group: navigation
 ---
 
-The following is a selection of my best work. It includes essays available elsewhere on this site, video recordings of recent presentations and links to more information on projects in which I'm involved.
+The following is a selection of my best work. It includes essays available elsewhere on this site, video recordings of recent presentations and links to more information on projects that I'm involved in.
 
 ## Writing
 

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Fixing CoffeeScript with Math Envy
+title: Math Envy and CoffeeScript's Foibles
 tags:
 - coffeescript
 - javascript
@@ -12,13 +12,15 @@ meta:
   _edit_last: "1"
 ---
 
-At Strange Loop 2011 while participating in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel) Jeremy Ashkenas was asked, "What's the worst idea that was ever introduced into programming languages?" He responded, "... mathematics envy". I can't completely disagree with Mr. Ashkenas. Math appears to get in the way on occasion [!!], but it struck me as odd given that much of software and computing is built on the work of great mathematicians [!!]. One need look no further than the optimizing compiler at the heart of V8 on which much of Jeremy's code executes [!!].
+At Strange Loop 2011 while participating in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel) Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I can't completely disagree with Mr. Ashkenas. Math appears to get in the way on occasion [!!]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians [!!]. Look no further than the [inner workings](kwingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of the optimizing compiler at the heart of V8 that runs a lot of Jeremy's code for an example.
 
-Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations have all been cited. From my conversations with developers using the language most of these issues rarely cause serious problems in practice, but it left me wondering if there was some way to avoid them during the creation of the language. Could the timely application of mathematics have prevented these ambiguities early in CoffeeScript's genesis?
+Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations appear to be a source of semantic ambiguity. To be fair it sounds like most of these issues rarely cause serious problems, but it left me wondering if there was some way to avoid them during the creation of the language. Could the timely application of mathematics have prevented these problems early in CoffeeScript's genesis?
 
-What follows is the description of one such syntactic ambiguity, the formal definition of a CoffeeScript subset to reproduce it, and utimately a rigorous definition of syntactic ambiguity itself. Much of the background needed to understand the math is covered, but the post follows my thought process fairly closely. All of it is eventually relevant but if you're looking for a TL;DR you can skip to the section on <b>Detecting Ambiguity</b> toward the bottom.
+What follows is the description of one semantic issue, the definition of a CoffeeScript subset to reproduce it, and an attempt to formalize syntactic ambiguity. Most of the background needed to understand the math is covered, but the post generally follows my thought process. All of it is interesting and relevant, but if you're looking for a TL;DR you can skip to the section on <b>Detecting Ambiguity</b>.
 
 ## CoffeeScript Confusion
+
+I've chosen to address the lambda syntax that has been cited by both of the previously linked posts. Specifically the ability in CoffeeScript to omit parenthesis in lambda declarations and how that affects using 0-arity lambdas as arguments. Here's an example borrowed from Manuel Cerón's post on the topic with both the CoffeeScript and the JavaScript output for clarity
 
 ```coffeescript
 deSomething = () -> true
@@ -26,7 +28,10 @@ deSomething = () -> true
 doSomething () ->  false
 
 doSomething() ->  false
+# !!! => true(-> false);
 ```
+
+The first invocation of `doSomething` applies it to the inline lambda. The second invokes it directly with the `()` operator and then attempts to apply the result `true` to lambda defined with `-> false`. This results in a type error. For clarity here's the equivelant in JavaScript.
 
 ```javascript
 var doSomething = function(){
@@ -43,13 +48,11 @@ doSomething()(function(){
 // !!! => true(function(){ return false; });
 ```
 
-Before diving in you might consider this problem with the grammar/parser and not the evaluation result. That is, maybe it shouldn't allow both lambda forms as method/function arguments, but because both forms are valid in the current parser implementation it's only an issue when evaluation takes place. Moreover it's only an *obvious* issue when the return type of `doSomething` doesn't allow for invocation. In an ideal world the author would arrive at these conclusions early during the process of creating the language. Creating a subset of CoffeeScript including the grammar, evaluation rules, and some simple types should help in clarifying the issue and will hopefully present a way to avoid it all together.
-
-The goal then is to apply some formalism to CoffeeScript in the hopes of finding a way to prevent these types of issues for language designers. With that in mind, a good place to would be the way in which the language evaluates to produce expressions like the second one that "go wrong" in some fashion.
+It's easy to see where this might cause issues given that the only difference between the two expressions is a single character of whitespace. The goal then is to apply some formalism to this part of CoffeeScript. Ideally that will result in an approach, technique, or tool that can point out problems like this to a language designer _during_ the process of language creation.
 
 ## Operational Semantics
 
-Operational Semantics is one way [!!] to formalise the meaning of a programming language constructs by defining the way terms evaluate or reduce to values. We'll build a basic understanding of how it works by borrowing heavily from Pierce's book Types and Programming Lanaguages. This includes a basic language dealing with boolean values.
+Operational Semantics is one way [!!] to formalise the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example from Pierce's book _Types and Programming Lanaguages_ [!!].
 
 <div class="center">
   <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
@@ -69,13 +72,13 @@ if true then false else true
 if false then false else (if true then false else true)
 ```
 
-With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In spite of the fact that the language defined here is exceptionally simple there is some subtlety that might not be obvious without a complete definition.
+With the building blocks of the example language in place the next step is to establish a set of rules that will define the way terms are evaluated. In this case, what steps should be used to reduce terms to `true` or `false`, and in what order. In spite of the fact that this language is extremely simple there are some subtle details about how terms can evaluate that need to be captured.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-inference-rules.png"></img>
 </div>
 
-These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language. All of them are tagged with a name preceded by an "_e-_" for evaluation. The tags will be helpful later when differentiating between inference rules and type rules for CoffeeScript.
+These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example language that instructs the reader on how to evaluate any term in the language. All of them are tagged with a name preceded by an "_e-_" for evaluation. The tags will be helpful later when differentiating between inference rules and type rules for CoffeeScript.
 
 Equations 1 and 2 (_e-true_, _e-false_) are fairly simple. They represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Equation 3, _e-if_ is more interesting in its construction and how it captures an important subtlety of the evaluation strategy.
 
@@ -92,7 +95,7 @@ if (if true then false else false) then (if false then true else false) else fal
 
 This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard `if true then false else false` to `false`, and finally the full term to `false`. Obviously that evaluation of the second subterm is unnecessary because the guard term evaluates to `false`.
 
-With the grammar and evaluation relation in place someone interested in implementing this simple language has enough information to do so without being left wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step (Determinacy of Evaluation). The next step then is to turn back to CoffeeScript and begin applying these techniques.
+With the grammar and evaluation relation in place someone interested in implementing this simple language has enough information without being left wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step [!!]. The next step then is to turn back to CoffeeScript and begin applying these techniques.
 
 ## CoffeeScript Grammar
 
@@ -157,7 +160,7 @@ As a result of including that subterm information it's reasonable to ask whether
 
 ## Inference Rules
 
-With the grammar in place the next step is to define both the inference rules and strategy so that our terms can perform some computation. To keep things simple the language subset will use the call-by-value, left to right strategy [!!] employed by CoffeeScript, JavaScript and numerous other languages (C, Java, Python etc). There are three inference rules.
+With the grammar in place the next step is to define both the inference rules and evaluation strategy so that our terms can perform some computation. To keep things simple the language subset will use the call-by-value, left to right strategy [!!] employed by CoffeeScript, JavaScript and numerous other languages (C, Java, Python etc). There are three inference rules.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-inference-rules.png"></img>
@@ -169,9 +172,13 @@ The impact of the evaluation strategy (call-by-value l-to-r) for this language i
   <img src="/assets/images/diagrams/cs-inference-rules-application-argument.png"></img>
 </div>
 
-Equation 7 stipulates in the premise that if the term that a lambda would otherwise be applied to can take a step of evaluation it should. Taken together these three rules define how the CoffeeScript subset performs computation. Unfortunately it's not obvious thusfar that there might be an issue.
+Equation 7 stipulates in the premise that if the term that a lambda would otherwise be applied to can take a step of evaluation it should. Taken together these three rules define how the CoffeeScript subset performs computation.
 
-So far defining lambdas with a `-> t` is appealing, and preparing for arguments with a null tuple preceding the arrow makes sense. The application of type rules to our language is the last step to having a complete picture of how it works.
+## Derivation Trees
+
+!! application of inference rules is one way to detect different between terms where type inference isn't possible
+
+Unfortunately it's not obvious thusfar that there might be an issue with the language. The flaw we've identified with hindsight isn't jumping out at us. In fact defining lambdas with a `-> t` is appealing, and preparing for arguments with a null tuple preceding the arrow makes sense. It appears we might need a bit more information to determine whether type rules to our language is the last step to having a complete picture of how it works.
 
 ## Type Rules
 
@@ -239,15 +246,15 @@ After the invocation of the left lambda term the evaluation gets stuck because t
   <img src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
 </div>
 
-Once the derivation tree reaches the outermost term it breaks because once again we have no type definition for the application of `true` to a lambda term like `(-> false)`.
-
-!! application of inference rules is one way to detect different between terms where type inference isn't possible
+Once the derivation tree reaches the outermost term it breaks because once again we have no type rule for the application of `true` to a lambda term like `(-> false)`. It's a type error.
 
 So what's been gained thusfar by applying the formalism of operational semantics and type derivations? It's clear that types, inferred or otherwise, would prevent at least the original case `(-> true)() -> false` as you can see from the type derivation. Unfortunately type derivation or type inference would only alert the end user and not an author in the middle of creating a language and then only if the result of the leftmost lambda term is not a lambda term. That is, if the leftmost lambda term evaluates to a lambda term the the whole thing is well typed. This means type information/derivations alone can't help identify this syntactic ambiguity.
 
 ## Detecting Ambiguity
 
-Still, there is clearly an important difference here. Even if the two terms will *not* result in a type error under evaluation (eg, see the snippet below), they have different type derivations. The fact that the syntactic difference is seemingly very small in spite of the fact that the type derivation is different may suggest a way to detect ambiguities.
+Still, there is clearly an important difference here. Even if the two terms will *not* result in a type error under evaluation (See the snippet below for an example), they have different types. Knowing the difference in types and also that the two expresions are "similar" might be enough.
+
+As an aside, you might wonder what value building up type derivations has since the difference in the final type is clear. In another language though it may be that two terms with the same type, with different type derivations might have very similar syntax. It may even be possible here and I'm simply not clever enough to think of an example. In any case the type derivation does carry extra information that shouldn't be discarded without good reason.
 
 ```coffeescript
 # fails
@@ -266,11 +273,19 @@ insert image
 
 *For two terms with inconsistent types, we say they are more or less ambigous based on the calculation Levenshtein Distance/max(Length<sub>1</sub>, Length<sub>2</sub>)*.
 
-In this case at least it seems that the type of the term is different so it's not necessary to know the full derivation. In another language though it may be that the two terms with the same type, having different type derivations might have very similar syntax and I'm simply not clever enough to come up with an example.
 
 # footnotes
 
 !! See the confusion over Monads/Functors due in part to their relationship with mathematics
+
 !! Turing, Church, Algorithms
+
+!! denotational semantics, axiomatic semantics
+
+!! more information about types and programming languages and how much you like it
+
+!! This Theorem is referred to as Determinacy of Evaluation. I may go back and do some simple proofs for my own education after this post and a possible follow up.
+
 !! Tested at http://coffeescript.org/.
+
 !! Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
