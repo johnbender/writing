@@ -6,8 +6,13 @@
 \usepackage{trfrac}
 
 \newcommand{\rulelabel}[1] {
-  \quad \small(\emph{#1})
+\small(\emph{#1})
 }
+
+\newcommand{\ruletag}[1] {
+  \tag{\emph{#1}}
+}
+
 \renewcommand{\syntleft}{\normalfont\itshape}
 \renewcommand{\syntright}{}
 
@@ -27,20 +32,20 @@
 
 \section{Boolean Evaluation Rules}
 \begin{equation}
-\lit*{if} \ \lit*{true} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{2} \rulelabel{e-true}
+\lit*{if} \ \lit*{true} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{2} \ruletag{e-true}
 \end{equation}
 
 \begin{equation}
-\lit*{if} \ \lit*{false} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{3} \rulelabel{e-false}
+\lit*{if} \ \lit*{false} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{3} \ruletag{e-false}
 \end{equation}
 
 \begin{equation}
-\trfrac[\rulelabel{e-if}]{
+\trfrac[]{
    t_{1}  \rightarrow  t_{1}'
 }{
   \lit*{if} \ t_{1} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \\
   \to \lit*{if} \ t_{1}' \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3}
-}
+} \ruletag{e-if}
 \end{equation}
 
 \section{CS Grammar}
@@ -74,18 +79,81 @@
 \section{Evaluation Rules/Relation}
 
 \begin{equation}
-\lambda t \lit*{()} \rightarrow  t \rulelabel{e-app}
+\lambda t \lit*{()} \rightarrow  t \ruletag{e-inv}
 \end{equation}
 
 \begin{equation}
-\lambda t_{1} \ t_{2}  \rightarrow  t_{1} \rulelabel{e-inv}
+\lambda t \ v  \rightarrow  t \ruletag{e-app}
 \end{equation}
 
 \begin{equation}
-\trfrac[\rulelabel{e-value}]{
+\trfrac[]{
    t_{2}  \rightarrow  t_{2}'
 }{
   \lambda t_{1} \  t_{2}  \rightarrow \lambda t_{1} \  t_{2}'
+} \ruletag{e-arg-eval}
+\end{equation}
+
+\section{Example Derivation Trees}
+\begin{equation*}
+\lit*{if (if true then false else false) then} \ t \ \lit*{else false}
+\end{equation*}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-true}]{}{
+  \lit*{(if true then false else false)} \rightarrow  \lit*{false}
+}
+\end{equation*}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-if}]{
+  \trfrac[\rulelabel{e-true}]{}{
+    \lit*{(if true then false else false)} \rightarrow  \lit*{false}
+   }
+}{
+  \lit*{if (if true then false else false) then} \ t \ \lit*{else} \ \lit*{false}
+    \rightarrow
+    \lit*{if false then} \ t \ \lit*{else} \ \lit*{false}
+}
+\end{equation}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-false}]{
+\trfrac[\rulelabel{e-if}]{
+  \trfrac[\rulelabel{e-true}]{}{
+    \lit*{(if true then false else false)} \rightarrow  \lit*{false}
+   }
+}{
+  \lit*{if (if true then false else false) then} \ t \ \lit*{else false}
+    \rightarrow
+    \lit*{if false then} \ t \ \lit*{else} \ \lit*{false}
+}
+}{
+  \lit*{if false then} \ t \ \lit*{false else false} \rightarrow  \lit*{false}
+}
+\end{equation}
+
+\section{CS Ambigious Derivations}
+
+\begin{equation}
+\trfrac[\;\small{(\text{??})}]{
+  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
+}{
+  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow (??)
+}
+\end{equation}
+
+\begin{equation}
+\trfrac[\rulelabel{e-app}]{
+  \trfrac[\rulelabel{e-inv}]{}{\lambda \lambda \lit*{true} \lit*{()} \right \rightarrow \lambda \lit*{true}}
+}{
+  \lambda \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true}
+}
+\end{equation}
+
+\begin{equation}
+\trfrac[\rulelabel{e-app}]{}{
+  \lambda \lambda \lit*{true} \ \lambda \lit*{false} \rightarrow \lambda \lit*{true}
 }
 \end{equation}
 
@@ -95,23 +163,23 @@
 \section{Type Rules}
 
 \begin{equation}
-\lit*{true}: Bool \rulelabel{t-true}
+\lit*{true}: Bool \ruletag{t-true}
 \end{equation}
 
 \begin{equation}
-\lit*{false} : Bool \rulelabel{t-false}
+\lit*{false} : Bool \ruletag{t-false}
 \end{equation}
 
 \begin{equation}
-\trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
+\trfrac[]{t : T}{ \lambda t : \top \rightarrow T} \ruletag{t-lambda}
 \end{equation}
 
 \begin{equation}
-\trfrac[\rulelabel{t-inv}]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T}
+\trfrac[]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T} \ruletag{t-inv}
 \end{equation}
 
 \begin{equation}
-\trfrac[\rulelabel{t-app}]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}}
+\trfrac[]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}} \ruletag{t-app}
 \end{equation}
 
 \section{Type Derivations}
@@ -127,7 +195,7 @@
 \begin{equation}
 \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 \quad \Leftarrow \quad
-\lit*{true}: Bool \rulelabel{t-true}
+\lit*{true}: Bool \; \rulelabel{t-true}
 \end{equation}
 
 \begin{equation}
@@ -170,15 +238,7 @@
 \newpage
 
 \begin{equation}
-\trfrac[\small{(\text{??})}]{
-  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
-}{
-  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true} \ \lambda \lit*{false}
-}
-\end{equation}
-
-\begin{equation}
-  \trfrac[\small{(\text{??})}]{
+  \trfrac[\;\small{(\text{??})}]{
     \trfrac[\rulelabel{t-inv}]{
       \trfrac[\rulelabel{t-lambda}]{
         \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
