@@ -166,13 +166,13 @@ The only impact of the evaluation strategy (call-by-value l-to-r) is that argume
   <img src="/assets/images/diagrams/cs-inference-rules-application.png"></img>
 </div>
 
-The `v` in _e-app_ means that any argument a lambda term is applied to should be fully evaluated. In other words it should be a term in the meta variable set `v`. Once applied the result is the lambda's unaltered subterm.
+The `v` in _e-app_ means that any argument to a lambda term should be fully evaluated. In other words it should be a term in the meta variable set `v`. Once applied, the result is the lambda's unaltered subterm.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-inference-rules-application-argument.png"></img>
 </div>
 
-_e-arg-eval_ stipulates in the premise (above the bar) that if the term a lambda will be applied to can take a step of evaluation it should. _e-app_ informs the reader when lambda application can take place and _e-arg-eval_ informs the reader how to get there. Taken together these three rules define how terms in the CoffeeScript subset get evaluated [6].
+_e-arg-eval_ stipulates in the premise (above the bar) that if the lambda argument term can take a step of evaluation it should. _e-app_ informs the reader when lambda application can take place and _e-arg-eval_ informs the reader how to get there. Taken together these three rules define how terms get evaluated [6].
 
 ## Derivation Trees
 
@@ -184,7 +184,7 @@ The inference rules in an operational semantics definition can be used in a _der
 if (if true then false else false) then (if false then true else false) else false
 ```
 
-Again, depending on the way the inference rules are defined this example could evaluate two different ways. Here the derivation tree for the evaluation of this term results in false (bottom right)
+The derivation tree for the evaluation of this term results in `false`.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
@@ -196,7 +196,7 @@ Unfortunately the way this "tree" is constructed isn't obvious. First, taking th
   <img src="/assets/images/diagrams/bool-derivation-tree-example-simplify.png"></img>
 </div>
 
-From among the inference rules _e-true_, _e-false_, and _e-if_ one will apply to simplify the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
+From among the inference rules _e-true_, _e-false_, and _e-if_ one will apply to begin simplifying the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-first-rule.png"></img>
@@ -220,7 +220,7 @@ Here, it's been replaced by `if true then false else false -> false` from the ap
   <img src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
 </div>
 
-The final evaluation result is `false`. At this point it may seem odd to call it a derivation "tree", but a more complex grammar could have multiple terms in the premise that require evaluation resulting in a tree like structure.
+The final evaluation result is `false`. At this point it may seem odd to call it a derivation "tree", but a more complex grammar could have multiple terms in a premise that require evaluation resulting in a tree like structure.
 
 ## Evaluating a Solution
 
