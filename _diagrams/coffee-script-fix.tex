@@ -119,18 +119,8 @@
 \end{equation}
 
 \begin{equation*}
-\trfrac[\rulelabel{e-false}]{
-\trfrac[\rulelabel{e-if}]{
-  \trfrac[\rulelabel{e-true}]{}{
-    \lit*{(if true then false else false)} \rightarrow  \lit*{false}
-   }
-}{
-  \lit*{if (if true then false else false) then} \ t \ \lit*{else false}
-    \rightarrow
-    \lit*{if false then} \ t \ \lit*{else} \ \lit*{false}
-}
-}{
-  \lit*{if false then} \ t \ \lit*{false else false} \rightarrow  \lit*{false}
+\trfrac[\rulelabel{e-false}]{}{
+  \lit*{if false then} \ t \ \lit*{else false} \rightarrow  \lit*{false}
 }
 \end{equation}
 

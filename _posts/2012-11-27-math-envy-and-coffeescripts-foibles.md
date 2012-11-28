@@ -15,7 +15,7 @@ meta:
 
 At Strange Loop 2011 in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel), Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I agree with Mr. Ashkenas in part. Math appears to get in the way on occasion [1]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians. For a modern example look no further than the [inner workings](kwingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of V8's optimizing compiler that runs a lot of Jeremy's code.
 
-Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations appear to be a source of confusion. To be fair, it sounds like these examples are rarely the cause of serious problems, but it left me wondering if they could have been avoided during the creation of the language. That is, could the timely application of mathematics have prevented these problems early in CoffeeScript's genesis?
+Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations appear to be a source of confusion. To be fair, it sounds like these examples rarely cause serious problems, but it left me wondering if they could have been avoided during the creation of the language. That is, could the timely application of mathematics have prevented these problems early in CoffeeScript's genesis?
 
 What follows is the first of two posts aimed at answering that question. This post provides an introduction to operational semantics, a description of one semantic issue in CoffeeScript, and the operational semantics for a CoffeeScript subset capable of reproducing said issue. The second post will introduce type derivations, define them for the same CoffeeScript subset, and attempt to formalize semantic ambiguity more completely. The background needed to understand the math is covered, but the post generally follows my thought process.
 
@@ -56,7 +56,7 @@ It's easy to see where this might cause issues given that the only difference be
 Operational Semantics is one way [2] to formalize the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Languages_ [3].
 
 <div class="center">
-  <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
+  <img style="width: 40%" src="/assets/images/diagrams/bool-grammar.png"></img>
 </div>
 
 The grammar definition is made of up of two "meta variables" `t` and `v`. Assigned to those meta variables is a set of possible terms each separated by a `|`. `t` represents all of the ways to construct terms (see example below). `v` is the set of terms that are acceptable as the final result of evaluation. `v` is a subset of `t`, as witnessed by its inclusion in `t`, but it is distinct for a reason.
@@ -190,13 +190,13 @@ The derivation tree for the evaluation of this term results in `false`.
   <img src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
 </div>
 
-Unfortunately the way this "tree" is constructed isn't obvious. First, taking the second subterm and replacing it with a variable prevents the equations from getting too long. We already know that the second sub term isn't important in the final evaluation (see the introductory section on operational semantics) and it's easier to read the equations when they aren't squished
+Unfortunately the way these two "trees" are constructed isn't obvious. First, taking the second subterm and replacing it with a variable prevents the equations from getting too long. We already know that the second sub term isn't important in the final evaluation (see the introductory section on operational semantics) and it's easier to read the equations when they aren't squished
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-example-simplify.png"></img>
 </div>
 
-From among the inference rules _e-true_, _e-false_, and _e-if_ one will apply to begin simplifying the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
+From the inference rules _e-true_, _e-false_, and _e-if_ one will apply to begin simplifying the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-first-rule.png"></img>
@@ -214,13 +214,13 @@ _e-if_'s precondition requires that the first subterm of an `if t then t else t`
   <img src="/assets/images/diagrams/bool-derivation-tree-second-rule.png"></img>
 </div>
 
-Here, it's been replaced by `if true then false else false -> false` from the application of _e-true_. The bottom/conclusion of the inference rule can be replaced by the whole term evaluated to replace the first subterm with `false`. It's a "stack" of the two inference rules _e-true_ and _e-if_. All that's left is to slide _e-false_ on to the bottom of the stack.
+Here, it's been replaced by `if true then false else false -> false` from the application of _e-true_. The bottom/conclusion of the inference rule is replaced by the whole term evaluated to replace the first subterm with `false`. It's a "stack" of the two inference rules _e-true_ and _e-if_. All that's left is to build a derivation tree for `if false then t else false`.
 
 <div class="center">
-  <img src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
+  <img src="/assets/images/diagrams/bool-derivation-tree-example-assoc.png"></img>
 </div>
 
-The final evaluation result is `false`. At this point it may seem odd to call it a derivation "tree", but a more complex grammar could have multiple terms in a premise that require evaluation resulting in a tree like structure.
+_e-false_ is all that's needed for the second tree to complete the evaluation to `false`. At this point it may seem odd to call any part of this a derivation "tree", but a more complex grammar could have multiple terms in a premise that resulting in a tree like structure.
 
 ## Evaluating a Solution
 
@@ -274,7 +274,7 @@ if (if true then true else true) then false else (if true then false else true)
 if (if true then false else true) then false else (if true then false else true)
 ```
 
-The fact that the evaluation path is very different gets lost in a forest of `true`'s and `false`'s. More concretely the string distance between the two terms is at most 5 characters out of 78, but the first example has a derivation tree with three rules (_e-true_, _e-if_, _e-false_) against the second's stack of four (_e-true_, _e-if_, _e-false_, _e-true_). Again, this is in spite of the fact that the evaluation _result_ is `false` in both cases. You really can't tell with the naked eye how different the evaluation is and in a language with side effects the difference could be critical. Ultimately, if the result of this work is meant to be general it must account for this even if it might not crop up with the CoffeeScript guinea pig.
+The fact that the evaluation path is very different gets lost in a forest of `true`'s and `false`'s. More concretely the string distance between the two terms is at most 5 characters out of 78, but the first example has a derivation tree with three rules (_e-true_, _e-if_, _e-false_) against the second's four (_e-true_, _e-if_, _e-false_, _e-true_). Again, this is in spite of the fact that the evaluation _result_ is `false` in both cases. You really can't tell with the naked eye how different the evaluation is and in a language with side effects the difference could be critical. If the result of this work will be general it must account for this subtlety even if it doesn't crop up with the CoffeeScript guinea pig.
 
 ## Next Time
 
