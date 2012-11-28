@@ -68,6 +68,13 @@ task :'gh-pages' do
   CMD
 end
 
+desc "Clean the diagrams directory"
+task :'clean-diagrams' do
+  exec(<<-CMD)
+    for ext in `cat .gitignore | grep _diag`; do rm -f $ext; done
+  CMD
+end
+
 desc "Publish gh-pages to the appropriate repo/branch"
 task :publish do
   exec(<<-CMD)
