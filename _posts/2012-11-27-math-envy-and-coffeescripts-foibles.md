@@ -176,7 +176,7 @@ _e-arg-eval_ stipulates in the premise (above the bar) that if the lambda argume
 
 ## Derivation Trees
 
-The inference rules in an operational semantics definition can be used in a _derivation tree_ to show how a term will evaluate. Rules are "stacked" on one another to show how they work in succession to produce an evaluation result.
+The inference rules in an operational semantics definition can be used in _derivation trees_ to show how a terms will evaluate. Rules are "stacked" on one another to show how they work in succession to produce an evaluation result.
 
 ```haskell
 -- parenthesis are supplied for clarity only
@@ -184,10 +184,10 @@ The inference rules in an operational semantics definition can be used in a _der
 if (if true then false else false) then (if false then true else false) else false
 ```
 
-The derivation tree for the evaluation of this term results in `false`.
+The derivation trees for the evaluation of this term result in `false`.
 
 <div class="center">
-  <img src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
+  <img class="wide" src="/assets/images/diagrams/bool-derivation-tree-example.png"></img>
 </div>
 
 Unfortunately the way these two "trees" are constructed isn't obvious. First, taking the second subterm and replacing it with a variable prevents the equations from getting too long. We already know that the second sub term isn't important in the final evaluation (see the introductory section on operational semantics) and it's easier to read the equations when they aren't squished
@@ -196,7 +196,7 @@ Unfortunately the way these two "trees" are constructed isn't obvious. First, ta
   <img src="/assets/images/diagrams/bool-derivation-tree-example-simplify.png"></img>
 </div>
 
-From the inference rules _e-true_, _e-false_, and _e-if_ one will apply to begin simplifying the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
+From the inference rules _e-true_, _e-false_, and _e-if_ one will apply to begin simplifying the term. The obvious place to start is applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-first-rule.png"></img>
@@ -211,13 +211,13 @@ It's easy to see that this looks just like the "raw" form of the _e-true_ rule. 
 _e-if_'s precondition requires that the first subterm of an `if t then t else t` evaluate before the other two subterms. In other words it requires that `t -> t'` be replaced by some evaluation.
 
 <div class="center">
-  <img src="/assets/images/diagrams/bool-derivation-tree-second-rule.png"></img>
+  <img class="wide" src="/assets/images/diagrams/bool-derivation-tree-second-rule.png"></img>
 </div>
 
 Here, it's been replaced by `if true then false else false -> false` from the application of _e-true_. The bottom/conclusion of the inference rule is replaced by the whole term evaluated to replace the first subterm with `false`. It's a "stack" of the two inference rules _e-true_ and _e-if_. All that's left is to build a derivation tree for `if false then t else false`.
 
 <div class="center">
-  <img src="/assets/images/diagrams/bool-derivation-tree-example-assoc.png"></img>
+  <img class="wide" src="/assets/images/diagrams/bool-derivation-tree-example-assoc.png"></img>
 </div>
 
 _e-false_ is all that's needed for the second tree to complete the evaluation to `false`. At this point it may seem odd to call any part of this a derivation "tree", but a more complex grammar could have multiple terms in a premise that resulting in a tree like structure.
@@ -236,7 +236,7 @@ Translating this example into the grammar representation yields a form that will
   <img src="/assets/images/diagrams/cs-derivation-trees-stuck.png"></img>
 </div>
 
-_e-inv_ is applied because `-> false` can't evaluate any further (it's a value in `v`), but then what? The only rule that has evaluation in it's premise is _e-arg-eval_ and that only allows for the second term `-> false` to be evaluated. It does **not** allow for the consumption of an argument. _e-inv_ and _e-app_ are only good for terms with lambdas as the first subterm which is `true` after the initial application of _e-inv_. It's "stuck".
+_e-inv_ is applied to `(-> true)()` because `-> false` can't evaluate any further (it's a value in `v`), but then what? The only rule that has evaluation in it's premise is _e-arg-eval_ and that only allows for the second term `-> false` to be evaluated. It does **not** allow for the consumption of an argument. _e-inv_ and _e-app_ are only good for terms with lambdas as the first subterm which is `true` after the initial application of _e-inv_. It's "stuck".
 
 Here someone will say, "We already knew that because there's a type error when you evaluate the JavaScript!". Consider a slightly more complex example.
 
