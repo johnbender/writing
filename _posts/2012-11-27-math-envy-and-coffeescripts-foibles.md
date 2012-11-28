@@ -260,7 +260,7 @@ The value returned by the first lambda can be applied to an argument with _e-app
   <img src="/assets/images/diagrams/cs-derivation-trees-not-stuck-with-space.png"></img>
 </div>
 
-Clearly the two terms are syntactically similar but each has a very different meaning. This semantic differentiation makes it possible to start thinking about a concrete notion of semantic ambiguity in a programming language. Informally, if two terms are _very similar_ syntactically but have different derivation trees they are semantically ambiguous.
+Clearly the two terms are syntactically similar but each has a very different meaning. This semantic differentiation makes it possible to think about a concrete notion of semantic ambiguity in a programming language. Informally, if two terms are _very similar_ syntactically but have different derivation trees they are semantically ambiguous.
 
 There are two problems with this definition if the goal is to come up with something useful for actual language implementers. First, "very similar" is nebulous. Luckily computer science is littered with string "distance" algorithms. Second, automatically generating derivation trees for terms is likely to be difficult.
 
@@ -274,7 +274,7 @@ if (if true then true else true) then false else (if true then false else true)
 if (if true then false else true) then false else (if true then false else true)
 ```
 
-The fact that the evaluation path is very different gets lost in a forest of `true`'s and `false`'s. More concretely the string distance between the two terms is at most 5 characters out of 78, but the first example has a derivation tree with two rules (_e-true_, _e-if_) against the second examples stack of three (_e-true_, _e-if_, _e-true_). Again, this is in spite of the fact that the evaluation _result_ is `false` in both cases. You simply can't tell without a lot of effort how different the evaluation is and in a language with side effects the difference could be critical.
+The fact that the evaluation path is very different gets lost in a forest of `true`'s and `false`'s. More concretely the string distance between the two terms is at most 5 characters out of 78, but the first example has a derivation tree with three rules (_e-true_, _e-if_, _e-false_) against the second's stack of four (_e-true_, _e-if_, _e-false_, _e-true_). Again, this is in spite of the fact that the evaluation _result_ is `false` in both cases. You simply can't tell without a lot of effort how different the evaluation is and in a language with side effects the difference could be critical.
 
 ## Next Time
 
