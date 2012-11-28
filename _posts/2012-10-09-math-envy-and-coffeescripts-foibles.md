@@ -13,7 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-At Strange Loop 2011 while participating in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel) Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I can't completely disagree with Mr. Ashkenas. Math appears to get in the way on occasion [!!]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians [!!]. For an example look no further than the [inner workings](kwingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of V8's optimizing compiler that runs a lot of Jeremy's code.
+At Strange Loop 2011 while participating in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel) Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I can't completely disagree with Mr. Ashkenas. Math appears to get in the way on occasion [1]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians. For an example look no further than the [inner workings](kwingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of V8's optimizing compiler that runs a lot of Jeremy's code.
 
 Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations appear to be a source of runtime confusion. To be fair it seems that they are rarely the cause of serious problems, but it left me wondering if they could have been avoided during the creation of the language. That is, could the timely application of mathematics have prevented these problems early in CoffeeScript's genesis?
 
@@ -53,7 +53,7 @@ It's easy to see where this might cause issues given that the only difference be
 
 ## Operational Semantics
 
-Operational Semantics is one way [!!] to formalise the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Lanaguages_ [!!].
+Operational Semantics is one way [2] to formalise the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Lanaguages_ [3].
 
 <div class="center">
   <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
@@ -101,7 +101,7 @@ if (if true then false else false) then (if false then true else false) else fal
 
 This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard `if true then false else false` to `false`, and finally the full term to `false`. Obviously that evaluation of the second subterm is unnecessary because the guard term evaluates to `false` and the second subterm is ignored completely.
 
-There is enough information here for someone interested in implementing this language without wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step [!!]. The next step then is to turn back to CoffeeScript and begin apply operational semantics to see if anything interesting happens.
+There is enough information here for someone interested in implementing this language without wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step [4]. The next step then is to turn back to CoffeeScript and begin apply operational semantics to see if anything interesting happens.
 
 ## CoffeeScript Grammar
 
@@ -157,7 +157,7 @@ Looking at the examples it's reasonable to ask whether there's value in providin
 
 ## Inference Rules
 
-With the grammar in place the next step is to define both the inference rules and evaluation strategy. Obviously it will use the call-by-value, left to right strategy [!!] employed by CoffeeScript and JavaScript.
+With the grammar in place the next step is to define both the inference rules and evaluation strategy. Obviously it will use the call-by-value, left to right strategy [5] employed by CoffeeScript and JavaScript.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-inference-rules.png"></img>
@@ -175,7 +175,7 @@ The `v` in _e-app_ means that any argument a lambda term is applied to should be
   <img src="/assets/images/diagrams/cs-inference-rules-application-argument.png"></img>
 </div>
 
-_e-arg-eval_ stipulates in the premise (above the bar) that if the term a lambda will be applied to can take a step of evaluation it should. _e-app_ informs the reader when lambda application can take place and _e-arg-eval_ informs the reader how to get there. Taken together these three rules define how terms in the CoffeeScript subset get evaluated [!!].
+_e-arg-eval_ stipulates in the premise (above the bar) that if the term a lambda will be applied to can take a step of evaluation it should. _e-app_ informs the reader when lambda application can take place and _e-arg-eval_ informs the reader how to get there. Taken together these three rules define how terms in the CoffeeScript subset get evaluated [6].
 
 ## Derivation Trees
 
@@ -239,7 +239,7 @@ Translating this example into the grammar representation yields a form that will
   <img src="/assets/images/diagrams/cs-derivation-trees-stuck.png"></img>
 </div>
 
-_e-inv_ is applied because `-> false` can't evaluate any further (it's a value in `v`), but then what? The only rule that has evaluation in it's premise is _e-arg-eval_ and that only allows for the second term `-> false` to be evaluated. It does **not** allow for the consumption of an argument. _e-inv_ and _e-app_ are only good for terms with lambdas as the first subterm which is `true` after the initial application of _e-inv_. It's "stuck" [!!].
+_e-inv_ is applied because `-> false` can't evaluate any further (it's a value in `v`), but then what? The only rule that has evaluation in it's premise is _e-arg-eval_ and that only allows for the second term `-> false` to be evaluated. It does **not** allow for the consumption of an argument. _e-inv_ and _e-app_ are only good for terms with lambdas as the first subterm which is `true` after the initial application of _e-inv_. It's "stuck".
 
 Here someone will say, "We already knew that because there's a type error when you evaluate the JavaScript!". Consider a slightly more complex example.
 
@@ -285,20 +285,9 @@ In the next post I'll take a look at how type information could replace the deri
 
 ### footnotes
 
-!! See the confusion over Monads/Functors due in part to their relationship with mathematics
-
-!! Turing, Church, Algorithms
-
-!! denotational semantics, axiomatic semantics
-
-!!  Out of respect to Benjamin Pierce this example language is borrowed almost verbatim but I've added in my own explanation of it. I cannot over emphasized how much this book has contributed to my education over the last 2 years. If you feel I haven't properly attributed the relevant portions of this post please email me at john.m.bender@gmail.com.
-
-!! This Theorem is referred to as Determinacy of Evaluation. I may go back and do some simple proofs for my own education after this post and a possible follow up.
-
-!! Tested at http://coffeescript.org/.
-
-!! Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
-
-!! For my own sake I'm planning to post a proof of determinacy in a later post.
-
-!! This is being "stuck" or "going wrong" is the technical term for a bad evaluation state.
+1. An example is the confusion over Monads/Functors due in part to their odd names and relationship with mathematics.
+2. [Denotational Semantics](http://en.wikipedia.org/wiki/Denotational_semantics) and [Axiomatic Semantics](http://en.wikipedia.org/wiki/Axiomatic_semantics) are alternate ways to define language semantics.
+3. This example language is borrowed almost verbatim from Types and Programming Languages but I've added in my own explanation. I cannot over emphasize how much this book has contributed to my education over the last year or so.
+4. This Theorem is referred to as Determinacy of Evaluation. I may go back and do some simple proofs for my own education after this post and a possible follow up.
+5. Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
+6. For my own education I'm _planning_ to post a proof of determinacy in a later post.
