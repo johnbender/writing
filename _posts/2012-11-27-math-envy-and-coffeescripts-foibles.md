@@ -32,7 +32,7 @@ doSomething() ->  false
 # !!! => true(-> false);
 ```
 
-The first invocation of `doSomething` applies it to the inline lambda. The second invokes it directly with the `()` operator and then attempts to apply the result `true` to lambda defined with `-> false`. This results in a type error. For clarity here's the equivelant in JavaScript.
+The first invocation of `doSomething` applies it to the inline lambda. The second invokes it directly with the `()` operator and then attempts to apply the result `true` to lambda defined with `-> false`. This results in a type error. For clarity here's the equivalent in JavaScript.
 
 ```javascript
 var doSomething = function(){
@@ -53,7 +53,7 @@ It's easy to see where this might cause issues given that the only difference be
 
 ## Operational Semantics
 
-Operational Semantics is one way [2] to formalise the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Lanaguages_ [3].
+Operational Semantics is one way [2] to formalize the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Languages_ [3].
 
 <div class="center">
   <img style="width: 60%" src="/assets/images/diagrams/bool-grammar.png"></img>
@@ -69,7 +69,7 @@ false
 -- a simple compound term
 if true then false else true
 
--- a more complex compund term, parens for clarity
+-- a more complex compound term, parens for clarity
 if false then false else (if true then false else true)
 ```
 
@@ -99,13 +99,13 @@ There are two parts to this rule. Above the line is the _premise_ and below is t
 if (if true then false else false) then (if false then true else false) else false
 ```
 
-This term could concevably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard `if true then false else false` to `false`, and finally the full term to `false`. Obviously that evaluation of the second subterm is unnecessary because the guard term evaluates to `false` and the second subterm is ignored completely.
+This term could conceivably take two evaluation paths without _e-if_. One alternative strategy would first evaluate the second subterm `if false then true else false` to `false`, then evaluate the guard `if true then false else false` to `false`, and finally the full term to `false`. Obviously that evaluation of the second subterm is unnecessary because the guard term evaluates to `false` and the second subterm is ignored completely.
 
 There is enough information here for someone interested in implementing this language without wondering about how to combine terms or how those terms should be evaluated. Additionally there are interesting properties that can be proved inductively using the inferences rules. For example it's possible to show that there is one and only one way to evaluate each term at each step [4]. The next step then is to turn back to CoffeeScript and begin apply operational semantics to see if anything interesting happens.
 
 ## CoffeeScript Grammar
 
-In the interest of keeping this post semi-digestable the grammar will represent a small subset of CoffeeScript necessary to reproduce the aformentioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lambda expressions directly.
+In the interest of keeping this post semi-digestible the grammar will represent a small subset of CoffeeScript necessary to reproduce the aforementioned ambiguity. In the original example, the overhead of assignment and identifiers can be avoided by using lambda expressions directly.
 
 ```coffeescript
 (-> true) () ->  false
@@ -125,7 +125,7 @@ Which of course translates into JavaScript similarly to the original example:
 // !!! => true(function(){ return false; });
 ```
 
-Here the use of atomic boolean values alleviates the need for arguments in the lambda syntax. Again, simplicity in reproducing the issue is preferred for the sake of brevity. Next is a precise definiton of terms in the form of a language grammar.
+Here the use of atomic boolean values alleviates the need for arguments in the lambda syntax. Again, simplicity in reproducing the issue is preferred for the sake of brevity. Next is a precise definition of terms in the form of a language grammar.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-grammar.png"></img>
@@ -199,7 +199,7 @@ Unfortunately the way this "tree" is constructed isn't obvious. First, taking th
   <img src="/assets/images/diagrams/bool-derivation-tree-example-simplify.png"></img>
 </div>
 
-From among the inference rules _e-true_, _e-false_, and _e-if_ one will apply to simplify the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precendence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
+From among the inference rules _e-true_, _e-false_, and _e-if_ one will apply to simplify the term. The obvious place to start seems to be applying _e-true_ to the first subterm `(if true then false else false)`, but the second subterm `(if false then true else false)` could just as easily have _e-false_ applied to it. Recall that the third rule _e-if_ tells the user/reader which will take precedence. It says that if the guard (first subterm) can be evaluated it should be, leaving us to evaluate the first subterm using _e-true_ as the first part of the derivation tree.
 
 <div class="center">
   <img src="/assets/images/diagrams/bool-derivation-tree-first-rule.png"></img>
@@ -263,9 +263,9 @@ The value returned by the first lambda can be applied to an argument with _e-app
   <img src="/assets/images/diagrams/cs-derivation-trees-not-stuck-with-space.png"></img>
 </div>
 
-Clearly the two terms are syntactically similar but each has a very different meaning. This semantic differentiation makes it possible to start thinking about a concrete notion of semantic ambiguity in a programming language. Informally, if two terms are _very similar_ syntactically but have different derivation trees they are semantically ambigous.
+Clearly the two terms are syntactically similar but each has a very different meaning. This semantic differentiation makes it possible to start thinking about a concrete notion of semantic ambiguity in a programming language. Informally, if two terms are _very similar_ syntactically but have different derivation trees they are semantically ambiguous.
 
-There are two problems with this definition if the goal is to come up with something useful for actual language implementors. First, "very similar" is nebulous. Luckily computer science is litered with string "distance" algorithms. Second, automatically generating derivation trees for terms is likely to be difficult.
+There are two problems with this definition if the goal is to come up with something useful for actual language implementers. First, "very similar" is nebulous. Luckily computer science is littered with string "distance" algorithms. Second, automatically generating derivation trees for terms is likely to be difficult.
 
 It might be possible to just compare evaluation results instead of the derivation trees but there are problems with that approach. In the example boolean language it's extremely easy to define two terms that evaluate to an identical result but have different derivation trees.
 
