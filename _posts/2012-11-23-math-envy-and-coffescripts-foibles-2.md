@@ -109,7 +109,7 @@ insert image
 *For two terms with inconsistent types, we say they are more or less ambigous based on the calculation Levenshtein Distance/max(Length<sub>1</sub>, Length<sub>2</sub>)*.
 
 
-# footnotes
+### footnotes
 
 !! See the confusion over Monads/Functors due in part to their relationship with mathematics
 
