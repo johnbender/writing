@@ -236,7 +236,7 @@ Translating this example into the grammar representation yields a form that will
   <img src="/assets/images/diagrams/cs-derivation-trees-stuck.png"></img>
 </div>
 
-_e-inv_ is applied to `(-> true)()` because `-> false` can't evaluate any further (it's a value in `v`), but then what? The only rule that has evaluation in it's premise is _e-arg-eval_ and that only allows for the second term `-> false` to be evaluated. It does **not** allow for the consumption of an argument. _e-inv_ and _e-app_ are only good for terms with lambdas as the first subterm which is `true` after the initial application of _e-inv_. It's "stuck".
+_e-inv_ is applied to `(-> true)()` because `-> false` can't evaluate any further (it's a value in `v`), but then what? After applying _e-inv_ the first subterm is `true` and there are no evaluation rules that apply values to an arguement. Without any rules to apply to a term that isn't a value, it's "stuck".
 
 Here someone will say, "We already knew that because there's a type error when you evaluate the JavaScript!". Consider a slightly more complex example.
 
@@ -250,11 +250,13 @@ And the derivation tree to match.
   <img src="/assets/images/diagrams/cs-derivation-trees-not-stuck.png"></img>
 </div>
 
-The value returned by the first lambda can be applied to an argument with _e-app_ so the result of evaluation is `true`. Viewing the accompanying term with an additional space will provide contrast.
+The value returned by the first lambda **can** be applied to an argument with _e-app_ so the result of evaluation is `true`. Viewing the accompanying term with an additional space will provide contrast.
 
 ```coffeescript
 (-> (-> true)) () -> false
 ```
+
+In this case, the derivation tree consists of a single inference rule, _e-app_.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-derivation-trees-not-stuck-with-space.png"></img>

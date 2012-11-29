@@ -126,27 +126,34 @@
 
 \section{CS Ambigious Derivations}
 
-\begin{equation*}
-\trfrac[\;\small{(\text{??})}]{
-  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \right \rightarrow \lit*{true}}
-}{
-  \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow (??)
-}
-\end{equation*}
+\begin{equation}
+  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \right \rightarrow \lit*{true} \ \lambda \lit*{false}}
+\end{equation}
 
-\begin{equation*}
-\trfrac[\rulelabel{e-app}]{
-  \trfrac[\rulelabel{e-inv}]{}{\lambda \lambda \lit*{true} \lit*{()} \right \rightarrow \lambda \lit*{true}}
-}{
-  \lambda \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true}
+\begin{equation}
+\trfrac[\;\small{(\text{??})}]{}{
+  \lit*{true} \ \lambda \lit*{false} \rightarrow (??)
 }
-\end{equation*}
+\end{equation}
 
-\begin{equation*}
+\begin{equation}
+  \trfrac[\rulelabel{e-inv}]{}{
+    \lambda \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \right \rightarrow \lambda \lit*{true} \ \lambda \lit*{false}
+  }
+}
+\end{equation}
+
+\begin{equation}
+\trfrac[\rulelabel{e-app}]{}{
+  \lambda \lit*{true} \ \lambda \lit*{false} \rightarrow \lambda \lit*{true}
+}
+\end{equation}
+
+\begin{equation}
 \trfrac[\rulelabel{e-app}]{}{
   \lambda \lambda \lit*{true} \ \lambda \lit*{false} \rightarrow \lambda \lit*{true}
 }
-\end{equation*}
+\end{equation}
 
 \newpage
 
