@@ -14,7 +14,7 @@ meta:
   _edit_last: "1"
 ---
 
-At Strange Loop 2011 in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel), Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I agree with Mr. Ashkenas in part. Math appears to get in the way on occasion [1]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians. For a modern example look no further than the [inner workings](kwingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of V8's optimizing compiler that runs a lot of Jeremy's code.
+At Strange Loop 2011 in a [language panel (5:06)](http://www.infoq.com/presentations/Language-Panel), Jeremy Ashkenas was asked, "What is the worst idea that was ever introduced into programming languages that continues to afflict us today?" He responded, "... mathematics envy". I agree with Mr. Ashkenas in part. Math appears to get in the way on occasion [1]. Even so it struck me as an odd response given that much of computing is built on the work of great mathematicians. For a modern example look no further than the [inner workings](http://wingolog.org/archives/2011/08/02/a-closer-look-at-crankshaft-v8s-optimizing-compiler) of V8's optimizing compiler that runs a lot of Jeremy's code.
 
 Fast forward a year and issues with CoffeeScript's flexible syntax start popping up in [blog](http://surana.wordpress.com/2011/02/08/coffeescript-oddities/) [posts](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/). Interactions between whitespace, operators, comprehensions, and lambda declarations appear to be a source of confusion. To be fair, it sounds like these examples rarely cause serious problems, but it left me wondering if they could have been avoided during the creation of the language. That is, could the timely application of mathematics have prevented these problems early in CoffeeScript's creation?
 
@@ -25,7 +25,7 @@ What follows is the first of two posts aimed at answering that question. This po
 I've chosen to address the lambda syntax cited by both of the linked posts. Specifically the option to omit parenthesis in lambda declarations and how that interacts with 0-arity lambdas as arguments. Here's an example borrowed from Manuel Cerón's [post](http://ceronman.com/2012/09/17/coffeescript-less-typing-bad-readability/).
 
 ```coffeescript
-deSomething = () -> true
+doSomething = () -> true
 
 doSomething () ->  false
 
