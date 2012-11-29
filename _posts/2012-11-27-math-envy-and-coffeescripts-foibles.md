@@ -8,7 +8,7 @@ tags:
 status: draft
 type: post
 published: true
-listed: false
+listed: true
 vote: false
 meta:
   _edit_last: "1"
