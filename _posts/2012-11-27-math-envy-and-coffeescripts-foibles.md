@@ -9,7 +9,7 @@ status: draft
 type: post
 published: true
 listed: true
-vote: false
+vote: "http://news.ycombinator.com/item?id=4848974"
 meta:
   _edit_last: "1"
 ---

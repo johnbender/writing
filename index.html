@@ -13,6 +13,15 @@ layout: default
   </div>
 
   <div id="info" class="span2">
+    {% if post.vote %}
+    <h4>Vote/Comment</h4>
+    <ul id="vote">
+      <li>
+        <a id="hn" href="{{ post.vote }}" alt="Hacker News">Hacker News</a>
+      </li>
+    </ul>
+    {% endif %}
+
     <h4>Published</h4>
     <div class="date">
       <span>{{ post.date | date_to_long_string }}</span>
