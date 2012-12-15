@@ -5,11 +5,11 @@
 \usepackage{syntax}
 \usepackage{trfrac}
 
-\newcommand{\rulelabel}[1] {
+\newcommand{\rulelabel}[1]{
 \small(\emph{#1})
 }
 
-\newcommand{\ruletag}[1] {
+\newcommand{\ruletag}[1]{
   \tag{\emph{#1}}
 }
 
@@ -33,20 +33,20 @@
 \section{Boolean Evaluation Rules}
 
 \begin{equation}
-\lit*{if} \ \lit*{true} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{2} \ruletag{e-true}
+  \lit*{if} \ \lit*{true} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{2} \ruletag{e-true}
 \end{equation}
 
 \begin{equation}
-\lit*{if} \ \lit*{false} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{3} \ruletag{e-false}
+  \lit*{if} \ \lit*{false} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \to t_{3} \ruletag{e-false}
 \end{equation}
 
 \begin{equation}
-\trfrac[]{
-   t_{1}  \rightarrow  t_{1}'
-}{
-  \lit*{if} \ t_{1} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \\
-  \to \lit*{if} \ t_{1}' \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3}
-} \ruletag{e-if}
+  \trfrac[]{
+    t_{1}  \rightarrow  t_{1}'
+  }{
+    \lit*{if} \ t_{1} \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3} \\
+    \to \lit*{if} \ t_{1}' \ \lit*{then} \ t_{2} \ \lit*{else} \ t_{3}
+  } \ruletag{e-if}
 \end{equation}
 
 \section{CS Grammar}
@@ -116,31 +116,32 @@
     \rightarrow
     \lit*{if false then} \ t \ \lit*{else} \ \lit*{false}
 }
-\end{equation}
+\end{equation*}
 
 \begin{equation*}
 \trfrac[\rulelabel{e-false}]{}{
   \lit*{if false then} \ t \ \lit*{else false} \rightarrow  \lit*{false}
 }
-\end{equation}
+\end{equation*}
 
 \section{CS Ambigious Derivations}
 
 \begin{equation}
-  \trfrac[\rulelabel{e-inv}]{}{\lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \right \rightarrow \lit*{true} \ \lambda \lit*{false}}
+  \trfrac[\rulelabel{e-inv}]{}{
+    \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lit*{true} \ \lambda \lit*{false}
+  }
 \end{equation}
 
 \begin{equation}
-\trfrac[\;\small{(\text{??})}]{}{
-  \lit*{true} \ \lambda \lit*{false} \rightarrow (??)
-}
+  \trfrac[\;\small{(\text{??})}]{}{
+    \lit*{true} \ \lambda \lit*{false} \rightarrow (??)
+  }
 \end{equation}
 
 \begin{equation}
   \trfrac[\rulelabel{e-inv}]{}{
-    \lambda \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \right \rightarrow \lambda \lit*{true} \ \lambda \lit*{false}
+    \lambda \lambda \lit*{true} \lit*{()} \ \lambda \lit*{false} \rightarrow \lambda \lit*{true} \ \lambda \lit*{false}
   }
-}
 \end{equation}
 
 \begin{equation}

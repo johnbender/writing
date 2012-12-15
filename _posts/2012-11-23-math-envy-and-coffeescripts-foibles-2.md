@@ -13,27 +13,35 @@ meta:
   _edit_last: "1"
 ---
 
+In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further by introducing type rules, the concept of "progress and preservation", and the first draft of a tool for detecting semantic ambiguity.
+
+! progress and preservation
+
+! haskell parser with ast + type tags
+
 ## Type Rules
 
-Type rules are similar in construction to evaluation rules consisting of a premise and conclusion. As with evaluation rules the premise establishes the preconditions for the conclusion.
+Type rules are similar in construction to evaluation rules consisting of a premise and conclusion. As with evaluation rules the premise establishes the preconditions for the conclusion. Again, each rule is tagged with a name for reference but preceded by a _t_ in this case to distinguish them from inference rules (_e-*_).
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules.png"></img>
 </div>
 
-The type rules for this subset of CoffeeScript are fairly intuitive. For the type rules without a premise like `true : Bool` and `false : Bool`, we take them to be true out of hand. That is, the terms `true` and `false` both have the type `Bool`. The others are more complicated.
+For type rules without a premise like _t-true_ and _t-false_ we take them to be true out of hand. That is, the terms `true` and `false` both have the type `Bool`. The others are more complicated.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-term.png"></img>
 </div>
 
-Equation 9 illustrates how to determine the type of a lambda term like `(-> true)`. The premise above the line states that if the subterm `t` has the type `T`, then the conclusion on the bottom, `\t`, has the type `\top \to T`. Translated to our mini example `(-> true)`, because the subterm `true` has the type `Bool`, the lambda term has the type `\top \to Bool`. One extremely important note: because neither of the lambda expressions make use of arguments, Top (`Top`) is used to represent the acceptance of any type. So when `t` in `\t` has the type `T` it means that `\t` will, under invocation or application, result in an expresion of typ `T` regardless of what it's applied to or invoked with. As an example:
+_t-lambda_ illustrates how to determine the type of a lambda term like `(-> true)`. The premise above the line states that if the subterm `t` has the type `T`, then the conclusion `\t` has the type `\top \to T`. Here `T` is a _type variable_. For example, in `(-> true)` the subterm `true` has the type `Bool` so the lambda term has the type `\top \to Bool`.
+
+One likely point of confusion is `\top`, not to be confused with `T`. Neither of the lambda expressions make use of arguments so `\top` is used to represent that lambda terms accept any type under invocation or application. For example, when the subterm `t` in a lambda term has the type `T` it means that the lambda term will result in a term with the type `T` regardless of what it's applied to or invoked with.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-invocation.png"></img>
 </div>
 
-Equation 10 shows how to determine the type of lambda invocation like `(-> true)()`. The premise states if the lambda term has the type `\top \to T` the term `\t()` has the type `T`. This fits with the CoffeeScript `(-> true)()` which obviously evaluates to `true` which has the type `Bool`. Again, `\top` is used to denote the fact that the argument type is unimportant and in this case non existent.
+_t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`. The premise states if the lambda term has the type `\top \to T` the term `\t()` has the type `T`. This fits with the CoffeeScript `(-> true)()` which obviously evaluates to `true` which has the type `Bool`. Again, `\top` is used to denote the fact that the argument type is unimportant and in this case non existent.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
