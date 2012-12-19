@@ -84,7 +84,7 @@ With the building blocks in place the next step is to establish a set of rules t
   <img src="/assets/images/diagrams/bool-inference-rules.png"></img>
 </div>
 
-These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ [!!] of the example which instructs the reader in how to evaluate a term in the language. All of them are tagged with a name preceded by an "_e-_" for evaluation. The tags will be helpful when referring to the rules and later to keep them visually distinct from type rules.
+These equations are collectively referred to as the _evaluation relation_ and individually as _inference rules_. Each of them plays an important role in the _evaluation strategy_ of the example which instructs the reader in how to evaluate a term in the language. All of them are tagged with a name preceded by an "_e-_" for evaluation. The tags will be helpful when referring to the rules and later to keep them visually distinct from type rules.
 
 _e-true_ and _e-false_ are fairly simple. They represent the expected evaluation results for the different guard values in an `if t then t else t` term. With `true` you get the first subterm and with `false` you get the second subterm. Also, notice that there are no rules for either `true` or `false` by themselves. This further reinforces that `true` and `false` are values and that there's no way to evaluate them further. _e-if_ is more interesting in its construction and how it captures an important part of the evaluation strategy.
 
