@@ -4,6 +4,7 @@ title : Portfolio
 link : Portfolio
 header : Portfolio
 group: navigation
+width: 10
 ---
 
 The following is a selection of my best work. It includes essays available elsewhere on this site, video recordings of recent presentations and links to more information on projects that I'm involved in.
@@ -32,9 +33,9 @@ The following is a selection of my best work. It includes essays available elsew
 
 [Faster JavaScript with Category Theory](/2012/08/26/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JSCONFEU in Berlin to approximately 200 developers.
 
-<iframe width="640" height="360" src="http://www.youtube.com/embed/PtD-WKSC6ak" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="http://www.youtube.com/embed/PtD-WKSC6ak" frameborder="0" allowfullscreen></iframe>
 
 [Middleware as General Purpose Abstraction](/2012/04/28/middleware-as-a-general-purpose-abstraction/) - When Mitchell Hashimoto and I created Vagrant we eventually used a modified version of the middleware described in [PEP333](http://www.python.org/dev/peps/pep-0333/) to compose actions over virtual machines. For more information on Vagrant itself see the section on Open Source.
 
-<iframe width="640" height="360" src="http://www.youtube.com/embed/fcNaiP5tea0" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="http://www.youtube.com/embed/fcNaiP5tea0" frameborder="0" allowfullscreen></iframe>
 
