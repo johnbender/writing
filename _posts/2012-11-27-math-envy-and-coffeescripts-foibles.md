@@ -57,7 +57,7 @@ It's easy to see where this might cause issues given that the only difference be
 Operational Semantics is one way [2] to formalize the semantics of a programming language. We'll build a basic understanding of how it works by borrowing an example language from Pierce's book _Types and Programming Languages_ [3].
 
 <div class="center">
-  <img style="width: 40%" src="/assets/images/diagrams/bool-grammar.png"></img>
+  <img style="width: 40%; min-width: 200px;" src="/assets/images/diagrams/bool-grammar.png"></img>
 </div>
 
 The grammar definition is made of up of two "meta variables" `t` and `v`. Assigned to those meta variables is a set of possible terms each separated by a `|`. `t` represents all of the ways to construct terms (see example below). `v` is the set of terms that are acceptable as the final result of evaluation. `v` is a subset of `t`, as witnessed by its inclusion in `t`, but it is distinct for a reason.
@@ -289,4 +289,4 @@ In the next post I'll take a look at how type information could replace the deri
 2. [Denotational Semantics](http://en.wikipedia.org/wiki/Denotational_semantics) and [Axiomatic Semantics](http://en.wikipedia.org/wiki/Axiomatic_semantics) are alternate ways to define language semantics.
 3. This example language is borrowed almost verbatim from Types and Programming Languages but I've added in my own explanation. I cannot over emphasize how much this book has contributed to my education over the last year or so.
 4. This Theorem is referred to as Determinacy of Evaluation. I may go back and do some simple proofs for my own education after this post and a possible follow up.
-5. Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
+5. Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information [here](http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
