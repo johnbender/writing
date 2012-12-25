@@ -169,15 +169,15 @@
 \end{equation}
 
 \begin{equation}
-\trfrac[]{t : T}{ \lambda t : \top \rightarrow T} \ruletag{t-lambda}
+\trfrac[]{t : T}{ \lambda t : X \rightarrow T} \ruletag{t-lambda}
 \end{equation}
 
 \begin{equation}
-\trfrac[]{\lambda t : \top \rightarrow T}{\lambda t \lit*{()}: T} \ruletag{t-inv}
+\trfrac[]{\lambda t : X \rightarrow T}{\lambda t \lit*{()}: T} \ruletag{t-inv}
 \end{equation}
 
 \begin{equation}
-\trfrac[]{ \lambda t_{1}  : \top \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}} \ruletag{t-app}
+\trfrac[]{ \lambda t_{1}  : X \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}} \ruletag{t-app}
 \end{equation}
 
 \section{Type Derivations}
@@ -186,7 +186,7 @@
 \trfrac[\rulelabel{t-lambda}]{
   \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 }{
-   \lambda \lit*{true} : \top \rightarrow Bool
+   \lambda \lit*{true} : X \rightarrow Bool
 }
 \end{equation}
 
@@ -200,10 +200,10 @@
 \trfrac[\rulelabel{t-lambda}]{
   \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 }{
-   \lambda \lit*{true} : \top \rightarrow Bool
+   \lambda \lit*{true} : X \rightarrow Bool
 }
 \quad \Leftarrow \quad
-\trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : \top \rightarrow T}
+\trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : X \rightarrow T}
 \end{equation}
 
 
@@ -212,7 +212,7 @@
   \trfrac[\rulelabel{t-lambda}]{
     \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
   }{
-     \lambda \lit*{true}  : \top \rightarrow Bool
+     \lambda \lit*{true}  : X \rightarrow Bool
   }
   \qquad
   \trfrac[\rulelabel{t-inv}]{
@@ -220,13 +220,13 @@
       \trfrac[\rulelabel{t-lambda}]{
         \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
       }{
-         \lambda \lit*{false}  : \top \rightarrow Bool
+         \lambda \lit*{false}  : X \rightarrow Bool
       }
     }{
-       \lambda \lambda \lit*{false}  : \top \rightarrow (\top \rightarrow Bool)
+       \lambda \lambda \lit*{false}  : X \rightarrow (X \rightarrow Bool)
     }
   }{
-     \lambda \lambda \lit*{false}  \lit*{()}: (\top \rightarrow Bool)
+     \lambda \lambda \lit*{false}  \lit*{()}: (X \rightarrow Bool)
   }
 }{
      \lambda \lit*{true}  \  \lambda \lambda \lit*{false}  \lit*{()}: Bool
@@ -241,7 +241,7 @@
       \trfrac[\rulelabel{t-lambda}]{
         \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
       }{
-         \lambda \lit*{true} : \top \rightarrow Bool
+         \lambda \lit*{true} : X \rightarrow Bool
       }
     }{
        \lambda \lit*{true}  \lit*{()} : Bool
@@ -250,7 +250,7 @@
     \trfrac[\rulelabel{t-lambda}]{
       \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
     }{
-       \lambda \lit*{false} : \top \rightarrow Bool
+       \lambda \lit*{false} : X \rightarrow Bool
     }
   }{
      \lambda \lit*{true}  \lit*{()} \ \lambda \lit*{false} : \ ??

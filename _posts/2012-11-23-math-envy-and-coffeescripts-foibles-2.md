@@ -33,25 +33,23 @@ For type rules without a premise like _t-true_ and _t-false_ we take them to be 
   <img src="/assets/images/diagrams/cs-type-rules-lambda-term.png"></img>
 </div>
 
-_t-lambda_ illustrates how to determine the type of a lambda term like `(-> true)`. The premise above the line states that if the subterm `t` has the type `T`, then the conclusion `\t` has the type `\top \to T`. Here `T` is a _type variable_. For example, in `(-> true)` the subterm `true` has the type `Bool` so the lambda term has the type `\top \to Bool`.
-
-One likely point of confusion is `\top`, not to be confused with `T`. Neither of the lambda expressions make use of arguments so `\top` is used to represent that lambda terms accept any type under invocation or application. For example, when the subterm `t` in a lambda term has the type `T` it means that the lambda term will result in a term with the type `T` regardless of what it's applied to or invoked with.
+_t-lambda_ illustrates how to determine the type of a lambda term like `(-> true)`. The premise above the line states that if the subterm `t` has the _concrete_ type `T`, then the conclusion `λt` has the type `X -> T`. Here `X` is a _type variable_ because we don't know whether the lambda will be evaluated with the invocation operator `()` or applied to an argument. `T` is concrete because the type can be determined from the body of the lambda expression. For example, in `(-> true)` the subterm `true` has the type `Bool` so the lambda term has the type `X -> Bool`.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-invocation.png"></img>
 </div>
 
-_t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`. The premise states if the lambda term has the type `\top \to T` the term `\t()` has the type `T`. This fits with the CoffeeScript `(-> true)()` which obviously evaluates to `true` which has the type `Bool`. Again, `\top` is used to denote the fact that the argument type is unimportant and in this case non existent.
+_t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`. The premise states if the lambda term has the type `X -> T` the term `λt()` has the type `T`. This fits with the CoffeeScript `(-> true)()` which obviously evaluates to `true` and has the type `Bool`. It's worth noting that `X` is constrained to be the `Unit` or empty type since no argument is used.
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
 </div>
 
-Equation 11 is the type rule for lambda applications such as `(-> true) false`. The premise says that if the lambda term `\t` on the left has the type `\top \to T_1` and the term on the right as the type `T_2` the conclusion is that the application of the lambda term will have the type `T_1`. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t`.
+_t-app_ is the type rule for lambda applications, eg. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` and the term on the right as second type `T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the argument that it consumes.
 
 ## Type Rule Stacking
 
-This notation makes it easy to establish the type of a term by stacking the type rules on one another. Taking a very timple example, some diagrams will illustrate how this works:
+Just like derivation trees with evaluation rules this notation makes it easy to establish the type of a term by stacking the type rules on one another. Taking a very simple example, some diagrams will illustrate how this works:
 
 ```coffeescript
 (-> true)
@@ -61,7 +59,7 @@ This notation makes it easy to establish the type of a term by stacking the type
   <img src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
 </div>
 
-Equation 13 is the stack, a derivation tree. It explains how the reader can derive the type at the bottom from it's subterms. Starting with equation 14, the subterm `true` is typed by the type rule *true*. That can then be "stacked" by using it to replace the premise of type rule *lambda* in equation 15. The type derivation expands from the subterm to establish each subsequent parent term's type. Make sure to note that type derivations are never really accompanied by the full form of the type rules in equations (just the labels like *lambda* and *true*) but it's helpful here for illustration here. Taking the more complex term from earlier it's clear why they are ommited:
+This higlights how to derive the type at the bottom from it's subterms. Typing the innermost subterm `true` with _t-true_. That can then be "stacked" by using it to replace the premise of type rule _t-lambda_. The type derivation expands from the subterm to establish each subsequent parent term's type. Another more complex derivation:
 
 ```coffeescript
 (-> true) (-> (-> false))()
@@ -75,40 +73,23 @@ Since there are two subterms involved in application, each branch extends upward
 
 ## Not Quite There
 
-At this point the CoffeeScript subset has enough definition to describe the original issue in terms of evaluation or typing. That is, using the inference rules it's clear that the evaluation of `(-> true)() -> false` "gets stuck" from the following derivation tree:
-
-<div class="center">
-  <img src="/assets/images/diagrams/cs-eval-derivation-original-issue.png"></img>
-</div>
-
-After the invocation of the left lambda term the evaluation gets stuck because the right lambda term can't be evaluated any further and no rule exists to handle the application of the term `true` to `(-> false)`. Additionally, a derivation tree based on the typing rules highlight that the term is untypable:
+At this point the type rules can describe the original issue. A derivation tree based on the typing rules highlights that the term is untypable. Taking our canonical example, `(-> true)() -> false`:
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
 </div>
 
-Once the derivation tree reaches the outermost term it breaks because once again we have no type rule for the application of `true` to a lambda term like `(-> false)`. It's a type error.
+Once the derivation tree reaches the outermost term it breaks because there is no type rule for the application of `true` to a lambda term like `(-> false)` in the same way there was no evaluation rule. It's a type error.
 
-So what's been gained thusfar by applying the formalism of operational semantics and type derivations? It's clear that types, inferred or otherwise, would prevent at least the original case `(-> true)() -> false` as you can see from the type derivation. Unfortunately type derivation or type inference would only alert the end user and not an author in the middle of creating a language and then only if the result of the leftmost lambda term is not a lambda term. That is, if the leftmost lambda term evaluates to a lambda term the the whole thing is well typed. This means type information/derivations alone can't help identify this syntactic ambiguity.
+Previously we saw that the most basic example of this particular ambiguity, `(-> true)() -> false`, would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
+
+In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through wildly different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same evaluated value. This issue also applies to type derivations.
+
+In both cases useful information is lost when the derivation is discarded in favor of the final value or type. The advantage with the type information is obviously that no evaluation is required to determine if two terms are "different" in some way other than their syntax. The disadvantage is that not all languages make determining type information easy.
 
 ## Detecting Ambiguity
 
-Even if the two terms will *not* result in a type error under evaluation (See the snippet below for an example), they have different types and different derivation trees. Taken together with the fact that the two expresions are "similar" might be enough.
-
-As an aside, you might wonder what value there is in creating type/evaluation derivations since the difference in the final type is clear. In another language two terms with the same final type and very similar syntax might have different type/evaluation derivations. It may even be possible with CoffeeScript and I'm simply not clever enough to think of an example. In any case they both carry useful information that shouldn't be discarded without good reason.
-
-```coffeescript
-# fails
-(-> true)() -> false
-
-# works fine
-(-> (-> true))() -> false
-
-# also works fine
-(-> (-> true)) () -> false
-```
-
-With at least two concrete ways to identify a semantic difference between terms, the syntax itself can be used as measure of syntactic difference. This provides a sliding scale
+With at least two concrete ways to identify a semantic difference between terms.
 
 Since this particular problem is small the definition can start out simple. Taking the Levenshtein Distance as a function of string size should work for a start. For the syntax/string representation of two terms `a` and `b`:
 
@@ -119,16 +100,4 @@ insert image
 
 ### footnotes
 
-!! See the confusion over Monads/Functors due in part to their relationship with mathematics
-
-!! Turing, Church, Algorithms
-
-!! denotational semantics, axiomatic semantics
-
-!! more information about types and programming languages and how much you like it
-
-!! This Theorem is referred to as Determinacy of Evaluation. I may go back and do some simple proofs for my own education after this post and a possible follow up.
-
-!! Tested at http://coffeescript.org/.
-
-!! Technically JavaScript uses a strategy known as Call by Sharing, which differs from Call by Value in how deals with objects. More information at http://dmitrysoshnikov.com/ecmascript/chapter-8-evaluation-strategy/ courtesy of [@raganwald](https://twitter.com/raganwald).
+1. It's interesting to wonder with that the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal two terms as antithetical to something like Python's slogan of "one and only one way to do it".
