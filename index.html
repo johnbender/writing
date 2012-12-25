@@ -24,7 +24,7 @@ layout: default
 
     <h4>Published</h4>
     <div class="date">
-      <span>{{ post.date | date_to_long_string }}</span>
+      <span>{{ post.date | date: "%d %h %Y" }}</span>
     </div>
 
     {% if page.tags != empty %}

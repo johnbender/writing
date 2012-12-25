@@ -19,7 +19,7 @@
   {% endif %}
 
     <h4>Published</h4>
-    <div class="date"><span>{{ page.date | date_to_long_string }}</span></div>
+    <div class="date"><span>{{ page.date | date: "%d %h %Y"}}</span></div>
 
   {% unless page.tags == empty %}
     <h4>Tags</h4>
