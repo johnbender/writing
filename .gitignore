@@ -1,8 +1,6 @@
 _site/*
 _theme_packages/*
 _cache/*
-_diagrams/_TZ*
-_diagrams/*.aux
-_diagrams/*.log
-_diagrams/*.pdf
-_diagrams/*.svg
+_diagrams/*
+!_diagrams/*.tex
+_diagrams/_*
