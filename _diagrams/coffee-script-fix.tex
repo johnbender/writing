@@ -257,10 +257,23 @@
   }
 \end{equation}
 
+
+\section{Ambiguity Equations}
+
 \begin{equation}
-  \frac{\text{lev}(a, b)}{\text{max}(\text{len}(a), \text{len}(b))}
+  \text{dist}(S_1, S_2) = \frac{\text{lev}(S_1, S_2)}{\text{max}(\text{len}(S_1), \text{len}(S_2))}
+  \ruletag{dist}
 \end{equation}
 
+\begin{align*}
+  S_1 &= \lit{(-> true)() -> false} \\
+  S_2 &= \lit{(-> true) () -> false}
+\end{align*}
+
+\begin{align*}
+  \text{dist}(S_1, S_2) &= \frac{\text{lev}(S_1, S_2)}{\text{max}(\text{len}(S_1), \text{len}(S_2))} \\
+               &= \frac{1}{\text{max}(20, 21)} \\
+               &= \frac{1}{21}
+\end{align*}
 
 \end{document}
-

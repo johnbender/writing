@@ -13,11 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further by introducing type rules, the concept of "progress and preservation", and the first draft of a tool for detecting semantic ambiguity.
-
-! progress and preservation
-
-! haskell parser with ast + type tags
+In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further with the introduction of type rules, a concrete definition of semantic ambiguity, and the first draft of a tool for detecting semantic ambiguity.
 
 ## Type Rules
 
@@ -79,25 +75,35 @@ At this point the type rules can describe the original issue. A derivation tree 
   <img src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
 </div>
 
-Once the derivation tree reaches the outermost term it breaks because there is no type rule for the application of `true` to a lambda term like `(-> false)` in the same way there was no evaluation rule. It's a type error.
+Once the derivation tree reaches the outermost term it breaks. There is no type rule for the application of `true` to a lambda term like `(-> false)`. It's a type error.
 
-Previously we saw that the most basic example of this particular ambiguity, `(-> true)() -> false`, would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
+Previously we saw that this this would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
 
-In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through wildly different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same evaluated value. This issue also applies to type derivations.
+In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through wildly different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same final result. This issue also applies to type derivations.
 
 In both cases useful information is lost when the derivation is discarded in favor of the final value or type. The advantage with the type information is obviously that no evaluation is required to determine if two terms are "different" in some way other than their syntax. The disadvantage is that not all languages make determining type information easy.
 
 ## Detecting Ambiguity
 
-With at least two concrete ways to identify a semantic difference between terms.
+The type information provides a second way to differentiate syntactically similar terms, and there are cases in other languages where both are necessary to determine the meaning of a term. For example `(x, y) -> x + y` has a type that is identical to `(x, y) -> x * y`, `Int -> Int -> Int` (with Curry style type signatures), but it clearly evaluates differently [1].
 
-Since this particular problem is small the definition can start out simple. Taking the Levenshtein Distance as a function of string size should work for a start. For the syntax/string representation of two terms `a` and `b`:
+With that, a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evalutation derivation, and `T` is the type derivation. The triple can be used to determine whether two terms will cause confusion.
 
-insert image
+One approach would be to first compare the `S` values for two triples and then determinine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambigous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
-*For two terms with inconsistent types, we say they are more or less ambigous based on the calculation Levenshtein Distance/max(Length<sub>1</sub>, Length<sub>2</sub>)*.
+!! insert image
+
+_dist_ is just the ratio of the distance between the two strings with respect to the maximum length of both. Normalizing the distances allows for a baseline with a given grammar that might be considered "very similar" regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
+
+!! insert image
+
+An exact definition of string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier.
+
+## Happy Parsing
+
 
 
 ### footnotes
 
-1. It's interesting to wonder with that the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal two terms as antithetical to something like Python's slogan of "one and only one way to do it".
+1. It might be that when a function identifier is the only difference between terms, in this case `*` and `+`, it's reasonable to ignore ambigous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for futher consideration.
+2. Assuming it's possible, it's interesting to think abougt what the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal the two terms or the parent language as antithetical to Python's slogan of "one and only one way to do it".
