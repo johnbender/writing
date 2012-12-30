@@ -60,7 +60,7 @@
 
 <t> ::= <v>
   \alt <\lambda t>\lit*{()}
-  \alt <\lambda t> <t>
+  \alt <t> <t>
 \end{grammar}
 
 \section{Grammar Examples}
@@ -89,10 +89,18 @@
 
 \begin{equation}
 \trfrac[]{
-   t_{2}  \rightarrow  t_{2}'
+  t_{2}  \rightarrow  t_{2}'
 }{
-  \lambda t_{1} \  t_{2}  \rightarrow \lambda t_{1} \  t_{2}'
+  t_{1} \  t_{2}  \rightarrow t_{1} \  t_{2}'
 } \ruletag{e-arg-eval}
+\end{equation}
+
+\begin{equation}
+\trfrac[]{
+   t \rightarrow  t'
+}{
+  t \ v \rightarrow t' \ v
+} \ruletag{e-app-eval}
 \end{equation}
 
 \section{Example Derivation Trees}

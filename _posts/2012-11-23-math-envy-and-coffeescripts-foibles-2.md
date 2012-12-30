@@ -85,7 +85,7 @@ In both cases useful information is lost when the derivation is discarded in fav
 
 ## Detecting Ambiguity
 
-The type information provides a second way to differentiate syntactically similar terms, and there are cases in other languages where both are necessary to determine the meaning of a term. For example `(x, y) -> x + y` has a type that is identical to `(x, y) -> x * y`, `Int -> Int -> Int` (with Curry style type signatures), but it clearly evaluates differently [1].
+The type information provides a second way to differentiate syntactically similar terms, and there are cases where both the evalution and type information are necessary to distinguish terms. For example `((x, y) -> x + y)(1, 2)` has a type derivation identical to `((x, y) -> x * y)(1, 2)`, but it clearly evaluates differently [1].
 
 With that, a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evalutation derivation, and `T` is the type derivation. The triple can be used to determine whether two terms will cause confusion.
 
@@ -93,7 +93,7 @@ One approach would be to first compare the `S` values for two triples and then d
 
 !! insert image
 
-_dist_ is just the ratio of the distance between the two strings with respect to the maximum length of both. Normalizing the distances allows for a baseline with a given grammar that might be considered "very similar" regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
+_lev_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. Normalizing the distances allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
 
 !! insert image
 
@@ -101,9 +101,101 @@ An exact definition of string distance that can be reconciled as a threshold "se
 
 ## Happy Parsing
 
+It's time to build something concrete from the formal notion of semantic ambiguity. An AST for this CoffeeScript subset will provide enough information to produce the `(S, E, T)` triple. I've chosen Haskell along with the Alex and Happy libraries to implement a simple lexer and parser. As you would expect the parser BNF definition looks very similar to the grammar definition presented in the previous post:
 
+```
+%token
+    white   { Whitespace }
+    bool    { Boolean $$ }
+    '()'    { Unit       }
+    '->'    { Arrow      }
+    '('     { LeftParen  }
+    ')'     { RightParen }
+
+Expr   : Value                      { $1 }
+       | Lambda '()'                { Invoke $1 }
+       | Expr white Expr            { Apply $1 $3 }
+
+Lambda : '()' white '->' white Expr { Lambda $5 }
+       | '->' white Expr            { Lambda $3 }
+       | '(' Lambda ')'             { $2 }
+
+Value  : bool                       { BooleanExpr $1 }
+       | Lambda                     { $1 }
+```
+
+ You can view the full lexer and parser implementations [here](https://gist.github.com/8d7db37e8a6dc99e1ea3).
+
+There are two differences from the original grammar definition. Lambda terms in parenthesis are just a convenience for readability. More importantly application requires that any term be permitted as the left side. This enables the grammar to reproduce the original issue since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
+
+!! include image
+
+With the corrected grammar an additional inference rule is required to ensure the left term of an application is fully evaluated befor applying it [!!].
+
+!! include image
+
+The AST result from the parser is built with Haskell types. Pattern matching can be used with the type and inference rules to produce evaluation and derivation results.
+
+## Automating Derivations
+
+To start let's look at a simple evaluator and derivation tree builder implementation.
+
+```haskell
+-- an enumeration of each inference rule
+data InfRule = Inv | App | ArgEval | AppEval
+```
+
+The `InfRule` Haskell type is a simple enumeration of the tags belonging to each inference rule. _e-inv_ corresponds to `Inv` and so on.
+
+```haskell
+-- an intermediate form for performing derivation and evaluation
+data RuleMatch = None | RuleMatch InfRule (Maybe Expr) Expr
+
+-- match a rule and provide the relevant sub terms for action
+matchRule :: Expr -> RuleMatch
+```
+
+Both the evaluator and the derivation builder will opperate based on the inference rule that applys to each term and its subterms. The function `matchRule` takes an expression, `Expr`, and provides three pieces of information in a `RuleMatch` result: the inference rule that applies to the term, an optional term for the premise of an inference rule pulled from the body of the parent term, and a term for the conclusion of the inference rule also pulled from the body of the parent term. There are pattern matching definitions for each rule.
+
+```haskell
+-- Rule: e-inv
+matchRule (Invoke (Lambda t))                = RuleMatch Inv Nothing t
+```
+
+Invocation is simple. It can only be applied to a lambda term and the result of the invocation is the lambda's subterm; eg. `(-> true)()` evaluates to `true`. An invocation on anything else will simply drop through this match and ultimately to the catch all `error` case. For example the CoffeeScript `true()` is invalid. Its abstract representation from the parser is `Invoke (BooleanExpr True)` which clearly won't match here. On a match, the `RuleMatch` result contains the rule tag for invocation `Inv`, nothing for an inference rule premise since there isn't one for _e-inv_ and the subterm `t` for futher derivation in the conclusion.
+
+```haskell
+-- Rule: e-app
+matchRule (Apply (Lambda t) (BooleanExpr _)) = RuleMatch App Nothing t
+matchRule (Apply (Lambda t) (Lambda _))      = RuleMatch App Nothing t
+```
+
+Application is also simple. Like invocation it only works with lambda terms, but it carries the addition requirement that the argument be a value term. The grammar shows that the only `v` or value terms are lambdas and boolean values so there's a match in either case here. When there's a match the rule tag is `App` and the lambda subterm is again provided for possible further inspection/operation.
+
+```haskell
+-- e-arg-eval
+matchRule (Apply t i@(Invoke _))             = RuleMatch ArgEval (Just i) t
+matchRule (Apply t a@(Apply _ _))            = RuleMatch ArgEval (Just a) t
+
+-- e-app-eval
+matchRule (Apply i@(Invoke _) t)             = RuleMatch AppEval (Just i) t
+matchRule (Apply a@(Apply _ _) t)            = RuleMatch AppEval (Just a) t
+```
+
+_e-arg-eval_ and _e-app-eval_ are more complicated than either _e-inv_ or _e-app_ which makes sense when comparing them as inference rules. Both _e-arg-eval_ and _e-app-eval_ carry a a requirement in their premise.
+
+!! include image of both of inference rules
+
+Both rules require that some evaluation take place on one of the subterms. More importantly the shape of the term remains the same. Neither _e-arg-eval_ or _e-app-eval_ change the shape of the term to which they apply, only the shape of the sub terms. This is in contrast to _e-inv_ and _e-app_ which remove the second subterm completely. As a result the `RuleMatch` contains the subterm that needs to be evaluated further and the other subterm that remains stagnant. Note that the _e-arg-eval_ rule is applied first so that the _e-app-eval_ rule can ignore the subterm under the assumption that it's a value term (ie, not `Invoke` or `Apply`).
+
+```haskell
+matchRule t = error $ "No inference rule apply's for: " ++ (show t)
+```
+
+Finally an error is raised when no rule applies.
 
 ### footnotes
 
-1. It might be that when a function identifier is the only difference between terms, in this case `*` and `+`, it's reasonable to ignore ambigous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for futher consideration.
+1. It might be that when a function identifier is the only difference between terms, here `*` and `+`, it's reasonable to ignore ambigous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for futher consideration.
 2. Assuming it's possible, it's interesting to think abougt what the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal the two terms or the parent language as antithetical to Python's slogan of "one and only one way to do it".
+3. The implementation in Haskell forced these issues out into the open. I'm curious if proving progress and preservation would have pointed out the flaws in my approach (this may be obvious one way or another to a better educated reader).

@@ -358,8 +358,8 @@ p > code {
 .nx { color: #000000 } /* Name.Other */
 .py { color: #000000 } /* Name.Property */
 .nt { color: #204a87; font-weight: bold } /* Name.Tag */
-.nv { color: #000000 } /* Name.Variable */
-.ow { color: #204a87; font-weight: bold } /* Operator.Word */
+.nv { color: #000000; } /* Name.Variable */
+/* .ow { color: #000000; } /* Operator.Word */
 .w { color: #f8f8f8; text-decoration: underline } /* Text.Whitespace */
 .mf { color: #0000cf; font-weight: bold } /* Literal.Number.Float */
 .mh { color: #0000cf; font-weight: bold } /* Literal.Number.Hex */
@@ -381,7 +381,7 @@ p > code {
 .vg { color: #000000 } /* Name.Variable.Global */
 .vi { color: #000000 } /* Name.Variable.Instance */
 .il { color: #0000cf; font-weight: bold } /* Literal.Number.Integer.Long */
-.o { color: #ce5c00; font-weight: bold } /* Operator */
+.o, .ow { color: #ce5c00; font-weight: bold } /* Operator */
 .p { color: #000000; } /* Punctuation */
 
 div.center {
