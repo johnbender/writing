@@ -91,11 +91,11 @@ With that, a term can be represented by a triple `(S, E, T)`, where `S` is the s
 
 One approach would be to first compare the `S` values for two triples and then determinine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambigous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
-!! insert image
+!! insert image of dist func
 
 _lev_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. Normalizing the distances allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
 
-!! insert image
+!! insert image of dist invocation
 
 An exact definition of string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier.
 
@@ -128,17 +128,17 @@ Value  : bool                       { BooleanExpr $1 }
 
 There are two differences from the original grammar definition. Lambda terms in parenthesis are just a convenience for readability. More importantly application requires that any term be permitted as the left side. This enables the grammar to reproduce the original issue since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
 
-!! include image
+!! include image of whole fixed grammar
 
 With the corrected grammar an additional inference rule is required to ensure the left term of an application is fully evaluated befor applying it [!!].
 
-!! include image
+!! include image of e-arg-eval and e-app-eval
 
-The AST result from the parser is built with Haskell types. Pattern matching can be used with the type and inference rules to produce evaluation and derivation results.
+Where _e-arg-eval_ ensures that the argument of an application is fully evaluated, _e-app-eval_ ensures that the applicand is fully evaluated before the application takes place. The AST result from the parser is built with Haskell types. Pattern matching can be used with the type and inference rules to produce evaluation and derivation results.
 
-## Automating Derivations
+## Matching Rules
 
-To start let's look at a simple evaluator and derivation tree builder implementation.
+To start let's look at a simple evaluator and derivation builder implementation.
 
 ```haskell
 -- an enumeration of each inference rule
@@ -158,8 +158,15 @@ matchRule :: Expr -> RuleMatch
 Both the evaluator and the derivation builder will opperate based on the inference rule that applys to each term and its subterms. The function `matchRule` takes an expression, `Expr`, and provides three pieces of information in a `RuleMatch` result: the inference rule that applies to the term, an optional term for the premise of an inference rule pulled from the body of the parent term, and a term for the conclusion of the inference rule also pulled from the body of the parent term. There are pattern matching definitions for each rule.
 
 ```haskell
+matchRule (BooleanExpr _) = None
+matchRule (Lambda _)      = None
+```
+
+The value terms `true`, `false` and `(-> x)` form the base case of the rule match. That is, whenever another function requests a rule match on the value terms `None` is provided to signal that the term has been fully evaluated
+
+```haskell
 -- Rule: e-inv
-matchRule (Invoke (Lambda t))                = RuleMatch Inv Nothing t
+matchRule (Invoke (Lambda t)) = RuleMatch Inv Nothing t
 ```
 
 Invocation is simple. It can only be applied to a lambda term and the result of the invocation is the lambda's subterm; eg. `(-> true)()` evaluates to `true`. An invocation on anything else will simply drop through this match and ultimately to the catch all `error` case. For example the CoffeeScript `true()` is invalid. Its abstract representation from the parser is `Invoke (BooleanExpr True)` which clearly won't match here. On a match, the `RuleMatch` result contains the rule tag for invocation `Inv`, nothing for an inference rule premise since there isn't one for _e-inv_ and the subterm `t` for futher derivation in the conclusion.
@@ -170,29 +177,108 @@ matchRule (Apply (Lambda t) (BooleanExpr _)) = RuleMatch App Nothing t
 matchRule (Apply (Lambda t) (Lambda _))      = RuleMatch App Nothing t
 ```
 
-Application is also simple. Like invocation it only works with lambda terms, but it carries the addition requirement that the argument be a value term. The grammar shows that the only `v` or value terms are lambdas and boolean values so there's a match in either case here. When there's a match the rule tag is `App` and the lambda subterm is again provided for possible further inspection/operation.
+Application is also simple. Like invocation it only works with lambda terms, but it carries the addition requirement that the argument be a value term. The grammar shows that the only `v` or value terms are lambdas and boolean values so there's a match for those cases here. When there's a match the rule tag is `App` and the lambda subterm is again provided for possible further inspection/operation.
 
 ```haskell
--- e-arg-eval
-matchRule (Apply t i@(Invoke _))             = RuleMatch ArgEval (Just i) t
-matchRule (Apply t a@(Apply _ _))            = RuleMatch ArgEval (Just a) t
+-- Rule: e-arg-eval
+matchRule (Apply t i@(Invoke _))  = RuleMatch ArgEval (Just i) t
+matchRule (Apply t a@(Apply _ _)) = RuleMatch ArgEval (Just a) t
 
--- e-app-eval
-matchRule (Apply i@(Invoke _) t)             = RuleMatch AppEval (Just i) t
-matchRule (Apply a@(Apply _ _) t)            = RuleMatch AppEval (Just a) t
+-- Rule: e-app-eval
+matchRule (Apply i@(Invoke _) t)  = RuleMatch AppEval (Just i) t
+matchRule (Apply a@(Apply _ _) t) = RuleMatch AppEval (Just a) t
 ```
 
-_e-arg-eval_ and _e-app-eval_ are more complicated than either _e-inv_ or _e-app_ which makes sense when comparing them as inference rules. Both _e-arg-eval_ and _e-app-eval_ carry a a requirement in their premise.
+_e-arg-eval_ and _e-app-eval_ are more complicated than either _e-inv_ or _e-app_ which makes sense when comparing them as inference rules. Both _e-arg-eval_ and _e-app-eval_ carry a premise.
 
 !! include image of both of inference rules
 
-Both rules require that some evaluation take place on one of the subterms. More importantly the shape of the term remains the same. Neither _e-arg-eval_ or _e-app-eval_ change the shape of the term to which they apply, only the shape of the sub terms. This is in contrast to _e-inv_ and _e-app_ which remove the second subterm completely. As a result the `RuleMatch` contains the subterm that needs to be evaluated further and the other subterm that remains stagnant. Note that the _e-arg-eval_ rule is applied first so that the _e-app-eval_ rule can ignore the subterm under the assumption that it's a value term (ie, not `Invoke` or `Apply`).
+Both rules require that some evaluation take place on one of the subterms. More importantly the shape of the term remains the same. Neither _e-arg-eval_ or _e-app-eval_ change the shape of the term to which they apply, only the shape of the sub terms. This is in contrast to _e-inv_ and _e-app_ which discard the invocation operator and second term respectively. As a result the `RuleMatch` contains the subterm that needs to be evaluated further and the other subterm that remains stagnant. Note that the _e-arg-eval_ rule is applied first so that the _e-app-eval_ rule can ignore the second subterm under the assumption that it's a value term (ie, not `Invoke` or `Apply`).
 
 ```haskell
 matchRule t = error $ "No inference rule apply's for: " ++ (show t)
 ```
 
-Finally an error is raised when no rule applies.
+Finally, in situations like `true()` or `true (-> true)` where no rule applies, an error is raised.
+
+## Evaluating the Options
+
+The information contained in a `RuleMatch` instance can be used to evaluate or derive a given term. Evaluation is a simple matter of applying the rules recursively.
+
+```haskell
+-- perform a single evaluation step
+eval :: Expr -> Expr
+eval t =
+    case (matchRule t) of
+      None                             -> t
+      (RuleMatch _ Nothing t1)         -> t1
+      (RuleMatch ArgEval (Just t1) t2) -> Apply t2 (eval t1)
+      (RuleMatch AppEval (Just t1) t2) -> Apply (eval t1) t2
+```
+
+`eval` performs a single step of evaluation according the the inference rules. The first case match returns the original term `t` because `None` is the match for fully evaluated value terms like `true`, `false`, and `(-> x)`. The second match handles both the `Inv` and `App` by returning the subterm of the invoked or applied lambda term. That is, the `matchRule` function does a bit of evaluation for these two rules by stripping the applied lambda term so `eval` simply works on the subterm. For example, `(-> true) true` and `(-> true)()` become `true` which is `eval`'d and matches the base case.
+
+```haskell
+      (RuleMatch ArgEval (Just t1) t2) -> Apply t2 (eval t1)
+      (RuleMatch AppEval (Just t1) t2) -> Apply (eval t1) t2
+```
+
+For `ArgEval` and its cousin `AppEval` the subterm that needs further evaluation gets it and then the whole term is reassessed. The order of which evaluation happens first is preserved here by recursion. If the argument in an application needs more than one evaluation step, `eval` will continue to work on it until the result is returned to the original invocation. Subsequently if the applicand needs evaluation it will do the same. For example, in `(-> true) (-> true)()` the second term is evaluated with an `Inv` and then the boolean result is the argument to the first lambda term.
+
+```haskell
+-- reduce an expression to a value term
+fullEval :: Expr -> Expr
+fullEval t =
+    case (matchRule t) of
+      None -> t
+      _    -> fullEval $ eval t
+```
+
+`fullEval` simply applies `eval` to `t` until it reaches a value term.
+
+## Automating Evaluation Derivation
+
+The `RuleMatch` instance is primarily geared toward building derivation trees. That's why the structure appears so awkward in use with `eval`.
+
+```haskell
+data Derivation a = Empty | Derivation a [Derivation a] (Derivation a)
+```
+
+The `Derivation` data type get's instantiated with a rule type. In this case it's instantaited with `InfRule` since we're dealing with evaluation (type derivation will be discussed later). The first `a` is a tag from the `InfRule` enumeration, the list of sub-derivations represents zero or more possible premise requirements, and the final derivation is the conclusion. Taking the derivation tree of a simple example `(-> (-> true)) false` which is parsed to:
+
+```haskell
+Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
+```
+
+In english, the application of an invocation of a lambda with a lambda subterm to a boolean value. The resulting derivation tree in the original notation takes the form:
+
+!! include image derivation tree
+
+The `Derivation` instance has to work from the outside in so it's much harder to read than the notation, but it contains the same information
+
+```haskell
+Derivation AppEval [Derivation Inv [] Empty] (Derivation App [] Empty)
+```
+
+Working from the outside in, it's clear that the applicand `(-> (-> true)()` needs evaluation before it can be applied to the argument `false` (_e-app-eval_). The premise of _e-app-eval_ requires that the applicand take a step and here that means an invocation (_e-inv_). Finally the result of the invocation `(-> true)` is applied to the `false` (_e-app_) as the "conclusion" of the _e-app-eval_. In reality, _e-app_ is applied to the result of the first derivation tree as it is with the logic notation.
+
+```haskell
+-- build a derivation from an expression
+derive :: Expr -> Derivation InfRule
+derive t =
+    case (matchRule t) of
+      None                         -> Empty
+      (RuleMatch rule Nothing t1)  -> Derivation rule [] (derive t)
+      (RuleMatch rule (Just t1) _) -> Derivation rule [derive t1] (derive $ eval t)
+```
+
+The `derive` function works in a similar fashion to `eval`. For a value/`None` result from `matchRules` there are no inference rules that apply. For _e-inv_ or _e-app_ derive can recurse and build a derivation from the lambda's subterm. For _e-arg-eval_ or _e-app-eval_ the premise must be further derived and the conclusion is a derivation for the original term `t` with one evaluation step applied. That is, evaluating the subterm `t1` once inside the original term `t`. The use of `eval` to do that in this case is a convenience.
+
+The conversion of the CoffeeScript AST to a derivation tree means that the `S` and `E` of the `(S, E, T)` triple are in place. All that's left is to convert the AST into a type derivation.
+
+## Automating Type Derivation
+
+
 
 ### footnotes
 
