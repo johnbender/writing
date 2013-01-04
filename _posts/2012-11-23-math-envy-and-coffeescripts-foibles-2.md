@@ -199,7 +199,7 @@ Both rules require that some evaluation take place on one of the subterms. More 
 matchRule t = error $ "No inference rule apply's for: " ++ (show t)
 ```
 
-Finally, in situations like `true()` or `true (-> true)` where no rule applies, an error is raised.
+Finally, in situations like `true()` or `true (-> true)` where no rule applies, an error is raised. As an aside, it's interest to see how much information is encoded by the math notation. For example the terms that can take a step, invocations and applications, require two patterns as do the value terms.
 
 ## Evaluating the Options
 
@@ -241,35 +241,36 @@ fullEval t =
 The `RuleMatch` instance is primarily geared toward building derivation trees. That's why the structure appears so awkward in use with `eval`.
 
 ```haskell
-data Derivation a = Empty | Derivation a [Derivation a] (Derivation a)
+data Derivation a = Empty | Derivation InfRule Derivation Derivation
 ```
 
-The `Derivation` data type get's instantiated with a rule type. In this case it's instantaited with `InfRule` since we're dealing with evaluation (type derivation will be discussed later). The first `a` is a tag from the `InfRule` enumeration, the list of sub-derivations represents zero or more possible premise requirements, and the final derivation is the conclusion. Taking the derivation tree of a simple example `(-> (-> true)) false` which is parsed to:
+The `Derivation` data type is comprised of a tag from the `InfRule` enumeration, one _possible_ derivation as a premise, and the final derivation as the conclusion. Taking the derivation tree of a simple example `(-> (-> true))() false` which is parsed to:
 
 ```haskell
 Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
 ```
 
-In english, the application of an invocation of a lambda with a lambda subterm to a boolean value. The resulting derivation tree in the original notation takes the form:
+In english, the application of an invocation of a lambda with a lambda subterm to a boolean value. The resulting derivation tree in the original derivation tree notation takes the form:
 
 !! include image derivation tree
 
 The `Derivation` instance has to work from the outside in so it's much harder to read than the notation, but it contains the same information
 
 ```haskell
-Derivation AppEval [Derivation Inv [] Empty] (Derivation App [] Empty)
+                   |----------premise---------| |--------conclusion--------|
+Derivation AppEval (Derivation Inv Empty Empty) (Derivation App Empty Empty)
 ```
 
 Working from the outside in, it's clear that the applicand `(-> (-> true)()` needs evaluation before it can be applied to the argument `false` (_e-app-eval_). The premise of _e-app-eval_ requires that the applicand take a step and here that means an invocation (_e-inv_). Finally the result of the invocation `(-> true)` is applied to the `false` (_e-app_) as the "conclusion" of the _e-app-eval_. In reality, _e-app_ is applied to the result of the first derivation tree as it is with the logic notation.
 
 ```haskell
 -- build a derivation from an expression
-derive :: Expr -> Derivation InfRule
+derive :: Expr -> Derivation
 derive t =
-    case (matchRule t) of
-      None                         -> Empty
-      (RuleMatch rule Nothing t1)  -> Derivation rule [] (derive t)
-      (RuleMatch rule (Just t1) _) -> Derivation rule [derive t1] (derive $ eval t)
+ case (matchRule t) of
+   None                         -> Empty
+   (RuleMatch rule Nothing t1)  -> Derivation rule Empty $ derive t1
+   (RuleMatch rule (Just t1) _) -> Derivation rule (derive t1) $ derive $ eval t
 ```
 
 The `derive` function works in a similar fashion to `eval`. For a value/`None` result from `matchRules` there are no inference rules that apply. For _e-inv_ or _e-app_ derive can recurse and build a derivation from the lambda's subterm. For _e-arg-eval_ or _e-app-eval_ the premise must be further derived and the conclusion is a derivation for the original term `t` with one evaluation step applied. That is, evaluating the subterm `t1` once inside the original term `t`. The use of `eval` to do that in this case is a convenience.
@@ -278,7 +279,87 @@ The conversion of the CoffeeScript AST to a derivation tree means that the `S` a
 
 ## Automating Type Derivation
 
+Deriving the type for a term in the CoffeeScript subset is slightly less complex than deriving the evaluation. Again, a type rule is matched to each valid AST construction.
 
+```haskell
+data RuleMatch  = None | RuleMatch TypeRule Expr
+
+-- match a rule and provide the relevant sub terms for action
+matchRule :: Expr -> RuleMatch
+```
+
+The `RuleMatch` definition for types requires one less `Expr` for the `derive` and `fixType` definitions, as those function only require the first subterms in each expression where they are relevant. This is in contrast to `eval` which required both the conclusion and premise terms. More on this shortly.
+
+```haskell
+-- t-true & t-false
+matchRule b@(BooleanExpr True)    = RuleMatch TrueType b
+matchRule b@(BooleanExpr False)   = RuleMatch FalseType b
+
+-- t-lambda
+matchRule (Lambda t)              = RuleMatch LambdaType t
+
+-- t-inv
+matchRule (Invoke (Lambda t))     = RuleMatch Inv t
+
+-- t-apply
+matchRule (Apply t@(Lambda _) _)  = RuleMatch App t
+matchRule (Apply t@(Invoke _) _)  = RuleMatch App t
+matchRule (Apply t@(Apply _ _) _) = RuleMatch App t
+```
+
+The `Apply` matches capture only valid applicands and let the rest fall through to the error case. It's also worth noting that each of the `Apply` matches discards the argument term because it's unnecessary to the type of the expression. This fits with the definition of the type rules presented earlier.
+
+Fixing the type of a given expression is a simple recursive effort on applications. The `Type` data type captures both the `Bool` result, and the recursive `Arrow` type. For example `(-> (-> true))` has the type `Arrow (Arrow Bool)`.
+
+```haskell
+-- the two possible types for a given expression
+data Type = Bool | Arrow Type
+
+-- determines the type of a given expression
+fixType :: Expr -> Type
+fixType t =
+    case (matchRule t) of
+      (RuleMatch TrueType _)    -> Bool
+      (RuleMatch FalseType _)   -> Bool
+      (RuleMatch LambdaType t1) -> Arrow $ fixType t1
+      (RuleMatch Inv t1)        -> fixType t1
+      (RuleMatch App _)         -> fixType $ eval t
+```
+
+The type of an invocation is determined by the lambda's subterm, so `matchRule` provides that as `t1` here for futher type information. The type of an application is dependent on the type of it's first argument, so we cheat a bit here and use the single step `eval` to get at the result of the application.
+
+```haskell
+derive :: Expr -> Derivation
+derive t =
+    case (matchRule t) of
+      (RuleMatch TrueType _)    -> Derivation TrueType Empty $ fixType t
+      (RuleMatch FalseType _ )  -> Derivation FalseType Empty $ fixType t
+      (RuleMatch rule t1)       -> Derivation rule (derive t1) $ fixType t
+```
+
+The type rules are much easier to apply, they simply descend into the terms to build up the type, providing the fixed type at each step as the conclusion. Taking the same example from the evaluation rules earlier `(-> (-> true))() false` which is parsed to:
+
+```haskell
+Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
+```
+
+The type derivation using logic notation looks like:
+
+!! include image derivation tree
+
+The `Derivation` instance corresponding the the logic notation is again much larger but captures the same information (formatting added after the fact):
+
+```haskell
+Derivation App
+  (Derivation Inv
+    (Derivation LambdaType
+      (Derivation TrueType Nothing Bool)
+    ) (Arrow Bool) -- Lambda type is X -> <subterm type>
+  ) (Arrow Bool) -- Inv type is it's subterm's type
+) Bool -- App type T in the applicand's X -> T
+```
+
+As noted in the comments each step in the derivation resolves the type at that step based on the inference rules.
 
 ### footnotes
 

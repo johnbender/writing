@@ -185,7 +185,7 @@
 \end{equation}
 
 \begin{equation}
-\trfrac[]{ \lambda t_{1}  : X \rightarrow T_{1} \ \ \  t_{2}  : T_{2} }{\lambda t_{1} \  t_{2}  : T_{1}} \ruletag{t-app}
+\trfrac[]{ t_{1}  : X \rightarrow T_{1} }{ t_{1} \  t_{2}  : T_{1}} \ruletag{t-app}
 \end{equation}
 
 \section{Type Derivations}
@@ -285,3 +285,19 @@
 \end{align*}
 
 \end{document}
+
+\section{Automating Evaluation Derivation}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-app-eval}]{
+  \trfrac[\rulelabel{e-inv}]{}{\lambda\lit*{true()} \rightarrow \lit*{true}}
+}{
+  \lambda \lambda \lit*{true()} \ \lit*{false} \rightarrow \lambda \lit*{true} \ \lit*{false}
+}
+\end{equation*}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-app}]{}{
+  \lambda \lit*{true} \ \lit*{false} \rightarrow \lit*{true}
+}
+\end{equation*}
