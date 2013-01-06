@@ -13,7 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further with the introduction of type rules, a concrete definition of semantic ambiguity, and the first draft of a tool for detecting semantic ambiguity.
+In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further with the introduction of type rules, example tools for detecting semantic ambiguity, and a concrete definition of semantic ambiguity itself.
 
 ## Type Rules
 
@@ -79,29 +79,17 @@ Once the derivation tree reaches the outermost term it breaks. There is no type 
 
 Previously we saw that this this would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
 
-In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through wildly different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same final result. This issue also applies to type derivations.
+In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same evaluation result. This issue also applies to type derivations.
 
 In both cases useful information is lost when the derivation is discarded in favor of the final value or type. The advantage with the type information is obviously that no evaluation is required to determine if two terms are "different" in some way other than their syntax. The disadvantage is that not all languages make determining type information easy.
 
-## Detecting Ambiguity
+Ultimately the type information provides a second way to differentiate syntactically similar terms. Indeed there are cases where both the evalution and type information are necessary to distinguish terms. For example `((x, y) -> x + y)(1, 2)` has a type derivation identical to `((x, y) -> x * y)(1, 2)`, but it clearly evaluates differently [1].
 
-The type information provides a second way to differentiate syntactically similar terms, and there are cases where both the evalution and type information are necessary to distinguish terms. For example `((x, y) -> x + y)(1, 2)` has a type derivation identical to `((x, y) -> x * y)(1, 2)`, but it clearly evaluates differently [1].
-
-With that, a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evalutation derivation, and `T` is the type derivation. The triple can be used to determine whether two terms will cause confusion.
-
-One approach would be to first compare the `S` values for two triples and then determinine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambigous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
-
-!! insert image of dist func
-
-_lev_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. Normalizing the distances allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
-
-!! insert image of dist invocation
-
-An exact definition of string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier.
+_Note: The next five sections cover an implementation of a lexer, parser, evaluator and mechanisms for type/evaluation derivation. If you'd rather just read about how the generated evaluation and type derivations are used to find confusing term pairings you can skip to Detecting Ambiguity_
 
 ## Happy Parsing
 
-It's time to build something concrete from the formal notion of semantic ambiguity. An AST for this CoffeeScript subset will provide enough information to produce the `(S, E, T)` triple. I've chosen Haskell along with the Alex and Happy libraries to implement a simple lexer and parser. As you would expect the parser BNF definition looks very similar to the grammar definition presented in the previous post:
+It's time to build something concrete from the formal notion of evaluation and types. An AST for this CoffeeScript subset will provide enough information to perform evaluation and establish derivation trees for both evaluation and types. I've chosen Haskell along with the Alex and Happy libraries to implement a simple lexer and parser. As you would expect the parser BNF definition looks very similar to the grammar definition presented in the previous post:
 
 ```
 %token
@@ -257,7 +245,7 @@ In english, the application of an invocation of a lambda with a lambda subterm t
 The `Derivation` instance has to work from the outside in so it's much harder to read than the notation, but it contains the same information
 
 ```haskell
-                   |----------premise---------| |--------conclusion--------|
+--                 |----------premise---------| |-------"conclusion"-------|
 Derivation AppEval (Derivation Inv Empty Empty) (Derivation App Empty Empty)
 ```
 
@@ -274,8 +262,6 @@ derive t =
 ```
 
 The `derive` function works in a similar fashion to `eval`. For a value/`None` result from `matchRules` there are no inference rules that apply. For _e-inv_ or _e-app_ derive can recurse and build a derivation from the lambda's subterm. For _e-arg-eval_ or _e-app-eval_ the premise must be further derived and the conclusion is a derivation for the original term `t` with one evaluation step applied. That is, evaluating the subterm `t1` once inside the original term `t`. The use of `eval` to do that in this case is a convenience.
-
-The conversion of the CoffeeScript AST to a derivation tree means that the `S` and `E` of the `(S, E, T)` triple are in place. All that's left is to convert the AST into a type derivation.
 
 ## Automating Type Derivation
 
@@ -316,6 +302,8 @@ Fixing the type of a given expression is a simple recursive effort on applicatio
 data Type = Bool | Arrow Type
 
 -- determines the type of a given expression
+data Derivation = Empty | Derivation TypeRule Derivation Type
+
 fixType :: Expr -> Type
 fixType t =
     case (matchRule t) of
@@ -361,8 +349,48 @@ Derivation App
 
 As noted in the comments each step in the derivation resolves the type at that step based on the inference rules.
 
+## Detecting Ambiguity
+
+For this CoffeeScript subset we've seen that it's possible to build an understanding of evaluation and typing that provides more information than the evaluation result or the fixed type of a individually. Capturing that extra infomation a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evalutation derivation, and `T` is the type derivation. This triple can be used to determine whether two terms will cause confusion.
+
+One approach would be to first compare the `S` values for two triples and then determinine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambigous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
+
+!! insert image of dist func
+
+_dist_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. This is sometimes referred to as the Levenshtein Ratio. Providing a ratio allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
+
+!! insert image of dist invocation
+
+An exact value for string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a pre-determined threshold and they have different information in either `E` or `T` then they might be flagged.
+
+## Fuzzy Search
+
+With a more complete understanding of semantic ambiguity and some tooling to provide the derivation info the next step is to analyze terms and detect ambiguous pairings. A system that will automate the exploration of the "term space" (all term combinations), and run a check against existing known terms for ambiguous pairs for each generated term, is needed.
+
+Storing the triple of known terms for comparison would be fairly easy with the text search capabilities available in most modern databases. You could even [implement](http://www.artfulsoftware.com/infotree/qrytip.php?id=552) the Levenshtein Distance function and ratio and use it to check an new term against known terms. It may be that a purpose built data structure for the storage and retrieval based on a text search algorithm would perform better, but a good all purpose rdbms would suffice for a first pass [4].
+
+More interesting is the generation of terms for a non-trivial language. It's seems likely that a _term generator_ would have to start with atomic types and successively wrap them in terms defined with subterms. That part can likely be performed with nothing more than knowledge of the grammar, but there are two issues.
+
+First, the complexity of many programming languages makes re-examining the same terms an enormous waste of time. Tracking the explored terms and "resuming" the exploration process would have a lot of value. Second, generating the derivations to store and compare along with the syntax is an involved effort. Again, It's easy to tag a piece of syntax with the result of execution or typeing but information is lost.
+
+## Quick and Dirty
+
+To avoid the extra effort required of the language creator in generating the derivations, a less complicated represenation of a term could still be effective, namely the tuple `(S, A)`. Where `S` remains the synatx of the term and `A` is the AST representation. Using the lambda term example, and haskell parser detailed earlier:
+
+```haskell
+( "(-> true)() -> false",
+  Apply (Invoke (Lambda (BooleanExpr True))) (Lambda (BooleanExpr False)) )
+
+( "(-> true) () -> false",
+  Apply (Lambda (BooleanExpr True)) (Lambda (BooleanExpr False)) )
+```
+
+It's obvious that the abstract representations capture the issue at hand and the AST for a term would be available regardless of the host language. Serialization is the only extra requirement. With a term generator that works with a BNF, a way to generate the AST for a term (presumably through the language parser), and a database equiped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings [5].
+
 ### footnotes
 
 1. It might be that when a function identifier is the only difference between terms, here `*` and `+`, it's reasonable to ignore ambigous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for futher consideration.
 2. Assuming it's possible, it's interesting to think abougt what the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal the two terms or the parent language as antithetical to Python's slogan of "one and only one way to do it".
 3. The implementation in Haskell forced these issues out into the open. I'm curious if proving progress and preservation would have pointed out the flaws in my approach (this may be obvious one way or another to a better educated reader).
+4. I'm going to leave this as a further exercise for myself when time permits.
+5. See 4

@@ -190,21 +190,21 @@
 
 \section{Type Derivations}
 
-\begin{equation}
+\begin{equation*}
 \trfrac[\rulelabel{t-lambda}]{
   \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 }{
    \lambda \lit*{true} : X \rightarrow Bool
 }
-\end{equation}
+\end{equation*}
 
-\begin{equation}
+\begin{equation*}
 \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 \quad \Leftarrow \quad
 \lit*{true}: Bool \; \rulelabel{t-true}
-\end{equation}
+\end{equation*}
 
-\begin{equation}
+\begin{equation*}
 \trfrac[\rulelabel{t-lambda}]{
   \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
 }{
@@ -212,38 +212,22 @@
 }
 \quad \Leftarrow \quad
 \trfrac[\rulelabel{t-lambda}]{t : T}{ \lambda t : X \rightarrow T}
-\end{equation}
+\end{equation*}
 
 
-\begin{equation}
+\begin{equation*}
 \trfrac[\rulelabel{t-app}]{
   \trfrac[\rulelabel{t-lambda}]{
     \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
   }{
      \lambda \lit*{true}  : X \rightarrow Bool
   }
-  \qquad
-  \trfrac[\rulelabel{t-inv}]{
-    \trfrac[\rulelabel{t-lambda}]{
-      \trfrac[\rulelabel{t-lambda}]{
-        \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
-      }{
-         \lambda \lit*{false}  : X \rightarrow Bool
-      }
-    }{
-       \lambda \lambda \lit*{false}  : X \rightarrow (X \rightarrow Bool)
-    }
-  }{
-     \lambda \lambda \lit*{false}  \lit*{()}: (X \rightarrow Bool)
-  }
 }{
      \lambda \lit*{true}  \  \lambda \lambda \lit*{false}  \lit*{()}: Bool
 }
-\end{equation}
+\end{equation*}
 
-\newpage
-
-\begin{equation}
+\begin{equation*}
   \trfrac[\;\small{(\text{??})}]{
     \trfrac[\rulelabel{t-inv}]{
       \trfrac[\rulelabel{t-lambda}]{
@@ -254,16 +238,10 @@
     }{
        \lambda \lit*{true}  \lit*{()} : Bool
     }
-    \qquad
-    \trfrac[\rulelabel{t-lambda}]{
-      \trfrac[\rulelabel{t-false}]{}{\lit*{false} : Bool}
-    }{
-       \lambda \lit*{false} : X \rightarrow Bool
-    }
   }{
      \lambda \lit*{true}  \lit*{()} \ \lambda \lit*{false} : \ ??
   }
-\end{equation}
+\end{equation*}
 
 
 \section{Ambiguity Equations}
