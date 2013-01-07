@@ -164,6 +164,22 @@
 }
 \end{equation}
 
+\begin{equation*}
+\trfrac[\rulelabel{e-app-eval}]{
+  \trfrac[\rulelabel{e-inv}]{}{
+    \lambda \lambda \lit*{true()} \rightarrow \lambda \lit*{true}
+  }
+}{
+  \lambda \lambda \lit*{true()} \ \lit*{false} \rightarrow \lambda \lit*{true} \ \lit*{false}
+}
+\end{equation*}
+
+\begin{equation*}
+\trfrac[\rulelabel{e-app}]{}{
+  \lambda \lit*{true} \ \lit*{false} \rightarrow \lit*{true}
+}
+\end{equation}
+
 \newpage
 
 \section{Type Rules}
@@ -217,13 +233,23 @@
 
 \begin{equation*}
 \trfrac[\rulelabel{t-app}]{
-  \trfrac[\rulelabel{t-lambda}]{
-    \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
+  \trfrac[\rulelabel{t-inv}]{
+    \trfrac[\rulelabel{t-lambda}]{
+      \trfrac[\rulelabel{t-lambda}]{
+        \trfrac[\rulelabel{t-false}]{}{
+          \lit*{false} :  Bool
+        }
+      }{
+        \lambda \lit*{false} : X \rightarrow Bool
+      }
+    }{
+      \lambda \lambda \lit*{false} : X \rightarrow ( X \rightarrow Bool )
+    }
   }{
-     \lambda \lit*{true}  : X \rightarrow Bool
+    \lambda \lambda \lit*{false}  \lit*{()} : X \rightarrow Bool
   }
 }{
-     \lambda \lit*{true}  \  \lambda \lambda \lit*{false}  \lit*{()}: Bool
+     \lambda \lambda \lit*{false}  \lit*{()} \ \lit*{true} : Bool
 }
 \end{equation*}
 
@@ -240,6 +266,22 @@
     }
   }{
      \lambda \lit*{true}  \lit*{()} \ \lambda \lit*{false} : \ ??
+  }
+\end{equation*}
+
+\begin{equation*}
+  \trfrac[\rulelabel{t-app}]{
+    \trfrac[\rulelabel{t-inv}]{
+      \trfrac[\rulelabel{t-lambda}]{
+        \trfrac[\rulelabel{t-true}]{}{\lit*{true} : Bool}
+      }{
+         \lambda \lit*{true} : X \rightarrow Bool
+      }
+    }{
+       \lambda \lambda \lit*{true}  \lit*{()} : X \rightarrow Bool
+    }
+  }{
+     \lambda \lambda \lit*{true}  \lit*{()} \ \lit*{false} : Bool
   }
 \end{equation*}
 

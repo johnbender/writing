@@ -41,7 +41,7 @@ _t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`.
   <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
 </div>
 
-_t-app_ is the type rule for lambda applications, eg. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` and the term on the right as second type `T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the argument that it consumes.
+_t-app_ is the type rule for lambda applications, eg. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the argument that it consumes.
 
 ## Type Rule Stacking
 
@@ -58,24 +58,24 @@ Just like derivation trees with evaluation rules this notation makes it easy to 
 This higlights how to derive the type at the bottom from it's subterms. Typing the innermost subterm `true` with _t-true_. That can then be "stacked" by using it to replace the premise of type rule _t-lambda_. The type derivation expands from the subterm to establish each subsequent parent term's type. Another more complex derivation:
 
 ```coffeescript
-(-> true) (-> (-> false))()
+(-> (-> false))() true
 ```
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
 </div>
 
-Since there are two subterms involved in application, each branch extends upward until it reaches the atomic value types `true : Bool` and `false : Bool`. The subterm on the left is identical to equation 13. On the right, the nested lambdas and invocation make for a taller stack of type rules to reach the atomic `false`.
+The second subterm of the application is unimportant where the type of the term is concerned and as a result it's wholy ignored. Working on the left term, the tree extends upward until it reaches the atomic value type, `false : Bool`. The complexity of nested lambdas and invocation make for a taller stack of type rules to reach the atomic `false` when compared with the previous example.
 
 ## Not Quite There
 
 At this point the type rules can describe the original issue. A derivation tree based on the typing rules highlights that the term is untypable. Taking our canonical example, `(-> true)() -> false`:
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
 </div>
 
-Once the derivation tree reaches the outermost term it breaks. There is no type rule for the application of `true` to a lambda term like `(-> false)`. It's a type error.
+Once the derivation tree reaches the outermost term it breaks. There is no type rule for the application of `true` to a lambda term like `(-> false)` since _t-app_ requires the first term to have the type `X -> T` in its premise. It's a type error.
 
 Previously we saw that this this would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
 
@@ -116,17 +116,21 @@ Value  : bool                       { BooleanExpr $1 }
 
 There are two differences from the original grammar definition. Lambda terms in parenthesis are just a convenience for readability. More importantly application requires that any term be permitted as the left side. This enables the grammar to reproduce the original issue since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
 
-!! include image of whole fixed grammar
+<div class="center">
+  <img style="width: 200px;" src="/assets/images/diagrams/cs-grammar-corrected.png"></img>
+</div>
 
-With the corrected grammar an additional inference rule is required to ensure the left term of an application is fully evaluated befor applying it [!!].
+Also, a correction and an addition must be made to the inference rules to ensure that any term type is permitted as the left half of an application, and that it is fully evaluated befor applying it [!!].
 
-!! include image of e-arg-eval and e-app-eval
+<div class="center">
+  <img src="/assets/images/diagrams/cs-inference-rules-corrected.png"></img>
+</div>
 
-Where _e-arg-eval_ ensures that the argument of an application is fully evaluated, _e-app-eval_ ensures that the applicand is fully evaluated before the application takes place. The AST result from the parser is built with Haskell types. Pattern matching can be used with the type and inference rules to produce evaluation and derivation results.
+Where _e-arg-eval_ ensures that the argument of an application is fully evaluated, _e-app-eval_ ensures that the applicand is fully evaluated before the application takes place.
 
 ## Matching Rules
 
-To start let's look at a simple evaluator and derivation builder implementation.
+The abstract representation produced by the parser is simple tree structure built with Haskell types. Pattern matching can be used with the type and inference rules to produce evaluation and derivation results. To start let's look at a simple evaluator and derivation builder implementation.
 
 ```haskell
 -- an enumeration of each inference rule
@@ -179,7 +183,9 @@ matchRule (Apply a@(Apply _ _) t) = RuleMatch AppEval (Just a) t
 
 _e-arg-eval_ and _e-app-eval_ are more complicated than either _e-inv_ or _e-app_ which makes sense when comparing them as inference rules. Both _e-arg-eval_ and _e-app-eval_ carry a premise.
 
-!! include image of both of inference rules
+<div class="center">
+  <img src="/assets/images/diagrams/cs-inference-rules-app-argeval.png"></img>
+</div>
 
 Both rules require that some evaluation take place on one of the subterms. More importantly the shape of the term remains the same. Neither _e-arg-eval_ or _e-app-eval_ change the shape of the term to which they apply, only the shape of the sub terms. This is in contrast to _e-inv_ and _e-app_ which discard the invocation operator and second term respectively. As a result the `RuleMatch` contains the subterm that needs to be evaluated further and the other subterm that remains stagnant. Note that the _e-arg-eval_ rule is applied first so that the _e-app-eval_ rule can ignore the second subterm under the assumption that it's a value term (ie, not `Invoke` or `Apply`).
 
@@ -240,7 +246,10 @@ Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
 
 In english, the application of an invocation of a lambda with a lambda subterm to a boolean value. The resulting derivation tree in the original derivation tree notation takes the form:
 
-!! include image derivation tree
+<div class="center">
+  <img src="/assets/images/diagrams/cs-derivation-trees-ast-example.png"></img>
+</div>
+
 
 The `Derivation` instance has to work from the outside in so it's much harder to read than the notation, but it contains the same information
 
@@ -333,7 +342,9 @@ Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
 
 The type derivation using logic notation looks like:
 
-!! include image derivation tree
+<div class="center">
+  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-ast-example.png"></img>
+</div>
 
 The `Derivation` instance corresponding the the logic notation is again much larger but captures the same information (formatting added after the fact):
 
@@ -355,11 +366,15 @@ For this CoffeeScript subset we've seen that it's possible to build an understan
 
 One approach would be to first compare the `S` values for two triples and then determinine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambigous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
-!! insert image of dist func
+<div class="center">
+  <img src="/assets/images/diagrams/cs-dist.png"></img>
+</div>
 
 _dist_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. This is sometimes referred to as the Levenshtein Ratio. Providing a ratio allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
 
-!! insert image of dist invocation
+<div class="center">
+  <img style="width: 300px" src="/assets/images/diagrams/cs-dist-example.png"></img>
+</div>
 
 An exact value for string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a pre-determined threshold and they have different information in either `E` or `T` then they might be flagged.
 
