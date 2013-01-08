@@ -13,7 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-In the [previous post](CoffeeScript/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further with the introduction of type rules, example tools for detecting semantic ambiguity, and a concrete definition of semantic ambiguity itself.
+In the [previous post](/2012/11/27/math-envy-and-coffeescripts-foibles/) I presented the basics of operational semantics and showed how derivations trees could be used to differentiate two terms that were syntactically similar. This post develops the closing thoughts from that post further with the introduction of type rules, example tools for automating evaluation and type derivation, and a concrete definition of semantic ambiguity itself. The primary goal is to establish the best possible way to detect ambiguous term pairings and then outline what will work for a tool that can be generalized beyond the CoffeeScript subset.
 
 ## Type Rules
 
@@ -83,7 +83,7 @@ In addition we saw that it's possible to construct terms, albeit in the boolean 
 
 In both cases useful information is lost when the derivation is discarded in favor of the final value or type. The advantage with the type information is obviously that no evaluation is required to determine if two terms are "different" in some way other than their syntax. The disadvantage is that not all languages make determining type information easy.
 
-Ultimately the type information provides a second way to differentiate syntactically similar terms. Indeed there are cases where both the evalution and type information are necessary to distinguish terms. For example `((x, y) -> x + y)(1, 2)` has a type derivation identical to `((x, y) -> x * y)(1, 2)`, but it clearly evaluates differently [1].
+Ultimately the type information provides a second way to differentiate syntactically similar terms. Indeed there are cases where both the evalution and type information are necessary to distinguish terms. For example `((x, y) -> x + y)(1, 1)` has a type derivation identical to `((x, y) -> x * y)(1, 2)` and the same evaluation result, but it clearly takes a different evaluation path [1].
 
 _Note: The next five sections cover an implementation of a lexer, parser, evaluator and mechanisms for type/evaluation derivation. If you'd rather just read about how the generated evaluation and type derivations are used to find confusing term pairings you can skip to Detecting Ambiguity_
 
@@ -235,10 +235,10 @@ fullEval t =
 The `RuleMatch` instance is primarily geared toward building derivation trees. That's why the structure appears so awkward in use with `eval`.
 
 ```haskell
-data Derivation a = Empty | Derivation InfRule Derivation Derivation
+data Derivation a = Empty | Derivation InfRule Derivation Derivation Expr
 ```
 
-The `Derivation` data type is comprised of a tag from the `InfRule` enumeration, one _possible_ derivation as a premise, and the final derivation as the conclusion. Taking the derivation tree of a simple example `(-> (-> true))() false` which is parsed to:
+The `Derivation` data type is comprised of a tag from the `InfRule` enumeration, one _possible_ derivation as a premise, the final derivation as the conclusion, and the expression representing the state of evaluation at a given moment. Taking the derivation tree of a simple example `(-> (-> true))() false` which is parsed to:
 
 ```haskell
 Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
@@ -254,8 +254,15 @@ In english, the application of an invocation of a lambda with a lambda subterm t
 The `Derivation` instance has to work from the outside in so it's much harder to read than the notation, but it contains the same information
 
 ```haskell
---                 |----------premise---------| |-------"conclusion"-------|
-Derivation AppEval (Derivation Inv Empty Empty) (Derivation App Empty Empty)
+Derivation AppEval
+  -- |       premise        | |   e-inv value            |
+  (Derivation Inv Empty Empty (Lambda (BooleanExpr True)))
+
+  -- |      conclusion      | |   e-app value   |
+  (Derivation App Empty Empty (BooleanExpr True))
+
+  -- |                e-app-eval value                  |
+  (Apply (Lambda (BooleanExpr True)) (BooleanExpr False))
 ```
 
 Working from the outside in, it's clear that the applicand `(-> (-> true)()` needs evaluation before it can be applied to the argument `false` (_e-app-eval_). The premise of _e-app-eval_ requires that the applicand take a step and here that means an invocation (_e-inv_). Finally the result of the invocation `(-> true)` is applied to the `false` (_e-app_) as the "conclusion" of the _e-app-eval_. In reality, _e-app_ is applied to the result of the first derivation tree as it is with the logic notation.
@@ -380,9 +387,9 @@ An exact value for string distance that can be reconciled as a threshold "settin
 
 ## Fuzzy Search
 
-With a more complete understanding of semantic ambiguity and some tooling to provide the derivation info the next step is to analyze terms and detect ambiguous pairings. A system that will automate the exploration of the "term space" (all term combinations), and run a check against existing known terms for ambiguous pairs for each generated term, is needed.
+With a more complete understanding of semantic ambiguity and some tooling to provide the derivation info the next step is to analyze terms and detect ambiguous pairings. That is, we can now define a system that will automate the exploration of the "term space" (all term combinations), and run a check against existing known terms for ambiguous pairs for each generated term.
 
-Storing the triple of known terms for comparison would be fairly easy with the text search capabilities available in most modern databases. You could even [implement](http://www.artfulsoftware.com/infotree/qrytip.php?id=552) the Levenshtein Distance function and ratio and use it to check an new term against known terms. It may be that a purpose built data structure for the storage and retrieval based on a text search algorithm would perform better, but a good all purpose rdbms would suffice for a first pass [4].
+Storing the triple of known terms for comparison would be fairly easy with the text search capabilities available in most modern databases. You could even [implement](http://www.artfulsoftware.com/infotree/qrytip.php?id=552) the Levenshtein Distance function and ratio and use it to check an new term against known terms. It may be that a purpose built data structure for the storage and retrieval based on a text search algorithm would perform better, but a good all purpose rdbms would suffice for a first pass.
 
 More interesting is the generation of terms for a non-trivial language. It's seems likely that a _term generator_ would have to start with atomic types and successively wrap them in terms defined with subterms. That part can likely be performed with nothing more than knowledge of the grammar, but there are two issues.
 
@@ -390,7 +397,7 @@ First, the complexity of many programming languages makes re-examining the same 
 
 ## Quick and Dirty
 
-To avoid the extra effort required of the language creator in generating the derivations, a less complicated represenation of a term could still be effective, namely the tuple `(S, A)`. Where `S` remains the synatx of the term and `A` is the AST representation. Using the lambda term example, and haskell parser detailed earlier:
+To avoid the extra effort required of the language creator in generating the evaluation and type derivations, a less complicated representation of a term might still be effective, namely the tuple `(S, A)`. Where `S` remains the synatx of the term and `A` is the AST representation. Using the lambda term example, and haskell parser detailed earlier:
 
 ```haskell
 ( "(-> true)() -> false",
@@ -400,12 +407,11 @@ To avoid the extra effort required of the language creator in generating the der
   Apply (Lambda (BooleanExpr True)) (Lambda (BooleanExpr False)) )
 ```
 
-It's obvious that the abstract representations capture the issue at hand and the AST for a term would be available regardless of the host language. Serialization is the only extra requirement. With a term generator that works with a BNF, a way to generate the AST for a term (presumably through the language parser), and a database equiped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings [5].
+It's obvious that the abstract representations captures the issue at hand even if there is some information lost [4]. Best of all the AST for a term would be available regardless of the host language and serialization is the only extra requirement. With a term generator that works with a (E)BNF, a way to generate the AST for a term (presumably through the language parser), and a database equiped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings.
 
 ### footnotes
 
 1. It might be that when a function identifier is the only difference between terms, here `*` and `+`, it's reasonable to ignore ambigous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for futher consideration.
 2. Assuming it's possible, it's interesting to think abougt what the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal the two terms or the parent language as antithetical to Python's slogan of "one and only one way to do it".
 3. The implementation in Haskell forced these issues out into the open. I'm curious if proving progress and preservation would have pointed out the flaws in my approach (this may be obvious one way or another to a better educated reader).
-4. I'm going to leave this as a further exercise for myself when time permits.
-5. See 4
+4. For example, the AST doesn't capture the type of lambda form that was used. This may be usefull information even if this particular example doesn't require it.
