@@ -1,4 +1,4 @@
-y---
+---
 layout: post
 title: Math Envy and CoffeeScript's Foibles, Part 2
 tags:
@@ -409,9 +409,17 @@ To avoid the extra effort required of the language creator in generating the eva
 
 It's obvious that the abstract representations captures the issue at hand even if there is some information lost [4]. Best of all the AST for a term would be available regardless of the host language and serialization is the only extra requirement. With a term generator that works with a (E)BNF, a way to generate the AST for a term (presumably through the language parser), and a database equipped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings.
 
+## Further Work
+
+First I have to apologize for not building out a tool for generating terms and even a schema for term storage. I wanted to do the automated evaluation and type derivations to get a feel for the effort involved and the result was an exceptionally long post. If I find the time to return to this I'd like to build out the term generator and couple it with a simple database. I think that going through the process of building a BNF parser would be a lot of fun by itself.
+
+In the course of these two posts we've seen what it looks like to formalize both the evaluation and type semantics of a simple programming language. We've also come to a relatively satisfying formalization of semantic ambiguity that could be used in conjunction with a common language definition form (BNF, EBNF) to alert a language designer of potential issues [5] [6].
+
 ### footnotes
 
 1. It might be that when a function identifier is the only difference between terms, here `*` and `+`, it's reasonable to ignore ambiguous terms. In this case because the total string length for both terms is small it might be that a single character difference is enough to break some arbitrary threshold. I'm leaving this for further consideration.
 2. Assuming it's possible, it's interesting to think about what the inverse result means. That is, when two terms are very syntactically different but have identical types/evaluation derivations. This might signal the two terms or the parent language as antithetical to Python's slogan of "one and only one way to do it".
 3. The implementation in Haskell forced these issues out into the open. I'm curious if proving progress and preservation would have pointed out the flaws in my approach (this may be obvious one way or another to a better educated reader).
 4. For example, the AST doesn't capture the type of lambda form that was used. This may be useful information even if this particular example doesn't require it.
+5. Though it would be infinitely more satisfying if we could build a tool based on the ideas and arrive at that same conclusions about this CoffeeScript subset and a few other BNF friendly languages.
+6. It's worth pointing out that the CoffeScript issue with lambdas and invocation has been/was known to Jeremy. It was simply a choice in favor of flexibility. I like to think that the hypothetical tool presented here would be useful in cases where ambiguous term pairings are less obvious and for people who may want less flexibility.
