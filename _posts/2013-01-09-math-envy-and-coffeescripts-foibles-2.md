@@ -9,7 +9,7 @@ status: draft
 type: post
 published: true
 listed: true
-vote: http://news.ycombinator.com/newest
+vote: http://news.ycombinator.com/
 meta:
   _edit_last: "1"
 ---
