@@ -425,3 +425,4 @@ In the course of these two posts we've seen what it looks like to formalize both
 4. For example, the AST doesn't capture the type of lambda form that was used. This may be useful information even if this particular example doesn't require it.
 5. Though it would be infinitely more satisfying if we could build a tool based on the ideas and arrive at that same conclusions about this CoffeeScript subset and a few other BNF friendly languages.
 6. It's worth pointing out that the CoffeeScript issue with lambdas and invocation [has been/was known to Jeremy](http://news.ycombinator.com/item?id=4849151). It was simply a choice in favor of flexibility. I like to think that the hypothetical tool presented here would be useful in cases where ambiguous term pairings are less obvious and for people who may want less flexibility.
+7. A special thanks to [keyist](http://twitter.com/keyist) for proofreading.
