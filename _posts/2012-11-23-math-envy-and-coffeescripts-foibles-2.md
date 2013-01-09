@@ -41,7 +41,7 @@ _t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`.
   <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
 </div>
 
-_t-app_ is the type rule for lambda applications, eg. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the type of the argument that it's applied to.
+_t-app_ is the type rule for lambda applications, e.g. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the type of the argument that it's applied to.
 
 ## Type Rule Stacking
 
@@ -55,7 +55,7 @@ This notation makes it easy to establish the type of a term by stacking the type
   <img src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
 </div>
 
-This highlights how to derive the type at the bottom from it's subterms. Typing the innermost subterm `true` with _t-true_. That can then be "stacked" by using it to replace the premise of type rule _t-lambda_. The type derivation expands from the subterm to establish each subsequent parent term's type. Another more complex derivation:
+This highlights how to derive the type at the bottom from its subterms. Typing the innermost subterm `true` with _t-true_ can be "stacked" by using it to replace the premise of type rule _t-lambda_. The type derivation expands from the subterm to establish each subsequent parent term's type. Another more complex derivation:
 
 ```coffeescript
 (-> (-> false))() true
@@ -77,7 +77,7 @@ At this point the type rules can describe the original issue. A derivation tree 
 
 Once the derivation tree reaches the outermost term it breaks. There is no type rule for the application of something with type `Bool` to something with type `X -> Bool` since _t-app_ requires the first term have the type `X -> T` in its premise. It's a type error.
 
-Previously we saw that this this would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
+Previously we saw that this would result in a type error under evaluation by the CoffeeScript interpreter. We also saw that it was easy to construct a term that suffered the same semantic confusion without the type error `(-> (-> true))() -> false`. This issue applies to the type derivation as well.
 
 In addition we saw that it's possible to construct terms, albeit in the boolean example language, that might produce the same value through different evaluation paths. That is, they had different derivation trees in the evaluation relation but the same evaluation result. This issue also applies to type derivations.
 
@@ -114,7 +114,7 @@ Value  : bool                       { BooleanExpr $1 }
 
  You can view the full lexer and parser implementations [here](https://gist.github.com/8d7db37e8a6dc99e1ea3).
 
-There are two differences from the original grammar definition. Lambda terms in parenthesis are just a convenience for readability. More importantly a correction must be made to application of two terms, allowing for any term as the left side (the _applicand_) [2]. This enables the grammar to reproduce the original issue, since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
+There are two differences from the original grammar definition. Lambda terms in parentheses are just a convenience for readability. More importantly a correction must be made to application of two terms, allowing for any term as the left side (the _applicand_) [2]. This enables the grammar to reproduce the original issue, since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
 
 <div class="center">
   <img style="width: 200px;" src="/assets/images/diagrams/cs-grammar-corrected.png"></img>
@@ -161,7 +161,7 @@ The value terms `true`, `false` and `(-> x)` are the base case of `matchRule`. T
 matchRule (Invoke (Lambda t)) = RuleMatch Inv Nothing t
 ```
 
-Invocation can only be applied to a lambda term and the result of the invocation is the lambda's subterm, eg. `(-> true)()` evaluates to `true`. An invocation on anything else will simply drop through this match and ultimately to the catch all `error` case. For example the CoffeeScript `true()` is invalid. Its abstract representation from the parser is `Invoke (BooleanExpr True)` which clearly won't match here. On a match, the `RuleMatch` result contains the rule tag for invocation `Inv`, nothing for an inference rule premise since there isn't one for _e-inv_ and the subterm `t` for further derivation in the conclusion.
+Invocation can only be applied to a lambda term and the result of the invocation is the lambda's subterm, e.g. `(-> true)()` evaluates to `true`. An invocation on anything else will simply drop through this match and ultimately to the catch all `error` case. For example the CoffeeScript `true()` is invalid. Its abstract representation from the parser is `Invoke (BooleanExpr True)` which clearly won't match here. On a match, the `RuleMatch` result contains the rule tag for invocation `Inv`, nothing for an inference rule premise since there isn't one for _e-inv_ and the subterm `t` for further derivation in the conclusion.
 
 ```haskell
 -- Rule: e-app
@@ -311,7 +311,7 @@ matchRule (Apply t@(Invoke _) _)  = RuleMatch App t
 matchRule (Apply t@(Apply _ _) _) = RuleMatch App t
 ```
 
-The `Apply` matches capture only valid applicands and let the rest fall through to the error case. It's also worth noting that each of the `Apply` matches discard the argument term because it's unnecessary to the type of the expression. This fits with the definition of the type rules.
+The `Apply` matches capture only valid applicands and let the rest fall through to the error case. It's also worth noting that each of the `Apply` matches discards the argument term because it's unnecessary to the type of the expression. This fits with the definition of the type rules.
 
 Fixing the type of a given expression is a simple recursive effort on applications. The `Type` data type captures both the `Bool` result, and the recursive `Arrow` type. For example `(-> (-> true))` has the type `Arrow (Arrow Bool)`.
 
@@ -371,7 +371,7 @@ As noted in the comments each step in the derivation resolves the type at that s
 
 ## Detecting Ambiguity
 
-So far we've seen that it's possible to build an understanding of evaluation and typing that provides more information than just the evaluation result or the fixed type for a term. Capturing that extra information a can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evaluation derivation, and `T` is the type derivation. This triple can be used to determine whether two terms will cause confusion.
+So far we've seen that it's possible to build an understanding of evaluation and typing that provides more information than just the evaluation result or the fixed type for a term. Capturing that extra information, a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evaluation derivation, and `T` is the type derivation. This triple can be used to determine whether two terms will cause confusion.
 
 One approach is to first compare the `S` values for two terms and then determine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambiguous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
@@ -385,7 +385,7 @@ _lev_ is the Levenshtein distance function and _dist_ is just the ratio of the d
   <img style="width: 300px" src="/assets/images/diagrams/cs-dist-example.png"></img>
 </div>
 
-An relative value for string distance that can be used as a threshold "setting" makes building a tool for automating the process easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a predetermined threshold and they have different information in either `E` or `T` then they might be flagged [3].
+A relative value for string distance that can be used as a threshold "setting" makes building a tool for automating the process easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a predetermined threshold and they have different information in either `E` or `T` then they might be flagged [3].
 
 ## Fuzzy Search
 
@@ -395,7 +395,7 @@ Storing the triple of known terms for comparison is fairly easy with the text se
 
 More interesting is the generation of terms for a non-trivial language. A _term generator_ would start with atomic types and successively wrap them in terms defined to have subterms. That part can likely be performed with nothing more than knowledge of the grammar. There are two issues with this.
 
-First, the complexity of many programming languages makes re-examining the same terms an enormous waste of time. Tracking the explored terms and "resuming" the exploration process would have a lot of value. Second, generating the derivations to store and compare along with the syntax is an involved effort. Again, It's easy to tag a piece of syntax with the result of execution or typing but information is lost.
+First, the complexity of many programming languages makes re-examining the same terms an enormous waste of time. Tracking the explored terms and "resuming" the exploration process would have a lot of value. Second, generating the derivations to store and compare along with the syntax is an involved effort. Again, it's easy to tag a piece of syntax with the result of execution or typing but information is lost.
 
 ## Quick and Dirty
 
