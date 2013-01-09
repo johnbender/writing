@@ -371,35 +371,35 @@ As noted in the comments each step in the derivation resolves the type at that s
 
 ## Detecting Ambiguity
 
-For this CoffeeScript subset we've seen that it's possible to build an understanding of evaluation and typing that provides more information than the evaluation result or the fixed type of a individually. Capturing that extra information a term can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evaluation derivation, and `T` is the type derivation. This triple can be used to determine whether two terms will cause confusion.
+So far we've seen that it's possible to build an understanding of evaluation and typing that provides more information than just the evaluation result or the fixed type for a term. Capturing that extra information a can be represented by a triple `(S, E, T)`, where `S` is the syntax string of the term, `E` is the evaluation derivation, and `T` is the type derivation. This triple can be used to determine whether two terms will cause confusion.
 
-One approach would be to first compare the `S` values for two triples and then determine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambiguous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
+One approach is to first compare the `S` values for two terms and then determine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambiguous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
 <div class="center">
   <img src="/assets/images/diagrams/cs-dist.png"></img>
 </div>
 
-_dist_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. This is sometimes referred to as the Levenshtein Ratio. Providing a ratio allows for a baseline with a given grammar that might capture all "very similar" terms regardless of the term length. For `(-> true)() -> false` and `(-> true) () -> false`:
+_lev_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. This is sometimes referred to as the Levenshtein Ratio. For `(-> true)() -> false` and `(-> true) () -> false`:
 
 <div class="center">
   <img style="width: 300px" src="/assets/images/diagrams/cs-dist-example.png"></img>
 </div>
 
-An exact value for string distance that can be reconciled as a threshold "setting" makes building an automated tool a bit easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a predetermined threshold and they have different information in either `E` or `T` then they might be flagged [3].
+An relative value for string distance that can be used as a threshold "setting" makes building a tool for automating the process easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a predetermined threshold and they have different information in either `E` or `T` then they might be flagged [3].
 
 ## Fuzzy Search
 
-With a more complete understanding of semantic ambiguity and some tooling to provide the derivation info the next step is to analyze terms and detect ambiguous pairings. That is, we can now define a system that will automate the exploration of the "term space" (all term combinations), and run a check against existing known terms for ambiguous pairs for each generated term.
+We now have enough information to define a system that will automate the exploration of the "term space" (all term combinations), and run a check against existing known terms for ambiguous pairs for each generated term.
 
-Storing the triple of known terms for comparison would be fairly easy with the text search capabilities available in most modern databases. You could even [implement](http://www.artfulsoftware.com/infotree/qrytip.php?id=552) the Levenshtein Distance function and ratio and use it to check an new term against known terms. It may be that a purpose built data structure for the storage and retrieval based on a text search algorithm would perform better, but a good all purpose RDBMS would suffice for a first pass.
+Storing the triple of known terms for comparison is fairly easy with the text search capabilities available in most modern databases. One might even [implement](http://www.artfulsoftware.com/infotree/qrytip.php?id=552) the Levenshtein Distance function and use it to check a new term against known terms. It may be that a purpose built data structure for the storage and retrieval based on a text search algorithm would perform better, but a good all purpose RDBMS would be fine for a first pass.
 
-More interesting is the generation of terms for a non-trivial language. It's seems likely that a _term generator_ would have to start with atomic types and successively wrap them in terms defined with subterms. That part can likely be performed with nothing more than knowledge of the grammar, but there are two issues.
+More interesting is the generation of terms for a non-trivial language. A _term generator_ would start with atomic types and successively wrap them in terms defined to have subterms. That part can likely be performed with nothing more than knowledge of the grammar. There are two issues with this.
 
 First, the complexity of many programming languages makes re-examining the same terms an enormous waste of time. Tracking the explored terms and "resuming" the exploration process would have a lot of value. Second, generating the derivations to store and compare along with the syntax is an involved effort. Again, It's easy to tag a piece of syntax with the result of execution or typing but information is lost.
 
 ## Quick and Dirty
 
-To avoid the extra effort required of the language creator in generating the evaluation and type derivations, a less complicated representation of a term might still be effective. For example the tuple `(S, A)`, where `S` remains the syntax of the term and `A` is the AST representation. Using the lambda term example, and haskell parser detailed earlier:
+A less complicated representation of a term might still be effective, and could avoid extra effort required of the language creator in generating the evaluation and type derivations. For example the tuple `(S, A)`, where `S` remains the syntax of the term and `A` is the AST representation.
 
 ```haskell
 ( "(-> true)() -> false",
@@ -409,7 +409,7 @@ To avoid the extra effort required of the language creator in generating the eva
   Apply (Lambda (BooleanExpr True)) (Lambda (BooleanExpr False)) )
 ```
 
-It's obvious that the abstract representations capture the issue at hand even if there is some information lost [4]. Best of all the AST for a term would be available regardless of the host language and serialization is the only extra requirement. With a term generator that works with a (E)BNF, a way to generate the AST for a term (presumably through the language parser), and a database equipped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings.
+It's obvious that the abstract representations capture the issue at hand even if there is some information lost [4]. Best of all the AST for a term is available regardless of the host language and serialization is the only extra requirement. Having a term generator that works with a (E)BNF, a way to generate the AST for a term (presumably through the language parser), and a database equipped with the ability to find like terms it seems entirely possible to alert the language creator of complex or convoluted pairings.
 
 ## Further Work
 
