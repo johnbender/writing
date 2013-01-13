@@ -11,6 +11,8 @@ The following is a selection of my best work. It includes essays available elsew
 
 ## Writing
 
+[Math Envy and CoffeeScript's Foibles, Part 2](/2013/01/09/math-envy-and-coffeescripts-foibles-2/) - This completes the formal definition of semantic ambiguity and explores ways that a tool, generalized beyond the example CoffeeScript subset, might detect ambiguous term pairs an any language.
+
 [Math Envy and CoffeeScript's Foibles, Part 1](/2012/11/27/math-envy-and-coffeescripts-foibles/) - CoffeeScript is a popular JavaScript replacement well know for it's syntactic flexibility, but the language's design has produced confusing interactions between terms. This post formalizes a subset of the language to reproduce one such issue and begins the process of formalizing semantic ambiguity using operational semantics.
 
 [Faster JavaScript with Category Theory](/2012/02/09/faster-javascript-through-category-theory/) - This post covers my initial work on formalizing the relationship between vanilla DOM manipulation functions and jQuery methods using Category Theory. It forms the basis for one talk and two essays.
