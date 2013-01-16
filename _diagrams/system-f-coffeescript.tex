@@ -13,11 +13,19 @@
 \section{Grammars}
 
 \begin{grammar}
-<t> ::= <x> | <\lambda x>.<t> | <t> <t>
+<e> ::= <x> | <\lambda x>.<e> | <e> <e>
 \end{grammar}
 
 \begin{grammar}
-<t> ::= <x> | \lit*{(} <x> \lit*{) ->} <t> | <t> <t>
+<e> ::= <x> | \lit*{(}<x>\lit*{) ->} <e> | <e> <e>
+\end{grammar}
+
+\begin{grammar}
+<e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e> | <c>
+\end{grammar}
+
+\begin{grammar}
+<e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e> | <c>
 \end{grammar}
 
 \section{Lambda Calculus}

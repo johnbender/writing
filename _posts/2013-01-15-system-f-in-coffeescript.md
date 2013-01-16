@@ -13,7 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-System F is a typed variant of the Lambda Calculus. It "mixes" types and terms relatively freely compared with the average statically typed programming language. System F and it's variants are used frequently in the study of typed computation and an extended form, System FC [1], plays an important role in GHC's compilation process. In this post I'll attempt to translate the grammar for the types and terms of System F into a small subset of CoffeeScript.
+System F is a variant of the Lambda Calculus. It "mixes" types and terms relatively freely compared with the average statically typed programming language. System F and it's variants are used frequently in the study of typed computation and an extended form, System FC, plays an important role in GHC's compilation process [1]. This post will translate the grammars of the Lambda Calculus, Simply Typed Lambda Calculus, and finally System F into a small subset of CoffeeScript while covering the basics of application and abstraction in each.
 
 ## Lambda Calculus
 
@@ -31,10 +31,22 @@ In CoffeeScript the same initial term is `(x) -> y` and applying the CoffeeScrip
 
 !! insert image of application to identity
 
-The application of a term that takes two arguments (`y` and `x`) to a single term/argument results in a lambda abstraction that can be applied to another term. The <a href="http://coffeescript.org/#try:console.log%20((y)%20-%3E%20(x)%20-%3E%20y)%20((x)%20-%3E%20y)">translation</a> to JavaScript shows that a function object is returned ready for application.
+The application of a term that takes two arguments (`y` and `x`) to a single term/argument results in a lambda that can be applied to another term. The <a href="http://coffeescript.org/#try:console.log%20((y)%20-%3E%20(x)%20-%3E%20y)%20((x)%20-%3E%20y)">translation</a> to JavaScript shows that a function object is returned ready for application.
 
-## System F
+## Simply Typed Lambda Calculus
+
+System F expands on the Simply Typed Lambda Calculus which in turn is an expansion on the Lambda Calculus. The grammar of the Simply Typed Lambda Calculus makes two alterations to that of the untyped Lambda Calculus.
+
+It adds a type requirement to the argument of the abstraction. The CoffeeScript equivalent requires a function that compares a type argument to the argument term. To keep things simple, `ifft` will throw an exception when the types don't line up [2].
+
+```coffeescript
+# define ifft
+```
+
+Additionally both are extended with the notion of constants, `c`.
+
 
 ### Footnotes
 
-1. Some [interesting papers](http://research.microsoft.com/en-us/um/people/simonpj/papers/ext-f/) to read from Microsoft Research this particular extension of System F.
+1. There are some [interesting papers](http://research.microsoft.com/en-us/um/people/simonpj/papers/ext-f/) to read from Microsoft Research this particular extension of System F.
+2. This is a more [intrinsic](http://en.wikipedia.org/wiki/Simply_typed_lambda_calculus#Intrinsic_vs._extrinsic_interpretations) approach to the translation as we aren't attempting to use types to reason about the terms/grammars.
