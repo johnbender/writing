@@ -1,0 +1,37 @@
+\documentclass[11hpt]{article}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage[all]{xy}
+\usepackage{syntax}
+\usepackage{trfrac}
+
+\renewcommand{\syntleft}{\normalfont\itshape}
+\renewcommand{\syntright}{}
+
+\begin{document}
+
+\section{Grammars}
+
+\begin{grammar}
+<t> ::= <x> | <\lambda x>.<t> | <t> <t>
+\end{grammar}
+
+\begin{grammar}
+<t> ::= <x> | \lit*{(} <x> \lit*{) ->} <t> | <t> <t>
+\end{grammar}
+
+\section{Lambda Calculus}
+
+\begin{align*}
+\lambda x.y \\
+\lambda y.\lambda x.y \\
+\lit*{(x) -> y} \\
+\lit*{(y) -> (x) -> y}
+\end{align*}
+
+\begin{align*}
+(\lambda y.\lambda x.y) \ \lambda z.z \quad &\rightarrow \quad \lambda x.(\lambda z.z) \\
+\lit*{((y) -> (x) -> y) (z) -> z} \quad &\rightarrow \quad \lit*{(x) -> ((z) -> z)}
+\end{align*}
+
+\end{document}
