@@ -21,11 +21,11 @@
 \end{grammar}
 
 \begin{grammar}
-<e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e> | <c>
+<e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e>
 \end{grammar}
 
 \begin{grammar}
-<e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e> | <c>
+<e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e>
 \end{grammar}
 
 \section{Lambda Calculus}
@@ -40,6 +40,11 @@
 \begin{align*}
 (\lambda y.\lambda x.y) \ \lambda z.z \quad &\rightarrow \quad \lambda x.(\lambda z.z) \\
 \lit*{((y) -> (x) -> y) (z) -> z} \quad &\rightarrow \quad \lit*{(x) -> ((z) -> z)}
+\end{align*}
+
+\begin{align*}
+\lambda x:&\lit*{Foo}.x \\
+\lit*{(x) -> ifft(}&\lit*{Foo,\ x); \ x} \\
 \end{align*}
 
 \end{document}
