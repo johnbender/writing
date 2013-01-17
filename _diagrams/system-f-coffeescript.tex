@@ -12,23 +12,38 @@
 
 \section{Grammars}
 
+\subsection{Lambda Calculus}
 \begin{grammar}
-<e> ::= <x> | <\lambda x>.<e> | <e> <e>
+  <e> ::= <x> | <\lambda x>.<e> | <e> <e>
 \end{grammar}
 
 \begin{grammar}
-<e> ::= <x> | \lit*{(}<x>\lit*{) ->} <e> | <e> <e>
+  <e> ::= <x> | \lit*{(}<x>\lit*{) ->} <e> | <e> <e>
+\end{grammar}
+
+\subsection{Simply Typed Lambda Calculus}
+\begin{grammar}
+  <e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e>
 \end{grammar}
 
 \begin{grammar}
-<e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e>
+  <e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e>
+\end{grammar}
+
+\subsection{System F}
+\begin{grammar}
+  <e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e> | <\Lambda \alpha>.<e> | <e> [<\tau>]
 \end{grammar}
 
 \begin{grammar}
-<e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e>
+  <e> ::= <x>
+       | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e>
+       | <e> <e>
+       | \lit*{(}<\alpha>\lit*{) ->} <e>
+       | <e> <\tau>
 \end{grammar}
 
-\section{Lambda Calculus}
+\section{Examples}
 
 \begin{align*}
 \lambda x.y \\
@@ -38,13 +53,23 @@
 \end{align*}
 
 \begin{align*}
-(\lambda y.\lambda x.y) \ \lambda z.z \quad &\rightarrow \quad \lambda x.(\lambda z.z) \\
-\lit*{((y) -> (x) -> y) (z) -> z} \quad &\rightarrow \quad \lit*{(x) -> ((z) -> z)}
+(\lambda y.\lambda x.y) \ \lambda z.z \quad &\to \quad \lambda x.(\lambda z.z) \\
+\lit*{((y) -> (x) -> y) (z) -> z} \quad &\to \quad \lit*{(x) -> ((z) -> z)}
+\end{align*}
+
+ \begin{align*}
+\lambda x:&\lit*{Foo}.x \\
+\lit*{(x) -> ifft(}&\lit*{Foo,\ x); \ x} \\
 \end{align*}
 
 \begin{align*}
-\lambda x:&\lit*{Foo}.x \\
-\lit*{(x) -> ifft(}&\lit*{Foo,\ x); \ x} \\
+\Lambda&\alpha.\lambda x:\alpha.x \\
+\lit*{(}&\alpha\lit*{) -> (x) -> ifft(} \alpha \lit*{,\ x); \ x} \\
+\end{align*}
+
+\begin{align*}
+(\Lambda\alpha.\lambda x:\alpha.x) [\lit*{Foo}] \quad &\to \quad \lambda x:\lit*{Foo}.x \\
+\lit*{(}\alpha\lit*{) -> (x) -> ifft(} \alpha \lit*{,\ x); \ x) Foo} \quad &\to \quad \lit*{(x) -> ifft(Foo,\ x); \ x}
 \end{align*}
 
 \end{document}
