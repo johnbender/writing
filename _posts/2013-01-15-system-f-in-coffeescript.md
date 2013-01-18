@@ -7,8 +7,8 @@ tags:
 status: draft
 type: post
 published: true
-listed: false
-vote: "CHANGE"
+listed: true
+vote: "http://news.ycombinator.com/newest"
 meta:
   _edit_last: "1"
 ---
