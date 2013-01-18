@@ -10,9 +10,6 @@
 
 \begin{document}
 
-\section{Grammars}
-
-\subsection{Lambda Calculus}
 \begin{grammar}
   <e> ::= <x> | <\lambda x>.<e> | <e> <e>
 \end{grammar}
@@ -21,55 +18,56 @@
   <e> ::= <x> | \lit*{(}<x>\lit*{) ->} <e> | <e> <e>
 \end{grammar}
 
-\subsection{Simply Typed Lambda Calculus}
 \begin{grammar}
   <e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e>
 \end{grammar}
 
 \begin{grammar}
-  <e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e> | <e> <e>
+  <e> ::= <x> | \lit*{(}<x>\lit*{) -> ifft(}<\tau>\lit*{,}<x>\lit*{);} <e> | <e> <e>
 \end{grammar}
 
-\subsection{System F}
 \begin{grammar}
   <e> ::= <x> | <\lambda x>:<\tau>.<e> | <e> <e> | <\Lambda \alpha>.<e> | <e> [<\tau>]
 \end{grammar}
 
 \begin{grammar}
   <e> ::= <x>
-       | \lit*{(}<x>\lit*{) -> ifft(}<x>\lit*{,}<\tau>\lit*{);} <e>
+       | \lit*{(}<x>\lit*{) -> ifft(}<\tau>\lit*{,}<x>\lit*{);} <e>
        | <e> <e>
        | \lit*{(}<\alpha>\lit*{) ->} <e>
        | <e> <\tau>
 \end{grammar}
 
-\section{Examples}
-
 \begin{align*}
-\lambda x.y \\
-\lambda y.\lambda x.y \\
-\lit*{(x) -> y} \\
-\lit*{(y) -> (x) -> y}
+\lambda &x.y \\
+\lambda y.\lambda &x.y \\ \\
+\lit*{(}&x\lit*{) -> }y\lit*{} \\
+\lit*{(}y\lit*{) -> (}&x\lit*{) -> }y\lit*{}
 \end{align*}
 
 \begin{align*}
-(\lambda y.\lambda x.y) \ \lambda z.z \quad &\to \quad \lambda x.(\lambda z.z) \\
-\lit*{((y) -> (x) -> y) (z) -> z} \quad &\to \quad \lit*{(x) -> ((z) -> z)}
+(\lambda y.\lambda x.y) \ z \quad &\to \quad \lambda x.z\\
+\lit*{((}y\lit*{) -> (}x\lit*{) -> }y\lit*{)}\ z \quad &\to \quad \lit*{(}x\lit*{) ->}\ z
+\end{align*}
+
+ \begin{align*}
+\lambda x:&\tau.x \\
+\lit*{(}x\lit*{) -> ifft(}&\tau\lit*{,\ }x\lit*{);}\ x
 \end{align*}
 
  \begin{align*}
 \lambda x:&\lit*{Foo}.x \\
-\lit*{(x) -> ifft(}&\lit*{Foo,\ x); \ x} \\
+\lit*{(}x\lit*{) -> ifft(}&\lit*{Foo,\ }x\lit*{);}\ x
 \end{align*}
 
 \begin{align*}
-\Lambda&\alpha.\lambda x:\alpha.x \\
-\lit*{(}&\alpha\lit*{) -> (x) -> ifft(} \alpha \lit*{,\ x); \ x} \\
+\Lambda \alpha.\lambda x:&\alpha.x \\
+\lit*{(} \alpha\lit*{) -> (}x\lit*{) -> ifft(} &\alpha \lit*{,\ }x\lit*{);}\ x
 \end{align*}
 
 \begin{align*}
 (\Lambda\alpha.\lambda x:\alpha.x) [\lit*{Foo}] \quad &\to \quad \lambda x:\lit*{Foo}.x \\
-\lit*{(}\alpha\lit*{) -> (x) -> ifft(} \alpha \lit*{,\ x); \ x) Foo} \quad &\to \quad \lit*{(x) -> ifft(Foo,\ x); \ x}
+\lit*{((}\alpha\lit*{) -> (}x\lit*{) -> ifft(} \alpha \lit*{,\ }x\lit*{); \ }x\lit*{) Foo} \quad &\to \quad \lit*{(}x\lit*{) -> ifft(Foo,\ }x\lit*{); \ }x\lit*{}
 \end{align*}
 
 \end{document}

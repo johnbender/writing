@@ -317,6 +317,11 @@ div.center > img.wide {
   max-width: 95%;
 }
 
+div.center > img.slim {
+  width: 60%;
+  min-width: 200px;
+}
+
 div.side-by-side > img {
   max-height: 250px;
   margin: 2em 4em;
