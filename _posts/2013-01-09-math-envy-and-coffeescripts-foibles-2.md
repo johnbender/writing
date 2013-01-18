@@ -21,25 +21,25 @@ In the [previous post](/2012/11/27/math-envy-and-coffeescripts-foibles/) I prese
 Type rules are similar in construction to evaluation rules, consisting of a premise and conclusion. As with evaluation rules the premise establishes the preconditions for the conclusion. Again, each rule is tagged with a name for reference but preceded by a _t-_ in this case to distinguish them from inference rules (_e-_).
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-rules.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-type-rules.png"></img>
 </div>
 
 Type rules without a premise like _t-true_ and _t-false_ are taken to be true out of hand. That is, the terms `true` and `false` both have the type `Bool`. The others are more complicated.
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-rules-lambda-term.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-type-rules-lambda-term.png"></img>
 </div>
 
 _t-lambda_ illustrates how to determine the type of a lambda term like `(-> true)`. The premise above the line states that if the subterm `t` has the _concrete_ type `T`, then the conclusion `λt` has the type `X -> T`. Here `X` is a _type variable_ because we don't know whether the lambda will be evaluated with the invocation operator `()` or applied to an argument. `T` will be concrete because it can be determined from the body of the lambda expression. For example, in `(-> true)` the subterm `true` has the type `Bool` so the lambda term has the type `X -> Bool`.
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-rules-lambda-invocation.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-type-rules-lambda-invocation.png"></img>
 </div>
 
 _t-inv_ shows how to determine the type of lambda invocation like `(-> true)()`. The premise states if the lambda term has the type `X -> T` the term `λt()` has the type `T`. For example, `(-> true)()` evaluates to `true` and has the type `Bool`. It's worth noting that `X` is constrained to be the `Unit` or empty type since no argument is used.
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-rules-lambda-application.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-type-rules-lambda-application.png"></img>
 </div>
 
 _t-app_ is the type rule for lambda applications, e.g. `(-> true) false`. The premise says that if the lambda term `λt` on the left has the type `X -> T` the conclusion is that the application will have the result type of the lambda term. Again, the type of an application, like invocation, is only concerned with the type of the *first* lambda's subterm `t` and it ignores the type of the argument that it's applied to.
@@ -53,7 +53,7 @@ This notation makes it easy to establish the type of a term by stacking the type
 ```
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-type-derivation-simple.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-type-derivation-simple.png"></img>
 </div>
 
 This highlights how to derive the type at the bottom from its subterms. Typing the innermost subterm `true` with _t-true_ can be "stacked" by using it to replace the premise of type rule _t-lambda_. The type derivation expands from the subterm to establish each subsequent parent term's type. Another more complex derivation:
@@ -63,7 +63,7 @@ This highlights how to derive the type at the bottom from its subterms. Typing t
 ```
 
 <div class="center">
-  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-complex.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/math-envy-cs/cs-type-derivation-complex.png"></img>
 </div>
 
 The second subterm of the application is unimportant where the type of the term is concerned and as a result it's wholly ignored. Working on the left term, the tree extends upward until it reaches the atomic value type, `false : Bool`. The complexity of nested lambdas and invocation make for a taller stack of type rules to reach the atomic `false` when compared with the previous example.
@@ -73,7 +73,7 @@ The second subterm of the application is unimportant where the type of the term 
 At this point the type rules can describe the original issue. A derivation tree based on the typing rules highlights that the term is untypable. Taking our canonical example, `(-> true)() -> false`:
 
 <div class="center">
-  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-original-issue.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/math-envy-cs/cs-type-derivation-original-issue.png"></img>
 </div>
 
 Once the derivation tree reaches the outermost term it breaks. There is no type rule for the application of something with type `Bool` to something with type `X -> Bool` since _t-app_ requires the first term have the type `X -> T` in its premise. It's a type error.
@@ -118,13 +118,13 @@ Value  : bool                       { BooleanExpr $1 }
 There are two differences from the original grammar definition. Lambda terms in parentheses are just a convenience for readability. More importantly a correction must be made to application of two terms, allowing for any term as the left side (the _applicand_) [2]. This enables the grammar to reproduce the original issue, since `(-> true)() -> false` translates to an invocation applied to a lambda term. The corrected grammar:
 
 <div class="center">
-  <img style="width: 200px;" src="/assets/images/diagrams/cs-grammar-corrected.png"></img>
+  <img style="width: 200px;" src="/assets/images/diagrams/math-envy-cs/cs-grammar-corrected.png"></img>
 </div>
 
 Also, a correction and an addition must be made to the inference rules presented in the previous post. This will ensure that any term type is permitted as the left half of an application, and that it is fully evaluated before applying it.
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-inference-rules-corrected.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-inference-rules-corrected.png"></img>
 </div>
 
 Where _e-arg-eval_ ensures that the argument of an application is fully evaluated, _e-app-eval_ ensures that the applicand is fully evaluated before the application takes place.
@@ -185,7 +185,7 @@ matchRule (Apply a@(Apply _ _) t) = RuleMatch AppEval (Just a) t
 _e-arg-eval_ and _e-app-eval_ are more complicated than either _e-inv_ or _e-app_ which makes sense when comparing them as inference rules. Both _e-arg-eval_ and _e-app-eval_ carry a premise.
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-inference-rules-app-argeval.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-inference-rules-app-argeval.png"></img>
 </div>
 
 Both rules require that some evaluation take place on one of the subterms. More importantly the shape of the term remains the same. Neither _e-arg-eval_ or _e-app-eval_ change the shape of the term to which they apply, only the shape of the sub terms. This is in contrast to _e-inv_ and _e-app_ which discard the invocation operator and second term respectively. As a result the `RuleMatch` contains the subterm that needs to be evaluated further and the other subterm that remains stagnant. Note that in the function definition the _e-arg-eval_ rule is matched first so that the _e-app-eval_ rule can ignore the second subterm under the assumption that it's a value term (not `Invoke` or `Apply`).
@@ -248,7 +248,7 @@ Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
 In english, the application of an invocation of a lambda with a lambda subterm to a boolean value. The resulting tree in the original notation takes the form:
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-derivation-trees-ast-example.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-derivation-trees-ast-example.png"></img>
 </div>
 
 
@@ -353,7 +353,7 @@ Apply (Invoke (Lambda (Lambda (BooleanExpr True)))) (BooleanExpr False)
 The type derivation using logic notation looks like:
 
 <div class="center">
-  <img style="width: 300px" src="/assets/images/diagrams/cs-type-derivation-ast-example.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/math-envy-cs/cs-type-derivation-ast-example.png"></img>
 </div>
 
 The `Derivation` instance corresponding the the logic notation is again much larger but captures the same information (formatting added after the fact):
@@ -377,13 +377,13 @@ So far we've seen that it's possible to build an understanding of evaluation and
 One approach is to first compare the `S` values for two terms and then determine if the `E` and `T` values match. Terms with "similar" `S` values but different `E` or `T` values might be ambiguous and could be flagged for review. Using the [Levenshtein Distance](http://en.wikipedia.org/wiki/Levenshtein_distance) to keep the calculation for similarity simple:
 
 <div class="center">
-  <img src="/assets/images/diagrams/cs-dist.png"></img>
+  <img src="/assets/images/diagrams/math-envy-cs/cs-dist.png"></img>
 </div>
 
 _lev_ is the Levenshtein distance function and _dist_ is just the ratio of the distance between the two strings and the maximum length of both. This is sometimes referred to as the Levenshtein Ratio. For `(-> true)() -> false` and `(-> true) () -> false`:
 
 <div class="center">
-  <img style="width: 300px" src="/assets/images/diagrams/cs-dist-example.png"></img>
+  <img style="width: 300px" src="/assets/images/diagrams/math-envy-cs/cs-dist-example.png"></img>
 </div>
 
 A relative value for string distance that can be used as a threshold "setting" makes building a tool for automating the process easier. That is, if two terms are deemed "close enough" by virtue of their _dist_ value being below a predetermined threshold and they have different information in either `E` or `T` then they might be flagged [3].
