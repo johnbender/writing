@@ -23,7 +23,7 @@ Representing the Lambda Calculus only requires a small subset of CoffeeScript's 
   <img class="slim" src="/assets/images/diagrams/system-f-cs/untyped-lambda-calculus-grammars.png"></img>
 </div>
 
-In both cases `x` represents a variable and `t t` represents application of one term to another. The only real difference is the lambda abstraction syntax.
+In both cases `x` represents a variable and `t t` represents application of one term to another. The only real difference is the lambda abstraction syntax (red).
 
 <div class="center">
   <img class="slim" style="width: 50%" src="/assets/images/diagrams/system-f-cs/untyped-lambda-calculus-abstraction-examples.png"></img>
@@ -59,7 +59,7 @@ ifft = (type, obj) ->
     throw "Type mismatch"
 ```
 
-This definition assumes that the browser's `instanceof` implementation is behaving properly but certainly serves the purpose here. Assuming the type `Foo` is defined for the calculus and with `class Foo` in the CoffeeScript, we can add types to the original K-combinator example.
+This definition assumes that the browser's `instanceof` implementation is behaving properly but certainly serves the purpose of illustration here. Assuming the type `Foo` is defined for the calculus and with `class Foo` in the CoffeeScript, we can add types to a simple example.
 
 <div class="center">
   <img class="slim" src="/assets/images/diagrams/system-f-cs/simply-typed-lambda-calculus-typing-examples.png"></img>
@@ -71,7 +71,7 @@ Unfortunately even the simple case throws a rather large monkey wrench into the 
 
 ## System F
 
-System F adds the notion of _polymorphic types_ to the Simply Typed Lambda Calculus. The term polymorphic carries a lot of baggage, but here it is _parametric polymorphism_ [3]. That is, the type of a term can change depending on the setting. Unsurprisingly this is very similar to the parametric polymorphism in Haskell.
+System F adds the notion of _polymorphic types_ to the Simply Typed Lambda Calculus. The term polymorphic carries a lot of baggage, but here it is _parametric polymorphism_ [3]. That is, the type of a term can change depending on the setting.
 
 <div class="center">
   <img src="/assets/images/diagrams/system-f-cs/system-f-grammars.png"></img>
@@ -89,9 +89,9 @@ For System F the type abstraction is very specific. It works at the type level [
   <img src="/assets/images/diagrams/system-f-cs/system-f-type-application-examples.png"></img>
 </div>
 
-Again there is an important exception with regards to the types that are permitted in System F that makes the `ifft` even more inadequate than it was with the Simply Typed Lambda Calculus. Not only is there no way to write `ifft` so that it can properly check against lambda types but in addition System F defines universally quantified types. This means that a lambda can be polymorphic and operate without knowing anything about the type of its argument.
+Again there is an important exception with regards to the types permitted in System F that makes the `ifft` even more inadequate than it was with the Simply Typed Lambda Calculus. Not only is there no way to write `ifft` so that it can properly check against lambda types but in addition System F defines universally quantified types. This means that a lambda can be polymorphic and operate without knowing anything about the type of its argument.
 
-For example the identity combinator `Λα.λx:α.x`, or in CoffeeScript `(α) -> (x) -> ifft(α, x); x`, has the polymorphic type `∀α.α → α`. That is, its type isn't determined until a type application takes place or it "works" for all types. The issue arises when the a combinator like identity is passed as an argument to another lambda term that expects a polymorphic function. Again, `ifft` can't check the types of a combinator if a type has been applied and it certainly can't check that the combinator is type agnostic in its dealings (polymorphic).
+For example the identity combinator `Λα.λx:α.x`, or in CoffeeScript `(α) -> (x) -> ifft(α, x); x`, has the polymorphic type `∀α.α → α`. That is, its type isn't determined until a type application takes place or it "works" for all types. The issue arises when a combinator like identity is passed as an argument to another lambda term that expects a polymorphic function. Again, `ifft` can't check the types of a combinator if a type has been applied and it certainly can't check that the combinator is type agnostic in its dealings (polymorphic).
 
 ## Strong and Normal
 
@@ -99,7 +99,7 @@ System F has some really neat properties. Most importantly System F is _strongly
 
 It's also possible to make the type abstraction a bit more robust in the CoffeeScript by verifying that the argument is at least a function. A more adventuresome individual might alter CoffeeScript to annotate constructor function objects with a property that could be used to set them apart and compare them [5].
 
-Even if we came up short of a really meaningful translation, hopefully it has demystified parts of how these calculi work. If you want to learn more
+Even if we came up short of a really meaningful translation, hopefully it has demystified parts of how these calculi work. If you want to learn more I suggest reading [_Types and Programming Languages_](http://www.amazon.com/Types-Programming-Languages-Benjamin-Pierce/dp/0262162091) by Pierce (not an affiliate link)1.
 
 ### Footnotes
 
