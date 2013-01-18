@@ -13,7 +13,7 @@ meta:
   _edit_last: "1"
 ---
 
-System F is a variant of the Lambda Calculus. It "mixes" types and terms relatively freely compared with the average statically typed programming language. System F and its variants are used frequently in the study of typed computation and an extended form, System FC, plays an important role in GHC's compilation process [1]. This post will translate the grammars of the Lambda Calculus, Simply Typed Lambda Calculus, and finally System F into a small subset of CoffeeScript while covering the basics of application and abstraction in each.
+System F and its variants are used frequently in the study of typed computation and an extended form, System FC, plays an important role in GHC's compilation process [1]. This post will attempt to translate the grammars of the Lambda Calculus, Simply Typed Lambda Calculus, and finally System F into a small subset of CoffeeScript while covering the basics of application and abstraction in each. Hopefully, through studying the basics here, readers who are interested in learning more about type theory and the lambda calculi will feel a little less intimidated by the notation and concepts.
 
 ## Lambda Calculus
 
@@ -67,7 +67,7 @@ This definition assumes that the browser's `instanceof` implementation is behavi
 
 There's a larger discussion to be had about how the types are used in both settings. In the CoffeeScript it's very much a delayed form of typing but in the Lambda Calculus it defines the term and its capabilities [2].
 
-Also worth discussing are the forms `τ` can take. Some definition of the Simply Typed Lambda Calculus define a set of base types like natural numbers or booleans. Along with that though they must define a set of base constant values that can represent those types. For natural numbers a base constant of `0` and [church numerals](http://en.wikipedia.org/wiki/Church_encoding) allows users to represent all the natural numbers. Here we've assumed the simple case allowing only the function type `τ → τ`, meaning every argument must be a lambda term.
+Also worth discussing are the forms `τ` can take. Some definitions of the Simply Typed Lambda Calculus provide a set of base types like natural numbers or booleans. Along with that comes a set of base constant values that can represent those types. For natural numbers a base constant of `0` and [church numerals](http://en.wikipedia.org/wiki/Church_encoding) allows users to represent all the natural numbers. Here we've assumed the simple case allowing only the function type `τ → τ`, meaning every argument must be a lambda term.
 
 Unfortunately even the simple case throws a rather large monkey wrench into the works. That's because there's no way to write `ifft` such that it can know or inspect the arguments type and return type of a lambda term (JavaScript function). In spite of that let's proceed to see what we can learn about System F.
 
@@ -79,7 +79,7 @@ System F adds the notion of _polymorphic types_ to the Simply Typed Lambda Calcu
   <img src="/assets/images/diagrams/system-f-cs/system-f-grammars.png"></img>
 </div>
 
-System F makes two extensions. `Λα.e` is a type abstraction on the type variables in terms and `e [τ]` is the application of a type to a term that has been wrapped by a type abstraction. Note that the abstraction uses `α` to represent a type variable and `τ` to represent concrete types. Since CoffeeScript's "types" are really constructors functions, all that's needed is an enclosing lambda to pull the type argument to `ifft` into scope and an application to a constructor function at runtime.
+System F makes two extensions. `Λα.e` is a type abstraction on the type variables in terms and `e [τ]` is the application of a type to a term that has been wrapped by a type abstraction. Note that the abstraction uses `α` to represent a type variable and `τ` to represent polymorphic or simple types. Since CoffeeScript's "types" are really constructors functions, all that's needed is an enclosing lambda to pull the type argument to `ifft` into scope and an application to a constructor function at runtime.
 
 <div class="center">
   <img class="slim" src="/assets/images/diagrams/system-f-cs/system-f-type-abstraction-examples.png"></img>
@@ -95,11 +95,13 @@ It's possible to make the type abstraction a bit more robust in the CoffeeScript
 
 Again there is an important exception with regards to the types that are permitted in System F that makes the `ifft` even more inadequate than it was with the Simply Typed Lambda Calculus. Not only is there no way to write `ifft` so that it can properly check against lambda types but in addition System F defines universally quantified types. This means that a lambda can be polymorphic and operate without knowing anything about the type of its argument.
 
-For example the identity combinator `Λα.λx:α.x`, or in CoffeeScript `(α) -> (x) -> ifft(α, x); x`, has the polymorphic type `∀α.α → α`. That is, its type isn't determined until a type application takes place. The issue arises when the a combinator like identity is passed as an argument to another lambda term that expects a polymorphic function. Again, `ifft` can't check the types of a combinator if a type has been applied and it certainly can't check that the combinator is type agnostic in its dealings (polymorphic).
+For example the identity combinator `Λα.λx:α.x`, or in CoffeeScript `(α) -> (x) -> ifft(α, x); x`, has the polymorphic type `∀α.α → α`. That is, its type isn't determined until a type application takes place or it "works" for all types. The issue arises when the a combinator like identity is passed as an argument to another lambda term that expects a polymorphic function. Again, `ifft` can't check the types of a combinator if a type has been applied and it certainly can't check that the combinator is type agnostic in its dealings (polymorphic).
 
 ## Strong and Normal
 
-System F has some really neat properties. Most importantly System F is _strongly normalizing_. That means that it always terminates and always reduces to a normal form when the terms are well typed (the types line up properly). We might have come up short of a really meaningful translation but hopefully it has demystified some of these calculi.
+System F has some really neat properties. Most importantly System F is _strongly normalizing_. That means that it always terminates and always reduces to a normal form when the terms are well typed (the types line up properly). That alone makes it worth studying.
+
+Even if we came up short of a really meaningful translation, hopefully it has demystified parts of how these calculi work. If you want to learn more
 
 ### Footnotes
 
