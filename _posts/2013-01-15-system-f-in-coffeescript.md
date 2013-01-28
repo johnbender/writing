@@ -99,7 +99,7 @@ System F has some really neat properties. Most importantly System F is _strongly
 
 It's also possible to make the type abstraction a bit more robust in the CoffeeScript by verifying that the argument is at least a function. A more adventuresome individual might alter CoffeeScript to annotate constructor function objects with a property that could be used to set them apart and compare them [5].
 
-Even if we came up short of a really meaningful translation, hopefully it has demystified parts of how these calculi work. If you want to learn more I suggest reading [_Types and Programming Languages_](http://www.amazon.com/Types-Programming-Languages-Benjamin-Pierce/dp/0262162091) by Pierce (not an affiliate link)1.
+Even if we came up short of a really meaningful translation, hopefully it has demystified parts of how these calculi work. If you want to learn more I suggest reading [_Types and Programming Languages_](http://www.amazon.com/Types-Programming-Languages-Benjamin-Pierce/dp/0262162091) by Pierce (not an affiliate link).
 
 ### Footnotes
 
