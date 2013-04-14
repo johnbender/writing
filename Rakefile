@@ -40,6 +40,15 @@ module JB
   end #Path
 end #JB
 
+desc "Install dependencies"
+task :deps do
+  exec(<<-CMD)
+    gem install jekyll
+    gem install redcarpet
+    gem install albino
+  CMD
+end
+
 desc "Build the cv from the latest"
 task :cv do
   exec(<<-CMD)
