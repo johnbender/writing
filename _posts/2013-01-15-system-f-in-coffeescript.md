@@ -55,7 +55,7 @@ It adds a type requirement to the argument of abstractions. The CoffeeScript equ
 ```coffeescript
 # If and only if (iff) the type (t) is correct
 ifft = (type, obj) ->
-  if obj instanceof type
+  if !(obj instanceof type)
     throw "Type mismatch"
 ```
 
