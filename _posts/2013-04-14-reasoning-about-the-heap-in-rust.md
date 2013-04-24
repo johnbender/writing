@@ -49,7 +49,7 @@ With the help of this and other axioms, established for each programming environ
 
 ## Separation Logic
 
-[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for specifying memory use and safety behavior with new assertions for how a program will interact with the heap and stack[!!].
+[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for specifying memory use and safety with new assertions for how a program will interact with the heap and stack[!!].
 
 The four assertions that Separation logic adds for describing the heap are:
 
@@ -98,71 +98,114 @@ int *arry = calloc(3, sizeof(int));
 // { arry |-> 1,2,3 }
 ```
 
-Here the comma separated list of values following the singleton pointer in `{ arry |-> 1,2,3 }` denotes contiguous memory. It's just shorthand for `{ arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }` which maps nicely to the C.
+Here the comma separated list of values following the singleton pointer in `{ arry |-> 1,2,3 }` denotes contiguous memory. It's simply a shorthand notation for the pointer arithmetic.
+
+```c++
+// { arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }
+```
+
+As you can see this maps directly to the C fragment.
 
 
 ## Rust Ownership
 
-Rust provides two new type declaration operators for dealing with pointer and memory managment. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
+Rust provides two new type modifiers for dealing with pointers and memory managment. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
 
-* `~` - provides a lexically scoped allocation on the heap. That is, when the newly assinged pointer variable goes out of scope the memory is freed.
-* `@` - provides a garbage collected pointer to an allocaiton on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has it's own garbage collector responsible for handling this type of heap allocation.
+* `~` - provides a lexically scoped allocation on the heap. That is, when the newly assigned pointer variable goes out of scope the memory is freed.
+* `@` - provides a garbage collected allocation on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has it's own garbage collector responsible for handling this type of heap allocation.
 
 !! `&` borrowed pointers if there's time (another post?)
 
+I few simple examples borrowed in part from Rust's tutorials will illustrate when the memory for each of these type modifiers is freed.
 
 {% highlight rust %}
 fn main() {
-  let a = ~0;
-  // a is destroyed here
+    {
+        let a = ~0;
+    } // a is out of scope and *a is freed
 }
 {% endhighlight %}
+
+With the tilde, the memory at `*a` on the heap is freed when the variable to which it is assigned goes out of scope. Since `a` is declared inside an explicit block it goes out of scope at the end of the block and the associated memory is freed.
 
 {% highlight rust %}
 fn main() {
-  let a;
+    let a;
 
-  {
-    let b = ~1;
+    {
+        let b = ~1;
 
-    // move ownership of *b to a
-    let a = b;
+        // move ownership of *b to a
+        a = b;
 
-    // !! reference to b here will not compile
-  }
-
-  // *b is destroyed here
-}
+        io::println(fmt!("%?", *a)); // 1
+        io::println(fmt!("%?", *b)); // error: use of moved value: `b`
+    }
+} // *a is destroyed here
 {% endhighlight %}
 
-gc/reference scoped, "managed allocation on the heap/ref counting"
+When the ownership of memory is transfered between variables the compiler prevents further reference to the original owner. In this example `a` is the new owner and the compiler will prevent any further reference to `b`.
+
+Alternately, the `@` type modifier can be used to request that the runtime manage the allocated memory on a per-task basis. This presents some interesting issues when creating pointers to memory allocated as part of a record.
 
 {% highlight rust %}
-fn main() {
-  let mut x = @X { f: 0 };
-  let y = &x.f;
+struct X { f: int, g: int }
 
-  // !! &x.f now subject to gc
-  x = X { f: 1 }
+fn main() {
+    let mut x = @X { f: 0, g: 1 };
+    let y = &x.f;
+
+    x = @X { f: 2, g: 3 };
+
+    // original *x is now subject to gc
+
+    io::println(fmt!("%?", *x)); // => {f: 2, g: 3}
+    io::println(fmt!("%?", *y)); // => 0
 }
 {% endhighlight %}
+
+Note that `x` is declared as a mutable variable (Rust's default is immutability). When a pointer is made to the field `f` of the record stored at `*x` and `x` is then reassigned, the memory at `*x` would be subject to garbage collection. Luckily Rust does a bit of work for you and inserts a lexically scoped reference to the original record to prevent deallocation by the garbage collector.
 
 {% highlight rust %}
-fn main() {
-  let mut x = @X { f: 0 };
-  let x1 = x;
-  let y = &x1.f;
+struct X { f: int, g: int }
 
-  // :)
-  x = X { f: 1 }
+fn main() {
+    let mut x = @X { f: 0, g: 1 };
+    let x1 = x;
+    let y = &x.f;
+
+    x = @X { f: 2, g: 3 };
+
+    io::println(fmt!("%?", *x)); // => {f: 2, g: 3}
+    io::println(fmt!("%?", *y)); // => 0
 }
 {% endhighlight %}
+
+You might also wonder how Rust handles references to lexically scoped record fields. In this case the compiler raises an error and (rather nicely) highlights the discrepancy in scoping expectations.
+
+{% highlight rust %}
+struct X { f: int, g: int }
+
+fn main() {
+    let a;
+
+    {
+        let mut b = ~X { f: 1, g: 2 };
+
+        // move ownership of *b to a
+        a = &b.f;
+    }
+
+    // error: illegal borrow: borrowed value does not live long enough
+    io::println(fmt!("%?", *a));
+}
+{% endhighlight %}
+
+Here, `a` is assigned the memory location of the field `f` of `b`, but the scope of `a` is larger than the scope of `b` which means that `*b` will be freed long before `*a`. Both this example and the previous one touched on the notion of borrowed pointers which deserves a separate treatment.
 
 ## Formalizing Ownership
 
-!! Not reasoning about types
-variable scoped, "uniquely owned allocation on the heap"
-
+Rust's memory management facilities exist mostly at compile time to prevent the user from shooting themselves in the foot, but it's still worth applying Separation logic to get a feel for what's happening to the heap.
 
 {% highlight rust %}
 fn main() {
