@@ -114,9 +114,7 @@ Rust provides two new type modifiers for dealing with pointers and memory managm
 * `~` - provides a lexically scoped allocation on the heap. That is, when the newly assigned pointer variable goes out of scope the memory is freed.
 * `@` - provides a garbage collected allocation on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has it's own garbage collector responsible for handling this type of heap allocation.
 
-!! `&` borrowed pointers if there's time (another post?)
-
-I few simple examples borrowed in part from Rust's tutorials will illustrate when the memory for each of these type modifiers is freed.
+A few simple examples borrowed in part from Rust's tutorials will illustrate when the memory for each of these type modifiers is freed.
 
 {% highlight rust %}
 fn main() {
@@ -138,8 +136,8 @@ fn main() {
         // move ownership of *b to a
         a = b;
 
-        io::println(fmt!("%?", *a)); // 1
         io::println(fmt!("%?", *b)); // error: use of moved value: `b`
+        io::println(fmt!("%?", *a)); // => 1
     }
 } // *a is destroyed here
 {% endhighlight %}
@@ -201,80 +199,105 @@ fn main() {
 }
 {% endhighlight %}
 
-Here, `a` is assigned the memory location of the field `f` of `b`, but the scope of `a` is larger than the scope of `b` which means that `*b` will be freed long before `*a`. Both this example and the previous one touched on the notion of borrowed pointers which deserves a separate treatment.
+Here, `a` is assigned the memory location of the field `f` of `b`, but the scope of `a` is larger than the scope of `b` which means that `*b` will be freed long before `*a`. Both this example and the previous one touched on the concept of [borrowed pointers](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html).
 
 ## Formalizing Ownership
 
-Rust's memory management facilities exist mostly at compile time to prevent the user from shooting themselves in the foot, but it's still worth applying Separation logic to get a feel for what's happening to the heap.
+Rust's memory management facilities exist mostly at compile time to prevent users from shooting themselves in the foot, but it's still worth applying Separation logic to get a feel for what's happening to the heap.
 
 {% highlight rust %}
 fn main() {
-  // { emp }
-  {
     // { emp }
-    let a = ~0;
-    // { a |-> 0 }
-    let b = ~1;
-    // { a |-> 0 * b |-> 1}
-  }
-  // { emp }
+    {
+        // { emp }
+        let a = ~0;
+        // { a |-> 0 }
+        let b = ~1;
+        // { a |-> 0 * b |-> 1}
+    }
+    // { emp }
 }
 {% endhighlight %}
 
+Both `a` and `b` are scoped to the explicit block and exist in disjoint parts of the heap. When they go out of scope the memory associated with both is deallocated leaving an empty heap.
+
 {% highlight rust %}
 fn main() {
-  let a;
-
-  {
+    let a;
     // { emp }
-    let b = ~1;
-    // { b |-> 1 }
-    let a = b;
+    {
+	    // { emp }
+        let b = ~1;
+        // { b |-> 1 }
+        let a = b;
+        // { a -> 1 ∧ b -> 1}
+    }
     // { a |-> 1 }
-  }
 }
 {% endhighlight %}
 
-gc/reference scoped, "managed allocation on the heap/ref counting"
+In this case if there was a reference to `b` after the ownership of `*b` was transferred to `a` the compiler would complain. Since there is no reference we assume that `b` is pointing to the same location until the pointer is removed at the close of the explicit block.
 
 {% highlight rust %}
 struct X { f: int, g: int }
 
 fn main() {
-  // { emp }
-  let mut x = @X { f: 0, g: 1 };
-  // { x |-> 0, 1 }
-  let y = &x.f;
-  // { x |-> 0, 1 ∧ y |-> 0 }
-  x = X { f: 2, g: 3 }
-  // { x |-> 2, 3 * f |-> 0 }
-  // !! this assertion fails to describe the heap
-  // !! y + 1, originaly x + 1, is a leak
-  // !! &x.f now subject to gc
-}
+    // { emp }
+    let mut x = @X { f: 0, g: 1 };
+    // { x |-> 0, 1 }
+    let x1 = x;
+    // { x1 -> 0, 1 ∧ x -> 0, 1 }
+    let y = &x1.f;
+    // { x1 -> 0, 1 ∧ x -> 0, 1 ∧ y -> 0 }
+    x = @X { f: 2, g: 3 };
+    // { (x1 -> 0, 1 ∧ y -> 0) * x |-> 2, 3 }
+
+    io::println(fmt!("%?", *x)); // => {f: 2, g: 3}
+    io::println(fmt!("%?", *y)); // => 0
+} // { emp }
 {% endhighlight %}
+
+Here we've repurposed the managed memory example from earlier with the explicit addition of the reference that would otherwise be inserted by Rust to prevent GC, `x1`. Let's examine each expression and the associated assertions in turn.
 
 {% highlight rust %}
-struct X { f: int, g: int }
-
-fn main() {
-  // { emp }
-  let mut x = @X { f: 0, g: 1 };
-  // { x |-> 0, 1 }
-  let x1 = x;
-  // { x1 |-> 0,1 ∧ x |-> 0, 1 }
-  let y = &x1.f;
-  // { x1 |-> 0,1 ∧ x |-> 0, 1 ∧ y |-> 0 }
-  x = X { f: 2, g: 3 }
-  // { (x1 |-> 0,1 ∧ y |-> 0) * x |-> 2, 3 }
-}
+// { emp }
+let mut x = @X { f: 0, g: 1 };
+// { x |-> 0, 1 }
 {% endhighlight %}
+
+As before the allocation of managed memory creates a singleton heap pointer to the memory containing the record values.
+
+{% highlight rust %}
+// { x |-> 0, 1 }
+let x1 = x;
+// { x1 -> 0, 1 ∧ x -> 0, 1 }
+{% endhighlight %}
+
+Adding and additional reference to that same memory means that we have two pointers to the same memory. As a result we *cannot* use the `*` connective or the the singleton heap pointer `|->` to represent the heap.
+
+{% highlight rust %}
+// { x1 -> 0, 1 ∧ x -> 0, 1 }
+let y = &x1.f;
+// { x1 -> 0, 1 ∧ x -> 0, 1 ∧ y -> 0 }
+{% endhighlight %}
+
+A new reference to the memory location of the first record field in `x` and `x1` adds another pointer that overlaps with the existing heap. It's important to keep in mind that the basic conjunction simply says that the heap *may* overlap. To the reader it may be obvious, but in terms of specifying program behavior it's a weaker assertion that the equivelant made with the `*` connective.
+
+{% highlight rust %}
+// { x1 -> 0, 1 ∧ x -> 0, 1 ∧ y -> 0 }
+x = @X { f: 2, g: 3 };
+// { (x1 -> 0, 1 ∧ y -> 0) * x |-> 2, 3 }
+{% endhighlight %}
+
+Finally with the allocation of a wholy new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and it's first field remain ambiguous.
 
 ## Conclusion
+
+Hopefully this post has given you an initialn sense of a portion of Rust's memory managemet facilities and also the formalism of Separation logic. Not mentioned here for brevity's sake is an important part of Separation logic, the Frame Rule, which provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, the Frame Rule is what allows each assertion to be correct in spite of the fact that the program fragment with which it is concerned are often operating in a larger application that manipulates the heap.
 
 ### Footnotes
 
 * http://static.rust-lang.org/doc/0.6/tutorial.html#introduction
 * When termination can be show, the triple proves total correctness.
 * There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
-* Link to papers on Separation logic https://wiki.mpi-sws.org/star/cpl
+* More information on Separation logic https://wiki.mpi-sws.org/star/cpl
