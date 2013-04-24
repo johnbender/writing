@@ -85,18 +85,30 @@ int *ptr2 = malloc(sizeof(int));
 // { (ptr |-> 5) * (ptr2 |-> 5) }
 ```
 
-Adding `ptr2` means the addition of another singleton heap and the connective `*`. It's possible to write this as `{ (ptr -> 5) ∧ (ptr2 -> 5) }`, but this assertion provides no information about how the heap is arranged. By using the singleton heap pointer `|->` and the connective `*`, the new assertion makes clear that the two pointers are *not* pointing to the same memory location.
+Adding `ptr2` means the addition of another singleton heap and the connective `*`. It's possible to write this as `{ (ptr -> 5) ∧ (ptr2 -> 5) }`, but this assertion provides no information about how the heap is arranged. It simply says that there are two pointers to the value 5 somewhere in a heap. They might be pointing to the same memory location. By using the singleton heap pointer `|->` and the connective `*`, the new assertion makes clear that the two pointers are *not* pointing to the same memory location.
 
-examples from paper with diagrams
-examples with C
+!! Implication example
+
+```c++
+// { emp }
+int *arry = calloc(3, sizeof(int));
+*arry = 1;
+*(arry + 1) = 2;
+*(arry + 2) = 3;
+// { arry |-> 1,2,3 }
+```
+
+Here the comma separated list of values following the singleton pointer in `{ arry |-> 1,2,3 }` denotes contiguous memory. It's just shorthand for `{ arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }` which maps nicely to the C.
+
 
 ## Rust Ownership
 
-summary
-variables or gc
-`~` variable scoped allocation on the heap
-`@` reference scoped allocation on the heap (gc'd)
-`&` borrowed pointers if there's time (another post?)
+Rust provides two new type declaration operators for dealing with pointer and memory managment. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
+
+* `~` - provides a lexically scoped allocation on the heap. That is, when the newly assinged pointer variable goes out of scope the memory is freed.
+* `@` - provides a garbage collected pointer to an allocaiton on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has it's own garbage collector responsible for handling this type of heap allocation.
+
+!! `&` borrowed pointers if there's time (another post?)
 
 
 {% highlight rust %}
@@ -148,6 +160,7 @@ fn main() {
 
 ## Formalizing Ownership
 
+!! Not reasoning about types
 variable scoped, "uniquely owned allocation on the heap"
 
 
