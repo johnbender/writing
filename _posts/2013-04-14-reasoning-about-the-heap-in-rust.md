@@ -112,7 +112,7 @@ As you can see this maps directly to the C fragment.
 Rust provides two new type modifiers for dealing with pointers and memory managment. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
 
 * `~` - provides a lexically scoped allocation on the heap. That is, when the newly assigned pointer variable goes out of scope the memory is freed.
-* `@` - provides a garbage collected allocation on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has it's own garbage collector responsible for handling this type of heap allocation.
+* `@` - provides a garbage collected allocation on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has its own garbage collector responsible for handling this type of heap allocation.
 
 A few simple examples borrowed in part from Rust's tutorials will illustrate when the memory for each of these type modifiers is freed.
 
@@ -289,7 +289,7 @@ x = @X { f: 2, g: 3 };
 // { (x1 -> 0, 1 ∧ y -> 0) * x |-> 2, 3 }
 {% endhighlight %}
 
-Finally with the allocation of a wholy new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and it's first field remain ambiguous.
+Finally with the allocation of a wholy new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and its first field remain ambiguous.
 
 ## Conclusion
 
