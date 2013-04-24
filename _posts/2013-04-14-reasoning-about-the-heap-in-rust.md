@@ -10,9 +10,9 @@ published: true
 listed: false
 ---
 
-If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends well beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [!!].
+If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [!!].
 
-In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and heap state. Then, we'll apply those tools to formalize the semantics of [Rust's memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership).
+In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then, we'll apply those tools to formalize part of [Rust's memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership).
 
 ## Hoare logic
 
@@ -26,7 +26,7 @@ x = x + 1
 // { x == n + 1 }
 ```
 
-Here the triple `{P} C {Q}` asserts that if `x` is equal to some `n` before the `x = x + 1` then `x` will be equal to `n + 1` afterward.
+Here the triple `{P} C {Q}` asserts that if `x` is equal to some `n` before `x = x + 1` then `x` will be equal to `n + 1` afterward.
 
 In addition to this basic structure it's possible to define axioms for common programming constructs like assignment, branching, while loops, and for loops that allow for more general reasoning and manipulation of assertions. For assignment it takes the form `{P[E/V]} V=E {P}`. That is, substituting `E` for `V` in `P` before the assignment should hold and `P` should hold afterward [!!].
 
@@ -49,28 +49,46 @@ With the help of this and other axioms, established for each programming environ
 
 ## Separation Logic
 
-[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for reasoning about memory use and safety by establishing new assertions for specifying how a program will interact with the heap and stack[!!].
+[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for specifying memory use and safety behavior with new assertions for how a program will interact with the heap and stack[!!].
 
 The four assertions that Separation logic adds for describing the heap are:
 
-* `emp` - for the empty heap. It asserts that the heap is empty, and it can be used to extend assertions about a program that don't interact with the heap.
-* `x |-> n` - for the singleton heap. It asserts that the heap contains one cell at address `x` with contents `n`.
-* `P * Q` - as a replacement for `^` with disjoint heaps. It asserts that, if there is a heap where `P` holds and a *separate* (disjoint) heap where `Q` holds, both `P` and `Q` hold in the conjunction of those two heaps.
-* `P -* Q` - as a replacement for implication `=>`. It asserts that there is a heap in which `P` holds then `Q` will hold in the *current heap* extended by the first heap.
+* `emp` - for the empty heap. It asserts that the heap is empty, and it can be used to extend assertions about programs that don't interact with the heap.
+* `x |-> n` - for the singleton heap. It asserts that there is a heap that contains one cell at address `x` with contents `n`.
+* `P * Q` - as a replacement for `∧` with disjoint heaps. It asserts that, if there is a heap where `P` holds and a *separate* (disjoint) heap where `Q` holds, both `P` and `Q` hold in the conjunction of those two heaps.
+* `P -* Q` - as a replacement for implication, `=>`. It asserts that there is a heap in which `P` holds then `Q` will hold in the *current heap* extended by the first heap.
+
+There are also some shortcuts for common heap states that are built on top of these four assertions:
+
+* `x |-> n, o, p` is equivalent to `x |-> n * x + 1 |-> o * x + 2 |-> p`. That is, `x` points to a series of memory cells that can be accessed by using `x` and pointer arithmetic.
+* `x -> n` is a basic pointer assertion. It is equivelant to `x |-> n * true`, that suggests there is a heap where `n` is the value at `x` which is a part of a larger heap without any properties of interest.
+
+Again we'll turn to C to demonstrate how these assertions fit with common programs.
+
+```c++
+// { emp }
+int *ptr = malloc(sizeof(int));
+*ptr = 5;
+// { ptr |-> 5 }
+```
+
+The first assertions states that the heap is empty (`emp`). After the `malloc` call and assignment there exists a singleton heap with a single cell containing the value `5` that is pointed to by `ptr`.
 
 
-There are also some shortcuts for common heap states:
+```c++
+// { emp }
+int *ptr = malloc(sizeof(int));
+*ptr = 5;
+// { ptr |-> 5 }
+int *ptr2 = malloc(sizeof(int));
+*ptr2 = 5;
+// { (ptr |-> 5) * (ptr2 |-> 5) }
+```
 
-* `x |-> n, o, p` is equivalent to `x |-> n * x + 1 |-> o * x + 2 |-> p`. That is, `x` points to a series of memory cells that can be accessed by using `x` and some pointer arithmetic.
+Adding `ptr2` means the addition of another singleton heap and the connective `*`. It's possible to write this as `{ (ptr -> 5) ∧ (ptr2 -> 5) }`, but this assertion provides no information about how the heap is arranged. By using the singleton heap pointer `|->` and the connective `*`, the new assertion makes clear that the two pointers are *not* pointing to the same memory location.
 
-confined to memory asserted in {P}
-frame rule
-
-summary
-empty heap
-singleton heap
-separating conjunction
-separating implication
+examples from paper with diagrams
+examples with C
 
 ## Rust Ownership
 
@@ -134,61 +152,65 @@ variable scoped, "uniquely owned allocation on the heap"
 
 
 {% highlight rust %}
-// { emp }
 fn main() {
   // { emp }
-  let a = ~0;
-  // { a |-> 0 }
-  let b = ~1;
-  // { a |-> 0 * b |-> 1}
+  {
+    // { emp }
+    let a = ~0;
+    // { a |-> 0 }
+    let b = ~1;
+    // { a |-> 0 * b |-> 1}
+  }
+  // { emp }
 }
-// { emp }
 {% endhighlight %}
 
 {% highlight rust %}
-// { emp }
 fn main() {
   let a;
+
   {
     // { emp }
     let b = ~1;
     // { b |-> 1 }
     let a = b;
-    // { a |-> 1 ^ !b } ????
-
-    // !! reference to b here will not compile
+    // { a |-> 1 }
   }
-
-  // *b is destroyed here
 }
-// { emp }
 {% endhighlight %}
 
 gc/reference scoped, "managed allocation on the heap/ref counting"
 
 {% highlight rust %}
-// { emp }
+struct X { f: int, g: int }
+
 fn main() {
   // { emp }
   let mut x = @X { f: 0, g: 1 };
   // { x |-> 0, 1 }
   let y = &x.f;
-  // { x |-> 0, 1 ^ f |-> 0 }
+  // { x |-> 0, 1 ∧ y |-> 0 }
   x = X { f: 2, g: 3 }
-  // { x |-> 2, 3 ^ f |-> 0 }
+  // { x |-> 2, 3 * f |-> 0 }
+  // !! this assertion fails to describe the heap
+  // !! y + 1, originaly x + 1, is a leak
   // !! &x.f now subject to gc
 }
-// { emp }
 {% endhighlight %}
 
 {% highlight rust %}
-fn main() {
-  let mut x = @X { f: 0 };
-  let x1 = x;
-  let y = &x1.f;
+struct X { f: int, g: int }
 
-  // :)
-  x = X { f: 1 }
+fn main() {
+  // { emp }
+  let mut x = @X { f: 0, g: 1 };
+  // { x |-> 0, 1 }
+  let x1 = x;
+  // { x1 |-> 0,1 ∧ x |-> 0, 1 }
+  let y = &x1.f;
+  // { x1 |-> 0,1 ∧ x |-> 0, 1 ∧ y |-> 0 }
+  x = X { f: 2, g: 3 }
+  // { (x1 |-> 0,1 ∧ y |-> 0) * x |-> 2, 3 }
 }
 {% endhighlight %}
 
