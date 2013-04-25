@@ -162,7 +162,7 @@ fn main() {
 }
 {% endhighlight %}
 
-Note that `x` is declared as a mutable variable (Rust's default is immutability). When a pointer is made to the field `f` of the record stored at `*x` and `x` is then reassigned, the memory at `*x` would be subject to garbage collection. Luckily Rust does a bit of work for you and inserts a lexically scoped reference to the original record to prevent deallocation by the garbage collector.
+Note that `x` is declared as a mutable variable (Rust's default is immutability). When a pointer is made to the field `f` of the record stored at `*x` with `&x.f` and `x` is then reassigned, the memory at `*x` would be subject to garbage collection. Luckily Rust does a bit of work for you and inserts a lexically scoped reference to the original record to prevent deallocation by the garbage collector.
 
 {% highlight rust %}
 struct X { f: int, g: int }
@@ -199,7 +199,7 @@ fn main() {
 }
 {% endhighlight %}
 
-Here, `a` is assigned the memory location of the field `f` of `b`, but the scope of `a` is larger than the scope of `b` which means that `*b` will be freed long before `*a`. Both this example and the previous one touched on the concept of [borrowed pointers](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html).
+Here, `a` is assigned the memory location of the field `f` of `b`, but the scope of `a` is larger than the scope of `b` which means that `*b` will be freed long before `*a`.
 
 ## Formalizing Ownership
 
@@ -291,9 +291,15 @@ x = @X { f: 2, g: 3 };
 
 Finally with the allocation of a wholy new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and its first field remain ambiguous.
 
+## Futher Reading
+
+Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule, which provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, the Frame Rule is what allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
+
+Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex[!!]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
+
 ## Conclusion
 
-Hopefully this post has given you an initialn sense of a portion of Rust's memory managemet facilities and also the formalism of Separation logic. Not mentioned here for brevity's sake is an important part of Separation logic, the Frame Rule, which provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, the Frame Rule is what allows each assertion to be correct in spite of the fact that the program fragment with which it is concerned are often operating in a larger application that manipulates the heap.
+Hopefully this post has given you an initial sense of a portion of Rust's memory managemet facilities and also the formalism of Separation logic.
 
 ### Footnotes
 
@@ -301,3 +307,4 @@ Hopefully this post has given you an initialn sense of a portion of Rust's memor
 * When termination can be show, the triple proves total correctness.
 * There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
 * More information on Separation logic https://wiki.mpi-sws.org/star/cpl
+* Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
