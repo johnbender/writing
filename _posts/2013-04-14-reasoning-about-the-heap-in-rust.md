@@ -45,7 +45,7 @@ x = x + 1
 // { x == n + 1 }
 ```
 
-With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most applications (especially those written by my usual reader) the approach might be heavy handed, but there are many domains where this type of specicification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
+With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabitted by my usual reader) the approach might be heavy handed, but there are many where this type of specicification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
 
 ## Separation Logic
 
@@ -61,9 +61,9 @@ The four assertions that Separation logic adds for describing the heap are:
 There are also some shortcuts for common heap states that are built on top of these four assertions:
 
 * `x |-> n, o, p` is equivalent to `x |-> n * x + 1 |-> o * x + 2 |-> p`. That is, `x` points to a series of memory cells that can be accessed by using `x` and pointer arithmetic.
-* `x -> n` is a basic pointer assertion. It is equivelant to `x |-> n * true`, that suggests there is a heap where `n` is the value at `x` which is a part of a larger heap without any properties of interest.
+* `x -> n` is a basic pointer assertion. It is equivelant to `x |-> n * true`, that suggests there is a heap where `n` is the value at `*x` which is a part of a larger heap about which we can't make any assertions.
 
-Again we'll turn to C to demonstrate how these assertions fit with common programs.
+Again we'll turn to C to demonstrate how these assertions fit with common programs[!!].
 
 ```c++
 // { emp }
@@ -142,7 +142,7 @@ fn main() {
 } // *a is destroyed here
 {% endhighlight %}
 
-When the ownership of memory is transfered between variables the compiler prevents further reference to the original owner. In this example `a` is the new owner and the compiler will prevent any further reference to `b`.
+When the ownership of memory is transfered between variables the compiler prevents further reference to the original owner. In this example `a` is the new owner and the compiler will prevent any further reference to `b`. This concept of single ownership is the reason that the memory can be deallocated safetly when the current owner goes out of scope.
 
 Alternately, the `@` type modifier can be used to request that the runtime manage the allocated memory on a per-task basis. This presents some interesting issues when creating pointers to memory allocated as part of a record.
 
@@ -293,7 +293,7 @@ Finally with the allocation of a wholy new record and pointer for `x` we can emp
 
 ## Futher Reading
 
-Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule, which provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, the Frame Rule is what allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
+Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule. The Frame Rule provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, it allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
 
 Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex[!!]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
 
@@ -307,4 +307,5 @@ Hopefully this post has given you an initial sense of a portion of Rust's memory
 * When termination can be show, the triple proves total correctness.
 * There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
 * More information on Separation logic https://wiki.mpi-sws.org/star/cpl
+* The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
 * Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
