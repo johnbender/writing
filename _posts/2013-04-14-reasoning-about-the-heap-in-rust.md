@@ -12,11 +12,11 @@ listed: false
 
 If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [[1](#footnotes)].
 
-In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then we'll apply those tools to examine the impact that part of [Rust's memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership) has on the heap.
+In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then we'll apply those tools to examine the impact that Rust's [memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership) has on the heap.
 
 ## Hoare logic
 
-In the late 1960s [Tony Hoare](http://en.wikipedia.org/wiki/C._A._R._Hoare) proposed a formal system for reasoning about programs which would eventually be referred to as [Hoare logic](http://en.wikipedia.org/wiki/Hoare_logic). The central feature of Hoare logic is a triple `{P} C {Q}` where `P` and `Q` are predicate logic assertions, referred to as the pre/post conditions, and `C` is a command (reads: program/program fragment). The idea is that, outside of any guarantee of termination [[2](#footnotes)], if `P` is true before `C` and `Q` is true after `C`, the triple proves partial correctness for `P` and `Q`.
+In the late 1960s [Tony Hoare](http://en.wikipedia.org/wiki/C._A._R._Hoare) proposed a formal system for reasoning about programs which would eventually be referred to as [Hoare logic](http://en.wikipedia.org/wiki/Hoare_logic). The central feature of Hoare logic is a triple `{P} C {Q}` where `P` and `Q` are predicate logic assertions, referred to as the pre/post conditions, and `C` is a command (reads: program/program fragment). The idea is that, outside of any guarantee of termination [[2](#footnotes)], if `P` is true before `C` and `Q` is true after `C`, the triple proves partial correctness for `P` and `Q`. That is, it proves some property asserted by `P` and `Q` about `C`.
 
 A simple example using C with the assertions in comments:
 
@@ -45,7 +45,7 @@ x = x + 1
 // { x == n + 1 }
 ```
 
-With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabited by my usual reader) the approach might be heavy handed, but there are many where this type of specification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
+With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabited by my usual reader) the approach might be heavy handed, but there are many domains where this type of specification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
 
 ## Separation Logic
 
@@ -167,7 +167,7 @@ fn main() {
 }
 {% endhighlight %}
 
-Note that `x` is declared as a mutable variable (Rust's default is immutability). When a pointer is made to the field `f` of the record stored at `*x` with `&x.f` and `x` is then reassigned, the memory at `*x` would be subject to garbage collection. Luckily Rust does a bit of work for you and inserts a lexically scoped reference to the original record to prevent deallocation by the garbage collector.
+Note that `x` is declared as a mutable variable (Rust's default is immutability). When a pointer is made to the field `f` with `&x.f` and then `x` is reassigned, the memory at `*x` would be subject to garbage collection. Luckily Rust does a bit of work for you and inserts a lexically scoped reference to the original record to prevent deallocation by the garbage collector.
 
 {% highlight rust %}
 struct X { f: int, g: int }
