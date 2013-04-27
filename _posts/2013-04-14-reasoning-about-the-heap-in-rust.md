@@ -10,13 +10,13 @@ published: true
 listed: false
 ---
 
-If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [!!].
+If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [[1](#footnotes)].
 
 In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then, we'll apply those tools to formalize part of [Rust's memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership).
 
 ## Hoare logic
 
-In the late 1960s [Tony Hoare](http://en.wikipedia.org/wiki/C._A._R._Hoare) proposed a formal system for reasoning about programs which would eventually be referred to as [Hoare logic](http://en.wikipedia.org/wiki/Hoare_logic). The central feature of Hoare logic is a triple `{P} C {Q}` where `P` and `Q` are predicate logic assertions, referred to as the pre/post conditions, and `C` is a command (reads: program/program fragment). The idea is that, outside of any guarantee of termination[!!], if `P` is true before `C` and `Q` is true after `C`, the triple proves partial correctness for `P` and `Q`.
+In the late 1960s [Tony Hoare](http://en.wikipedia.org/wiki/C._A._R._Hoare) proposed a formal system for reasoning about programs which would eventually be referred to as [Hoare logic](http://en.wikipedia.org/wiki/Hoare_logic). The central feature of Hoare logic is a triple `{P} C {Q}` where `P` and `Q` are predicate logic assertions, referred to as the pre/post conditions, and `C` is a command (reads: program/program fragment). The idea is that, outside of any guarantee of termination [[2](#footnotes)], if `P` is true before `C` and `Q` is true after `C`, the triple proves partial correctness for `P` and `Q`.
 
 A simple example using C with the assertions in comments:
 
@@ -28,7 +28,7 @@ x = x + 1
 
 Here the triple `{P} C {Q}` asserts that if `x` is equal to some `n` before `x = x + 1` then `x` will be equal to `n + 1` afterward.
 
-In addition to this basic structure it's possible to define axioms for common programming constructs like assignment, branching, while loops, and for loops that allow for more general reasoning and manipulation of assertions. For assignment it takes the form `{P[E/V]} V=E {P}`. That is, substituting `E` for `V` in `P` before the assignment should hold and `P` should hold afterward [!!].
+In addition to this basic structure it's possible to define axioms for common programming constructs like assignment, branching, while loops, and for loops that allow for more general reasoning and manipulation of assertions. For assignment it takes the form `{P[E/V]} V=E {P}`. That is, substituting `E` for `V` in `P` before the assignment should hold and `P` should hold afterward [[3](#footnotes)].
 
 ```c++
 // P[E/V]
@@ -49,7 +49,7 @@ With the help of this and other axioms, established for each programming environ
 
 ## Separation Logic
 
-[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for specifying memory use and safety with new assertions for how a program will interact with the heap and stack[!!].
+[Separation logic](http://en.wikipedia.org/wiki/Separation_logic) is an extension to Hoare logic that provides tools for specifying memory use and safety with new assertions for how a program will interact with the heap and stack [[4](#footnotes)].
 
 The four assertions that Separation logic adds for describing the heap are:
 
@@ -63,7 +63,7 @@ There are also some shortcuts for common heap states that are built on top of th
 * `x |-> n, o, p` is equivalent to `x |-> n * x + 1 |-> o * x + 2 |-> p`. That is, `x` points to a series of memory cells that can be accessed by using `x` and pointer arithmetic.
 * `x -> n` is a basic pointer assertion. It is equivalent to `x |-> n * true`, that suggests there is a heap where `n` is the value at `*x` which is a part of a larger heap about which we can't make any assertions.
 
-Again we'll turn to C to demonstrate how these assertions fit with common programs[!!].
+Again we'll turn to C to demonstrate how these assertions fit with common programs [[5](#footnotes)].
 
 ```c++
 // { emp }
@@ -102,7 +102,7 @@ Here the comma separated list of values following the singleton pointer in `{ ar
 // { arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }
 ```
 
-It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly useful or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [!!], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
+It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly useful or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [[6](#footnotes)], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
 
 ```c++
 // { x |-> 0 * (x |-> 1 -* Q) }
@@ -110,7 +110,7 @@ It's worth noting that separating implication, `P -* Q` doesn't appear to have a
 // { Q }
 ```
 
-This precondition here says that there are two disjoint heaps. One in which `x |-> 0` holds and one in which `(x |-> 1 -* Q)` holds. The implication on the right is, if second heap was extended so that `x` *was* pointing to `1`, `Q` would hold. After the assignment `*x` is no longer `0` but rather the second heap has been extended so that `*x` is `1` and as a result `Q` holds [!!].
+The precondition here says that there are two disjoint heaps. One in which `x |-> 0` holds and one in which `(x |-> 1 -* Q)` holds. The implication on the right is, if second heap was extended so that `x` *was* pointing to `1`, `Q` would hold. After the assignment `*x` is no longer `0` but rather the second heap has been extended so that `*x` is `1` and as a result `Q` holds [[7](#footnotes)].
 
 ## Rust Ownership
 
@@ -300,19 +300,20 @@ Finally with the allocation of a wholly new record and pointer for `x` we can em
 
 Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule. The Frame Rule provides for rigorous local reasoning about the heap without concern for other possibly overlapping references to the same memory locations. That is, it allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
 
-Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex[!!]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
+Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex [[8](#footnotes)]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
 
 ## Conclusion
 
 Hopefully this post has given you an initial sense of a portion of Rust's memory management facilities and also the formalism of Separation logic.
 
 ### Footnotes
+<a name="footnotes"></a>
 
-* http://static.rust-lang.org/doc/0.6/tutorial.html#introduction
-* When the program fragment can be shown to terminate the triple proves total correctness.
-* There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
-* More information on Separation logic https://wiki.mpi-sws.org/star/cpl
-* The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
-* John C. Reynolds: [Separation Logic: A Logic for Shared Mutable Data Structures.](http://www.cs.cmu.edu/~jcr/seplogic.pdf)
-* It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> _ * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
-* Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
+1. http://static.rust-lang.org/doc/0.6/tutorial.html#introduction
+2. When the program fragment can be shown to terminate the triple proves total correctness.
+3. There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
+4. More information on Separation logic https://wiki.mpi-sws.org/star/cpl
+5. The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
+6. John C. Reynolds: [Separation Logic: A Logic for Shared Mutable Data Structures.](http://www.cs.cmu.edu/~jcr/seplogic.pdf)
+7. It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> _ * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
+8. Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
