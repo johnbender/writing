@@ -45,7 +45,7 @@ x = x + 1
 // { x == n + 1 }
 ```
 
-With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabitted by my usual reader) the approach might be heavy handed, but there are many where this type of specicification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
+With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabited by my usual reader) the approach might be heavy handed, but there are many where this type of specification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
 
 ## Separation Logic
 
@@ -61,7 +61,7 @@ The four assertions that Separation logic adds for describing the heap are:
 There are also some shortcuts for common heap states that are built on top of these four assertions:
 
 * `x |-> n, o, p` is equivalent to `x |-> n * x + 1 |-> o * x + 2 |-> p`. That is, `x` points to a series of memory cells that can be accessed by using `x` and pointer arithmetic.
-* `x -> n` is a basic pointer assertion. It is equivelant to `x |-> n * true`, that suggests there is a heap where `n` is the value at `*x` which is a part of a larger heap about which we can't make any assertions.
+* `x -> n` is a basic pointer assertion. It is equivalent to `x |-> n * true`, that suggests there is a heap where `n` is the value at `*x` which is a part of a larger heap about which we can't make any assertions.
 
 Again we'll turn to C to demonstrate how these assertions fit with common programs[!!].
 
@@ -102,7 +102,7 @@ Here the comma separated list of values following the singleton pointer in `{ ar
 // { arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }
 ```
 
-It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly usefull or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [!!], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
+It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly useful or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [!!], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
 
 ```c++
 // { x |-> 0 * (x |-> 1 -* Q) }
@@ -114,7 +114,7 @@ This precondition here says that there are two disjoint heaps. One in which `x |
 
 ## Rust Ownership
 
-Rust provides two new type modifiers for dealing with pointers and memory managment. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
+Rust provides two new type modifiers for dealing with pointers and memory management. Both have very specific semantics that are checked at *compile time* to help prevent memory leaks.
 
 * `~` - provides a lexically scoped allocation on the heap. That is, when the newly assigned pointer variable goes out of scope the memory is freed.
 * `@` - provides a garbage collected allocation on the heap. In Rust each [task](http://static.rust-lang.org/doc/tutorial-tasks.html) has its own garbage collector responsible for handling this type of heap allocation.
@@ -147,9 +147,9 @@ fn main() {
 } // *a is destroyed here
 {% endhighlight %}
 
-When the ownership of memory is transfered between variables the compiler prevents further reference to the original owner. In this example `a` is the new owner and the compiler will prevent any further reference to `b`. This concept of single ownership is the reason that the memory can be deallocated safetly when the current owner goes out of scope.
+When the ownership of memory is transferred between variables the compiler prevents further reference to the original owner. In this example `a` is the new owner and the compiler will prevent any further reference to `b`. This concept of single ownership is the reason that the memory can be deallocated safely when the current owner goes out of scope.
 
-Alternately, the `@` type modifier can be used to request that the runtime manage the allocated memory on a per-task basis. This presents some interesting issues when creating pointers to memory allocated as part of a record.
+Alternately, the `@` type modifier can be used to request that the run-time manage the allocated memory on a per-task basis. This presents some interesting issues when creating pointers to memory allocated as part of a record.
 
 {% highlight rust %}
 struct X { f: int, g: int }
@@ -262,7 +262,7 @@ fn main() {
 } // { emp }
 {% endhighlight %}
 
-Here we've repurposed the managed memory example from earlier with the explicit addition of the reference that would otherwise be inserted by Rust to prevent GC, `x1`. Let's examine each expression and the associated assertions in turn.
+Here we've re-purposed the managed memory example from earlier with the explicit addition of the reference that would otherwise be inserted by Rust to prevent GC, `x1`. Let's examine each expression and the associated assertions in turn.
 
 {% highlight rust %}
 // { emp }
@@ -286,7 +286,7 @@ let y = &x1.f;
 // { x1 -> 0, 1 ∧ x -> 0, 1 ∧ y -> 0 }
 {% endhighlight %}
 
-A new reference to the memory location of the first record field in `x` and `x1` adds another pointer that overlaps with the existing heap. It's important to keep in mind that the basic conjunction simply says that the heap *may* overlap. To the reader it may be obvious, but in terms of specifying program behavior it's a weaker assertion that the equivelant made with the `*` connective.
+A new reference to the memory location of the first record field in `x` and `x1` adds another pointer that overlaps with the existing heap. It's important to keep in mind that the basic conjunction simply says that the heap *may* overlap. To the reader it may be obvious, but in terms of specifying program behavior it's a weaker assertion that the equivalent made with the `*` connective.
 
 {% highlight rust %}
 // { x1 -> 0, 1 ∧ x -> 0, 1 ∧ y -> 0 }
@@ -294,25 +294,25 @@ x = @X { f: 2, g: 3 };
 // { (x1 -> 0, 1 ∧ y -> 0) * x |-> 2, 3 }
 {% endhighlight %}
 
-Finally with the allocation of a wholy new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and its first field remain ambiguous.
+Finally with the allocation of a wholly new record and pointer for `x` we can employ the more powerful connective because the new record lives in a newly allocated section of memory on the heap. The remaining pointers to the original record and its first field remain ambiguous.
 
-## Futher Reading
+## Further Reading
 
-Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule. The Frame Rule provides for rigorous local reasoning about the heap without concern for other possibly overlaping references to the same memory locations. That is, it allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
+Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule. The Frame Rule provides for rigorous local reasoning about the heap without concern for other possibly overlapping references to the same memory locations. That is, it allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
 
 Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex[!!]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
 
 ## Conclusion
 
-Hopefully this post has given you an initial sense of a portion of Rust's memory managemet facilities and also the formalism of Separation logic.
+Hopefully this post has given you an initial sense of a portion of Rust's memory management facilities and also the formalism of Separation logic.
 
 ### Footnotes
 
 * http://static.rust-lang.org/doc/0.6/tutorial.html#introduction
-* When the program fragment can be shown to terminat the triple proves total correctness.
+* When the program fragment can be shown to terminate the triple proves total correctness.
 * There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
 * More information on Separation logic https://wiki.mpi-sws.org/star/cpl
 * The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
 * John C. Reynolds: [Separation Logic: A Logic for Shared Mutable Data Structures.](http://www.cs.cmu.edu/~jcr/seplogic.pdf)
-* It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> 0 * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
+* It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> _ * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
 * Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
