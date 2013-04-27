@@ -270,7 +270,7 @@ let mut x = @X { f: 0, g: 1 };
 // { x |-> 0, 1 }
 {% endhighlight %}
 
-As before the allocation of managed memory creates a singleton heap pointer to the memory containing the record values.
+As before the allocation of managed memory creates a singleton heap pointer to the memory containing the record values [[8](#footnotes)].
 
 {% highlight rust %}
 // { x |-> 0, 1 }
@@ -278,7 +278,7 @@ let x1 = x;
 // { x1 -> 0, 1 ∧ x -> 0, 1 }
 {% endhighlight %}
 
-Adding and additional reference to that same memory means that we have two pointers to the same memory. As a result we *cannot* use the `*` connective or the the singleton heap pointer `|->` to represent the heap.
+Adding an additional reference to that same memory means that we have two pointers to the same memory. As a result we *cannot* use the `*` connective or the the singleton heap pointer `|->` to represent the heap.
 
 {% highlight rust %}
 // { x1 -> 0, 1 ∧ x -> 0, 1 }
@@ -300,7 +300,7 @@ Finally with the allocation of a wholly new record and pointer for `x` we can em
 
 Not covered here for brevity's sake is an important part of Separation logic, the Frame Rule. The Frame Rule provides for rigorous local reasoning about the heap without concern for other possibly overlapping references to the same memory locations. That is, it allows each assertion to be correct in spite of the fact that the program fragments they pertain to are often operating in a larger application that manipulates the heap.
 
-Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex [[8](#footnotes)]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
+Also, the concept of borrowed pointers is important reading if you're interested in Rust. A common but effective memory efficiency is achieved in C by passing pointers to data structures instead of using the default pass-by-value semantics. Similarly one can "borrow" a pointer to a data structure in Rust, but because of the type level restrictions it's both safer and more complex [[9](#footnotes)]. The borrowed pointers [tutorial](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html) makes those complexities clear.
 
 ## Conclusion
 
@@ -315,5 +315,6 @@ Hopefully this post has given you an initial sense of a portion of Rust's memory
 4. More information on Separation logic https://wiki.mpi-sws.org/star/cpl
 5. The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
 6. John C. Reynolds: [Separation Logic: A Logic for Shared Mutable Data Structures.](http://www.cs.cmu.edu/~jcr/seplogic.pdf)
-7. It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> _ * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
-8. Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
+7. It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> _ * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion can be anything. This means that you can start with some assertion you want to show for a program and move backward "over" a memory mutation!
+8. This assumes the memory allocated for a struct in Rust is sequential (for [reference](http://static.rust-lang.org/doc/tutorial-borrowed-ptr.html#borrowing-unique-boxes)). It also assumes that `x.f` and `x.g` aren't explicitly scoped pointers but rather tranlate into an operation on the pointer `x` at a low level (they aren't represented in the assertions).
+9. Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it may be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
