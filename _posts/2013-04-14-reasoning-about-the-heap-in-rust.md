@@ -56,7 +56,7 @@ The four assertions that Separation logic adds for describing the heap are:
 * `emp` - for the empty heap. It asserts that the heap is empty, and it can be used to extend assertions about programs that don't interact with the heap.
 * `x |-> n` - for the singleton heap. It asserts that there is a heap that contains one cell at address `x` with contents `n`.
 * `P * Q` - as a replacement for `∧` with disjoint heaps. It asserts that, if there is a heap where `P` holds and a *separate* (disjoint) heap where `Q` holds, both `P` and `Q` hold in the conjunction of those two heaps.
-* `P -* Q` - as a replacement for implication, `=>`. It asserts that there is a heap in which `P` holds then `Q` will hold in the *current heap* extended by the first heap.
+* `P -* Q` - as a replacement for implication, `=>`. It asserts that if there is a heap in which `P` holds then `Q` will hold in the current heap extended by the heap in which `P` holds. An important point of clarity: `P -* Q` holds for the *current heap* and *not* the current heap extended by the heap in which `P` holds.
 
 There are also some shortcuts for common heap states that are built on top of these four assertions:
 
@@ -87,8 +87,6 @@ int *ptr2 = malloc(sizeof(int));
 
 Adding `ptr2` means the addition of another singleton heap and the connective `*`. It's possible to write this as `{ (ptr -> 5) ∧ (ptr2 -> 5) }`, but this assertion provides no information about how the heap is arranged. It simply says that there are two pointers to the value 5 somewhere in a heap. They might be pointing to the same memory location. By using the singleton heap pointer `|->` and the connective `*`, the new assertion makes clear that the two pointers are *not* pointing to the same memory location.
 
-!! Implication example
-
 ```c++
 // { emp }
 int *arry = calloc(3, sizeof(int));
@@ -104,8 +102,15 @@ Here the comma separated list of values following the singleton pointer in `{ ar
 // { arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }
 ```
 
-As you can see this maps directly to the C fragment.
+It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly usefull or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [!!], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
 
+```c++
+// { x |-> 0 * (x |-> 1 -* Q) }
+*x = 1
+// { Q }
+```
+
+This precondition here says that there are two disjoint heaps. One in which `x |-> 0` holds and one in which `(x |-> 1 -* Q)` holds. The implication on the right is, if second heap was extended so that `x` *was* pointing to `1`, `Q` would hold. After the assignment `*x` is no longer `0` but rather the second heap has been extended so that `*x` is `1` and as a result `Q` holds [!!].
 
 ## Rust Ownership
 
@@ -304,8 +309,10 @@ Hopefully this post has given you an initial sense of a portion of Rust's memory
 ### Footnotes
 
 * http://static.rust-lang.org/doc/0.6/tutorial.html#introduction
-* When termination can be show, the triple proves total correctness.
+* When the program fragment can be shown to terminat the triple proves total correctness.
 * There are actually two forms of the assignment axiom. The second proposed by Floyd is more complex but addresses issues that exist in common imperative languages the first cannot.
 * More information on Separation logic https://wiki.mpi-sws.org/star/cpl
 * The examples that follow assume that `malloc` is always operating by allocating fresh memory not pointed to elsewhere.
+* John C. Reynolds: [Separation Logic: A Logic for Shared Mutable Data Structures.](http://www.cs.cmu.edu/~jcr/seplogic.pdf)
+* It certainly feels convoluted but the separating implication is used as a powerful tool when reasoning about the execution of programs moving backwards (among other things). All the examples in this post start from some initial state and then move forward following the execution of the program. Doing this can produce useless assertions if the thing you are trying to prove isn't affected by some of the program snippets. Many times it's easier to reason from the end goal, that is from the final result of a set of commands/expressions/program snippets and work backwards. As you can see `{ x |-> 0 * (x |-> 1 -* Q) } *x = 1 { Q }` the final assertion is very simple and can be anything. This means that you can start with some final assertion and move backward "over" a memory mutation!
 * Obviously this depends on your perspective and how complex the code is that uses the pointer. That is, it my be exceptionally hard to get the memory freed properly as result of passing around pointers in which case the compiler might be extremely valuable when writing the Rust equivalent.
