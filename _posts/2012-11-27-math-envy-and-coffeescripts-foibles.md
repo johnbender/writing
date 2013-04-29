@@ -5,7 +5,7 @@ tags:
 - coffeescript
 - javascript
 - math
-status: draft
+status: published
 type: post
 published: true
 listed: true
