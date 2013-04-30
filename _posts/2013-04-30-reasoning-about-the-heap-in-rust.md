@@ -15,7 +15,7 @@ If you follow programming languages or web technologies closely it's likely that
 
 In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then we'll apply those tools to examine the impact that Rust's [memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership) has on the heap.
 
-*As an aside, while writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and want to learn more please explore the links in the footnotes.*
+*In the process of writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and you want to learn more please explore the links in the footnotes.*
 
 ## Hoare logic
 
@@ -48,7 +48,7 @@ x = x + 1
 // { x == n + 1 }
 ```
 
-With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those inhabited by my usual reader) the approach might be heavy handed, but there are many domains where this type of specification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
+With the help of this and other axioms, established for each programming environment, Hoare logic allows the wielder to write specifications for programs. For most domains (especially those that my usual reader works in) the approach might be heavy handed, but there are many domains where this type of specification is necessary. In particular it's often important to specify the behavior of a program with regards to memory.
 
 ## Separation Logic
 
@@ -221,7 +221,7 @@ fn main() {
         let a = ~0;
         // { a |-> 0 }
         let b = ~1;
-        // { a |-> 0 * b |-> 1}
+        // { a |-> 0 * b |-> 1 }
     }
     // { emp }
 }
@@ -238,7 +238,7 @@ fn main() {
         let b = ~1;
         // { b |-> 1 }
         let a = b;
-        // { a -> 1 ∧ b -> 1}
+        // { a -> 1 ∧ b -> 1 }
     }
     // { a |-> 1 }
 }
