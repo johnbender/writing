@@ -15,7 +15,7 @@ If you follow programming languages or web technologies closely it's likely that
 
 In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then we'll apply those tools to examine the impact that Rust's [memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership) has on the heap.
 
-*In the process of writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and you want to learn more please explore the links in the footnotes.*
+*While I was writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and you want to learn more please explore the links in the footnotes.*
 
 ## Hoare logic
 
