@@ -8,13 +8,14 @@ status: published
 type: post
 published: true
 listed: false
+vote: http://news.ycombinator.com/
 ---
 
 If you follow programming languages or web technologies closely it's likely that you've heard of [Rust](http://www.rust-lang.org). Rust is one part of a larger effort by [Mozilla Research](http://www.mozilla.org/en-US/research/) to build a new browser engine in [Servo](http://www.mozilla.org/en-US/research/projects/#servo), but its value as a development tool certainly extends beyond that initial goal. In particular it has received attention for its memory model which, "encourages efficient data structures and safe concurrency patterns, forbidding invalid memory accesses that would otherwise cause segmentation faults" [[1](#footnotes)].
 
 In this post we'll take a look at the basics of Hoare logic and an extension Separation logic which aid in reasoning about imperative program behavior and memory state. Then we'll apply those tools to examine the impact that Rust's [memory ownership system](http://static.rust-lang.org/doc/0.6/tutorial.html#ownership) has on the heap.
 
-As an aside, while writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and want to learn more please explore the links in the footnotes.
+*As an aside, while writing this post John Reynolds passed away. He was an incredible force in PL research and Separation logic was one of his most important works. There's much more to it than is covered here so if you're curious and want to learn more please explore the links in the footnotes.*
 
 ## Hoare logic
 
@@ -307,6 +308,8 @@ Also, the concept of borrowed pointers is important reading if you're interested
 ## Conclusion
 
 Hopefully this post has given you an initial sense of a portion of Rust's memory management facilities and also the formalism of Separation logic.
+
+Special thanks goes to [@steveklabnik](https://twitter.com/steveklabnik), [@evanphx](https://twitter.com/evanphx), and Matt Brown for reviewing various bits of my post.
 
 ### Footnotes
 <a name="footnotes"></a>
