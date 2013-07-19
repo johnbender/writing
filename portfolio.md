@@ -11,15 +11,13 @@ The following is a selection of my best work. It includes essays available elsew
 
 ## Writing
 
-[Math Envy and CoffeeScript's Foibles, Part 2](/2013/01/09/math-envy-and-coffeescripts-foibles-2/) - This completes the formal definition of semantic ambiguity and explores ways that a tool, generalized beyond the example CoffeeScript subset, might detect ambiguous term pairs in any language.
-
-[Math Envy and CoffeeScript's Foibles, Part 1](/2012/11/27/math-envy-and-coffeescripts-foibles/) - CoffeeScript is a popular JavaScript replacement well know for it's syntactic flexibility, but the language's design has produced confusing interactions between terms. This post formalizes a subset of the language to reproduce one such issue and begins the process of formalizing semantic ambiguity using operational semantics.
+Math Envy and CoffeeScript's Foibles: [Part1](/2012/11/27/math-envy-and-coffeescripts-foibles/), [Part 2](/2013/01/09/math-envy-and-coffeescripts-foibles-2/) - CoffeeScript is a popular JavaScript replacement well know for it's syntactic flexibility, but the language's design has produced confusing interactions between terms. These posts formalize a subset of the language to reproduce one such issue, formalize semantic ambiguity using operational semantics, and then finish with a proposal for a tool to prevent similar issues in the future.
 
 [Faster JavaScript with Category Theory](/2012/02/09/faster-javascript-through-category-theory/) - This post covers my initial work on formalizing the relationship between vanilla DOM manipulation functions and jQuery methods using Category Theory. It forms the basis for one talk and two essays.
 
-[A Natural Transformation in JavaScript](/2012/03/22/a-natural-transformation-in-javascript/) - A natural transformation was a logical progression after constructing two categories and a functor in the previous writing on JavaScript and Category Theory.
-
 [Splitting jQuery in Two, A Proposal](/2012/07/19/splitting-jquery-in-two-a-proposal/) - The relationship between the categories <b>Html</b> and <b>Jqry</b> highlighted a logical division of responsibility for jQuery methods. The result is better performance and a more modular architecture for the library.
+
+[A Natural Transformation in JavaScript](/2012/03/22/a-natural-transformation-in-javascript/) - A natural transformation was a logical progression after constructing two categories and a functor in the previous writing on JavaScript and Category Theory.
 
 ## Open Source
 
@@ -31,11 +29,15 @@ The following is a selection of my best work. It includes essays available elsew
 
 ## Talks
 
-[Progressive Enhancement on the Mobile Web](http://www.infoq.com/presentations/Mobile-Web-Development) - The mobile web is populated by an incredibly diverse set of browsers with wide ranging capabilities. In this light hearted talk I discuss some of the more difficult and subtle issues confronting developers working on the mobile web and present some solutions used in jQuery Mobile.
+[Math Envy and CoffeeScript's Foibles](/2013/07/19/presentation-math-envy-and-coffeescripts-foibles/) - CoffeeScript is an extremely dynamic and flexible language that compiles to JavaScript. This talk takes one confusing term interaction and shows how it can be used to generalize about language construction.
+
+<video x-webkit-airplay="allow" src="http://wpc.0B0C.edgecastcdn.net/000B0C/carsons/events/2013/FILive2013/d3-r309-230pm-JB.mp4" controls width="560px"></video>
 
 [Faster JavaScript with Category Theory](/2012/08/26/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JSCONFEU in Berlin to approximately 200 developers.
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/PtD-WKSC6ak" frameborder="0" allowfullscreen></iframe>
+
+[Progressive Enhancement on the Mobile Web](http://www.infoq.com/presentations/Mobile-Web-Development) - The mobile web is populated by an incredibly diverse set of browsers with wide ranging capabilities. In this light hearted talk I discuss some of the more difficult and subtle issues confronting developers working on the mobile web and present some solutions used in jQuery Mobile.
 
 [Middleware as General Purpose Abstraction](/2012/04/28/middleware-as-a-general-purpose-abstraction/) - When Mitchell Hashimoto and I created Vagrant we eventually used a modified version of the middleware described in [PEP333](http://www.python.org/dev/peps/pep-0333/) to compose actions over virtual machines. For more information on Vagrant itself see the section on Open Source.
 

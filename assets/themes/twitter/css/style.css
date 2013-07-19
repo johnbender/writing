@@ -461,3 +461,7 @@ body.missing .content {
   margin-top: 100px;
   min-height: 400px;
 }
+
+video {
+  background-color: black;
+}
