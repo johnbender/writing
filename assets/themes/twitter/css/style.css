@@ -8,10 +8,6 @@ body {
   width: auto;
 }
 
-iframe {
-  margin: 1em 0;
-}
-
 .navbar {
   margin-bottom: 0;
 }
@@ -464,4 +460,8 @@ body.missing .content {
 
 video {
   background-color: black;
+}
+
+video, iframe {
+  margin: 1em 0 2em 0;
 }
