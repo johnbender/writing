@@ -2,7 +2,7 @@
 layout: default
 ---
 {% include JB/setup %}
-{% for post in site.posts limit:4 %}{% if post.listed != false %}
+{% for post in site.posts limit:5 %}{% if post.listed != false %}
 <div class="page-header">
   <h1><a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></h1>
 </div>
@@ -27,7 +27,7 @@ layout: default
       <span>{{ post.date | date: "%d %h %Y" }}</span>
     </div>
 
-    {% if page.tags != empty %}
+    {% if post.tags != empty %}
     <h4>Tags</h4>
     <ul class="tag_box">
       {% assign tags_list = post.tags %}

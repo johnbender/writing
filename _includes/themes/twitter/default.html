@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    {% if page.title %}
+    {% if page %}
     <title>{{ page.title }}</title>
     {% else %}
     <title>johnbender.us</title>
@@ -63,18 +63,37 @@
         {{ content }}
       </div>
 
+      {% if page.type == 'post' %}
+        {% assign last = page or post %}
+        {% assign first = page or post %}
+      {% else %}
+        {% for post in site.posts limit:5 %}{% if post.listed != false %}
+
+          {% if forloop.first %}
+            {% assign first = post %}
+          {% endif %}
+
+          {% if forloop.last %}
+            {% assign first = post %}
+          {% endif %}
+
+        {% endif %}{% endfor %}
+      {% endif %}
+
     <div class="pagination">
       <ul>
-      {% if page.previous %}
-        <li class="prev"><a href="{{ BASE_PATH }}{{ page.previous.url }}" title="{{ page.previous.title }}">&larr; Previous</a></li>
+      {% if first.previous and first.previous.listed != false %}
+        <li class="prev"><a href="{{ BASE_PATH }}{{ first.previous.url }}" title="{{ first.previous.title }}">&larr; Older</a></li>
       {% else %}
-        <li class="prev disabled"><a>&larr; Previous</a></li>
+        <li class="prev disabled"><a>&larr; Older</a></li>
       {% endif %}
         <li><a href="{{ BASE_PATH }}{{ site.JB.archive_path }}">Archive</a></li>
-      {% if page.next %}
-        <li class="next"><a href="{{ BASE_PATH }}{{ page.next.url }}" title="{{ page.next.title }}">Next &rarr;</a></li>
+      {% if last.next and last.next.listed != false %}
+        <li class="next">
+          <a href="{{ BASE_PATH }}{{ last.next.url }}" title="{{ last.next.title }}">Newer &rarr;</a>
+        </li>
       {% else %}
-        <li class="next disabled"><a>Next &rarr;</a>
+        <li class="next disabled"><a>Newer &rarr;</a>
       {% endif %}
       </ul>
     </div>
