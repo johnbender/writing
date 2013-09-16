@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Why I'm getting a PhD"
+title: "Why I'm Getting a PhD"
 tags:
 - career
 - education
