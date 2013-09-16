@@ -7,7 +7,7 @@ tags:
 status: published
 type: post
 published: true
-listed: true
+listed: false
 vote: http://news.ycombinator.com/newest
 ---
 
@@ -59,9 +59,9 @@ Perception of academia varies depending on the field and an individual's cultura
 
 More and more though, the word "academic" is being used as a pejorative to mean irrelevant, unimportant, or a wasted effort. It's easy to wave this away as an issue of sloppy semantics but I think it highlights the suffering perception of academics. In my experience working on research projects and doing a lot of reading over the last few years, much of the stigma appears to result from two issues. The first is, what people think research should be for, and the second is the occasionally impenetrable nature of formalism.
 
-Computer Science research is frequently accompanied by proof of concept software. Many times it's poorly constructed or at least hard to get working. In turn, that can lead to a poor opinion of the research and researchers. This is understandable, but the implementations are rarely the primary contribution of the work. The goal of the researcher is *not* to provide implementations or information directly to industry but rather to produce a solution to an outstanding problem. The work of translating that solution into something "well built" or even concrete is frequently left to the reader ...
+Computer Science research is frequently accompanied by proof of concept software. It might be poorly constructed, hard to get working, or even hard to find. In turn, that can lead to a poor opinion of the research and researchers, but the implementations are rarely the primary contribution of the work. The goal of the researcher is *not* to provide implementations or information directly to industry, but rather to produce a solution to an outstanding problem. The work of translating that solution into something "well built" or even concrete is frequently left to the reader.
 
-... and reading Computer Science papers can be hard work. The deluge of notation can be discouraging. It can even seem like unnecessary ceremony at times. Again, this is understandable, but a lot of ground has to be covered in the limited space provided for conference publications. Moreover, formalism and logic are the most important tools we have when coming to consensus on a good solution. In a perfect world all the necessary context would be easily accessible, and the formal tools used to establish the desired properties of a solution would be easy to understand. Sadly, that's not the case, but that doesn't diminish the value of the "encoded" contribution.
+Unfortunately, reading Computer Science papers can be hard work. The deluge of notation can be discouraging. It can even seem like unnecessary ceremony, but a lot of ground has to be covered in the limited space provided for conference publications. Moreover, formalism and logic are the most important tools we have when streamlining and finding consensus on a good solution. In a perfect world all the necessary context would be easily accessible, and the formal tools used to establish properties of a solution would be easy to understand. Sadly that's not the case, but it doesn't diminish the value of the "encoded" contribution.
 
 It's *because* of these things and not in spite of them that I'm going back to school. I want to work in an environment that explicitly promotes a focus on the fundamentals of a problem and requires that the utmost care be taken when presenting a solution.
 
