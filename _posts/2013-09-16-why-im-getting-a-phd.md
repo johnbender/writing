@@ -13,7 +13,7 @@ vote: http://news.ycombinator.com/newest
 
 The 26th is the first day of instruction in the first academic year of my PhD in Computer Science at UCLA. I have a two year old daughter, an incredibly supportive wife, and I just turned 30.
 
-Unsurprisingly, I've been frequently asked why I want to get a PhD and I rarely get a chance to explain my thinking fully. This post is both a detailed account of my reasons and a counterpoint to the popular opinion that there isn't much value in higher education in Computer Science.
+Unsurprisingly, I've been asked many times why I want to get a PhD and I rarely get a chance to explain my thinking fully. This post is both a detailed account of my reasons and a counterpoint to the popular opinion that there isn't much value in higher education in Computer Science.
 
 ## Why Bother?
 
