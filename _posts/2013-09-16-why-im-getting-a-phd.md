@@ -7,7 +7,7 @@ tags:
 status: published
 type: post
 published: true
-listed: false
+listed: true
 vote: http://news.ycombinator.com/newest
 ---
 
