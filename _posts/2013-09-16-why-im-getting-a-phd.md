@@ -69,7 +69,7 @@ It's *because* of these things and not in spite of them that I'm going back to s
 
 I guess you could say I'm taking The Fourth Path™.
 
-It's likely that many of the ideas presented here are colored by inexperience in the academic environment. In my defense, I have been working on research projects since last year with folks at UCLA and I have been attending regular reading groups. I also know what problems I want to work on; one of which I'm pursuing with a strong blessing from my adviser.
+While I may be new to the academic environment, I have taken efforts to ensure that my impressions are not naive. I have been working on research projects since last year with folks at UCLA and I have been attending regular reading groups. I also know what problems I want to work on; one of which I'm pursuing with a strong blessing from my adviser.
 
 Even if this doesn't turn out as planned, at least I know that the "what" and "how" of my work will fit and that's why I'm getting a PhD.
 
