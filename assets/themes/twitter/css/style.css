@@ -210,7 +210,7 @@ pre, code {
 }
 
 pre {
-  margin: 0;
+  margin: 1em 0;
 }
 
 div.highlight {
