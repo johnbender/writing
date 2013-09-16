@@ -8,7 +8,7 @@ status: published
 type: post
 published: true
 listed: true
-vote: http://news.ycombinator.com/newest
+vote: http://news.ycombinator.com/
 ---
 
 The 26th is the first day of instruction in the first academic year of my PhD in Computer Science at UCLA. I have a two year old daughter, an incredibly supportive wife, and I just turned 30.
