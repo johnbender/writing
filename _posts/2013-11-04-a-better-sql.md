@@ -94,9 +94,9 @@ Clearly, not every migration is just about the schema. Frequently the data has t
 
 ## Conclusion
 
-For the interested reader, I started working on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further as a research topic I haven't been working on it. Also, for comparison I've included two very simple denotational semantics that I used as a thought device in the footnotes to highlight the symmetry of this new approach to the language.
+For the interested reader, I started working on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further as a research topic I haven't been working on it. Also, for comparison I've included two very simple denotational semantics in the footnotes that I used as a thought device in the footnotes to highlight the symmetry of this new approach to the language.
 
-This technique can be extended to other languages that manage system state declaratively like Puppet's DSL or even HTML. Though in the case of Puppet understanding the state mapping is quite complex because system components frequently generate artifacts that are not explicitly declared.
+This technique can be extended to other languages that manage system state declaratively like configuration management DSLs or even HTML. Though in the case of configuration management, understanding the mapping between syntax and state is quite complex because system components frequently generate artifacts that are not explicitly declared.
 
 Broadly, the idea of differential semantics is to gather more information about intent from readily available sources so that language runtimes can make informed decisions about user intent. The results need not be confined to accurate interpretation of the desired system state.
 
@@ -106,3 +106,5 @@ In the next post we'll look at how a type system applied to SQL might provide so
 
 1. There's a lot of interesting work and tooling around preventing issues resulting from schema migrations: [schema evolution](http://scholar.google.com/scholar?q=prism+schema+evolution&btnG=&hl=en&as_sdt=0%2C5).
 2. A denotational semantics for both the current DDL semantics and the proposed semantics. Note that the differential semantics eval function is parameterized by the state of the syntax.
+
+<p  style=" margin: 12px auto 6px auto; font-family: Helvetica,Arial,Sans-serif; font-style: normal; font-variant: normal; font-weight: normal; font-size: 14px; line-height: normal; font-size-adjust: none; font-stretch: normal; -x-system-font: none; display: block;">   <a title="View SQL DDL Differential Semantics on Scribd" href="http://www.scribd.com/doc/181098166/SQL-DDL-Differential-Semantics"  style="text-decoration: underline;" >SQL DDL Differential Semantics</a></p><iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/181098166/content?start_page=1&view_mode=scroll&show_recommendations=true" data-auto-height="false" data-aspect-ratio="undefined" scrolling="no" id="doc_64435" width="100%" height="600" frameborder="0"></iframe>
