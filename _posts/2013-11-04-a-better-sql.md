@@ -3,7 +3,6 @@ layout: post
 title: "A Better SQL, Part 1"
 tags:
 - sql
-- math
 status: draft
 type: post
 published: true
