@@ -94,7 +94,7 @@ Clearly, not every migration is just about the schema. Frequently the data has t
 
 ## Conclusion
 
-For the interested reader, I started working on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further as a research topic I haven't been working on it. Also, for comparison I've included two very simple denotational semantics in the footnotes that I used as a thought device in the footnotes to highlight the symmetry of this new approach to the language.
+For the interested reader, I started working on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further as a research topic I haven't been working on it. Also, for comparison I've included two very simple denotational semantics in the footnotes. They highlight the symmetry of this new approach to the language when compared with the current implementation.
 
 This technique can be extended to other languages that manage system state declaratively like configuration management DSLs or even HTML. Though in the case of configuration management, understanding the mapping between syntax and state is quite complex because system components frequently generate artifacts that are not explicitly declared.
 
