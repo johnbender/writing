@@ -3,11 +3,11 @@ layout: post
 title: "A Better SQL, Part 1"
 tags:
 - sql
-status: draft
+status: published
 type: post
 published: true
-listed: false
-vote: false
+listed: true
+vote: https://news.ycombinator.com/newest
 ---
 
 The relational model for data is ubiquitous. That's in part due to SQL's declarative approach to dealing with data. Unfortunately SQL has its warts. In particular schema change with the data definition subset of the language (DDL) [1] can be awkward for creating idempotent migrations. It's awkward enough that the responsibility is frequently delegated to the application layer where more expressive languages can be employed. In this, the first of two posts proposing improvements to SQL, I'll lay out an alternate semantics for SQL DDL that embraces schema change and expands the expressive power of DDL's declarative core.
