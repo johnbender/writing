@@ -43,7 +43,7 @@ end #JB
 desc "Install dependencies"
 task :deps do
   exec(<<-CMD)
-    gem install jekyll
+    gem install jekyll --version="0.11.2"
     gem install redcarpet
     gem install albino
   CMD

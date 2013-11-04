@@ -34,7 +34,7 @@ create table if not exists foo (
 alter table foo add column bak text;
 ```
 
-All together this will ensure the proper end-state whether the target database is at the initial state without the table `foo` or at the second state where `foo` lacks the column `bak`. In this case it's idempotent and easy to understand the final state of the table because the examples is very simple, but it's acquired an imperative pall. As the schema definition grows more complex through many `drop`s, `add`s, and type casts the final state of the table is less clear when viewed at the syntactic level:
+All together this will ensure the proper end-state whether the target database is at the initial state without the table `foo` or at the second state where `foo` lacks the column `bak`. In this case it's easy to understand the final state of the table because the example is very simple, but it's acquired an imperative pall with the inclusion of the first `alter`. As the schema definition grows more complex through many `drop`, `add`, and type cast changes, the final state of the table becomes less clear:
 
 ```sql
 create table if not exists foo (
@@ -47,13 +47,11 @@ alter table foo drop column bak text;
 alter table foo add column baks text;
 ```
 
-It would be better to simply add columns to the original table definition, and then the resulting schema representation would be immediately clear at a glance.
+It would be better to simply add columns to the original table definition, and then the shape of the resulting table would be immediately clear at a glance.
 
 ## Differential Semantics
 
-The key insight here is that we can permit schema migrations while retaining an entirely descriptive declarative syntax by appealing to the differential information available via source control tools.
-
-In our toy example the desired table definition included a new column `bak`. An entirely descriptive update to the table declaration would look something like this (Note that the original alter statement is absent):
+In our toy example the desired table definition included a new column `bak`. An entirely descriptive update to the table declaration would look like this (Note that the original alter statement is absent):
 
 ```sql
 create table foo (
@@ -63,9 +61,9 @@ create table foo (
 );
 ```
 
-Unfortunately the SQL runtime only considers the existing syntax and makes no attempt to reconcile that syntax with it's existing schema/state. That makes perfect sense because a user is permitted to run small, ad hoc snippets in addition to full schema migration scripts. That is, the RDBMS can't know where this declaration is coming from nor why it's being run so it's unsafe to assume it should do any reconciliation. In contrast a well outfitted user can provide exactly that information.
+Unfortunately the SQL runtime considers the syntax in isolation and makes no attempt to reconcile that with it's internal representation. That makes perfect sense because a user is permitted to run small, ad hoc snippets in addition to full schema migration scripts. That is, the RDBMS can't know where this declaration is coming from nor why it's being run so it's unsafe to assume it should do any reconciliation. In contrast a well outfitted user can provide exactly that information.
 
-If an augmented runtime is provided with more information about how a given declaration has *changed*, it can use that in lieu of the alteration statements to reconcile the current schema state.
+An augmented runtime in conjunction with information about how a declaration has *changed* safely reconcile the current schema state.
 
 ```diff
 @@ -1,4 +1,5 @@
@@ -77,7 +75,9 @@ If an augmented runtime is provided with more information about how a given decl
  );
 ```
 
-Just looking at the diff it's very clear what the intention is: to add the column `bak` to the table. All that's left is to assign some semantics to this diff and the parent table statement. A simple pre-processor could map this differential to the corresponding alter statement in DDL, namely the original alter statement.
+Looking at the diff, it's clear that the intention is to add the column `bak` to the table. What's required then, is to assign some semantics to this diff. With that established a simple pre-processor could map this differential to the corresponding alter statement in DDL, namely the original alter statement.
+
+The key insight here is that we can permit schema migrations while retaining an entirely descriptive declarative syntax by appealing to the differential information available via source control tools.
 
 ## Value Proposition
 
