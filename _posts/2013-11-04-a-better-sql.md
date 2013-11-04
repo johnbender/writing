@@ -63,8 +63,6 @@ create table foo (
 
 Unfortunately the SQL runtime considers the syntax in isolation and makes no attempt to reconcile that with it's internal representation. That makes perfect sense because a user is permitted to run small, ad hoc snippets in addition to full schema migration scripts. That is, the RDBMS can't know where this declaration is coming from nor why it's being run so it's unsafe to assume it should do any reconciliation. In contrast a well outfitted user can provide exactly that information.
 
-An augmented runtime in conjunction with information about how a declaration has *changed* safely reconcile the current schema state.
-
 ```diff
 @@ -1,4 +1,5 @@
  create table foo (l;
@@ -81,19 +79,19 @@ The key insight here is that we can permit schema migrations while retaining an 
 
 ## Value Proposition
 
-The basic value proposition is reduced cognitive overhead in maintaining schemas using SQL DDL. In addition, DDL's syntax is reduced by about half because alters and drops [2] can simply go away which should make it easier to learn as well [3].
+The basic value proposition is reduced cognitive overhead when maintaining schemas using SQL DDL. In addition, DDL's syntax is reduced by about half because alters and drops [2] can simply go away which should make it easier to learn [3].
 
 This could also be pushed up the stack to migration tools by an enterprising library or framework author. For example, Rails generates and maintains a `db/schema.rb` file that is supposed to represent the state of the schema for the associated migrations. A similar technique could be applied there to divine the appropriate alterations when an change to that file is made in place of using migrations for schema changes.
 
-Finally, by associating meaning with syntactic change the user can more safely understand and execute post commit reverts to schema changes. That is, instead of manually defining the necessary steps to "undo" some previous schema change, the source control system can provide the exact information that is necessary given a semantics that's powerful enough to represent the differential.
+Finally, by associating meaning with syntactic change the user can more safely understand and execute post commit reverts to schema changes. That is, instead of manually defining the necessary steps to "undo" some previous schema change, the source control system can provide the exact information that is necessary.
 
 ## Pitfalls
 
-Clearly, not every migration is just about the schema. Frequently the data has to be altered to conform to the target schema. This is actually an area of active research in the Database Systems community [4].
+Obviously, not every migration is just about the schema. Frequently the data has to be altered to conform to the target schema. This is actually an area of active research in the Database Systems community [4].
 
 ## Conclusion
 
-For the interested reader, I started work on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further I haven't been working on it. Also, for comparison I've included two very simple sets of denotational semantics in the footnotes, one to represent the current implementation and one to represent the differential semantics [5]. They highlight the symmetry of this new approach to the language when compared with the current implementation.
+For the interested reader, I started work on a [preprocessor](https://github.com/johnbender/sql-delta) implemented in Haskell. Unfortunately since I don't have any plans to pursue this further I haven't been working on it. Also, for comparison I've included two very simple sets of denotational semantics in the footnotes; one to represent the current implementation and one to represent the differential semantics [5]. They highlight the symmetry of this new approach to the language when compared with the current implementation.
 
 This technique can be extended to other languages that manage system state declaratively like configuration management DSLs or even HTML. Though in the case of configuration management, understanding the mapping between syntax and state is quite complex because system components frequently generate artifacts that are not explicitly declared.
 
