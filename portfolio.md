@@ -33,7 +33,7 @@ Math Envy and CoffeeScript's Foibles: [Part1](/2012/11/27/math-envy-and-coffeesc
 
 <video x-webkit-airplay="allow" src="http://wpc.0B0C.edgecastcdn.net/000B0C/carsons/events/2013/FILive2013/d3-r309-230pm-JB.mp4" controls width="560px"></video>
 
-[Faster JavaScript with Category Theory](2013/08/29/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JQCONUK in Oxford to approximately 600 developers.
+[Faster JavaScript with Category Theory](/2013/08/29/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JQCONUK in Oxford to approximately 600 developers.
 
 <iframe width="560" height="315" src="http://player.vimeo.com/video/71132093" frameborder="0" allowfullscreen></iframe>
 
