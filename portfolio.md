@@ -33,13 +33,12 @@ Math Envy and CoffeeScript's Foibles: [Part1](/2012/11/27/math-envy-and-coffeesc
 
 <video x-webkit-airplay="allow" src="http://wpc.0B0C.edgecastcdn.net/000B0C/carsons/events/2013/FILive2013/d3-r309-230pm-JB.mp4" controls width="560px"></video>
 
-[Faster JavaScript with Category Theory](/2012/08/26/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JSCONFEU in Berlin to approximately 200 developers.
+[Faster JavaScript with Category Theory](2013/08/29/presentation-faster-javascript-through-category-theory/) - After refining the results in three essays I created a thirty minute presentation around my thoughts on Category Theory and JavaScript. I gave the talk most recently at JQCONUK in Oxford to approximately 600 developers.
 
-<iframe width="560" height="315" src="http://www.youtube.com/embed/PtD-WKSC6ak" frameborder="0" allowfullscreen></iframe>
+<iframe width="560" height="315" src="http://player.vimeo.com/video/71132093" frameborder="0" allowfullscreen></iframe>
 
 [Progressive Enhancement on the Mobile Web](http://www.infoq.com/presentations/Mobile-Web-Development) - The mobile web is populated by an incredibly diverse set of browsers with wide ranging capabilities. In this light hearted talk I discuss some of the more difficult and subtle issues confronting developers working on the mobile web and present some solutions used in jQuery Mobile.
 
 [Middleware as General Purpose Abstraction](/2012/04/28/middleware-as-a-general-purpose-abstraction/) - When Mitchell Hashimoto and I created Vagrant we eventually used a modified version of the middleware described in [PEP333](http://www.python.org/dev/peps/pep-0333/) to compose actions over virtual machines. For more information on Vagrant itself see the section on Open Source.
 
 <iframe width="560" height="315" src="http://www.youtube.com/embed/fcNaiP5tea0" frameborder="0" allowfullscreen></iframe>
-
