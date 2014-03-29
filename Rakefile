@@ -68,7 +68,7 @@ desc "Compile the site and commit to the gh-pages branch"
 task :'gh-pages' do
   exec(<<-CMD)
     set -e
-    jekyll --no-auto --pygments;
+    jekyll build;
     git checkout gh-pages;
     cp -r _site/* .;
     git add .;
