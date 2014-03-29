@@ -22,20 +22,20 @@ Relegating code to event bindings breaks down in even very simple situations for
 <pre>
 (<span class="keyword">function</span>( <span class="js2-function-param">$</span> ) {
   <span class="keyword">function</span> <span class="function-name">other</span>() {
-    <span class="comment">// ...
-</span>  }
+    <span class="comment">// ...</span>
+  }
 
   <span class="keyword">function</span> <span class="function-name">header</span>() {
-    <span class="comment">//...
-</span>  }
+    <span class="comment">//...</span>
+  }
 
-</span>
   $(<span class="string">".bar"</span>).click(<span class="keyword">function</span>() {
     <span class="keyword">var</span> <span class="variable-name">header</span> = $( <span class="string">"header"</span> );
 
-    <span class="comment">// ...
-</span>  });
-})( jQuery );</pre>
+    <span class="comment">// ...</span>
+  });
+})( jQuery );
+</pre>
 
 Developers altering the <code>click</code> callback are required to know all the bindings in the current and parent scopes or face the possibility of attempting something unfortunate like using the invocation operator on a jQuery object. Second the inclusion of the state in each callback is implicit which means everything in the enclosing scope is carried with the callback. This is the beauty of the closure when used properly, but here it only adds complexity and possibly memory bloat. Third, and most importantly, the code tied up in the functions and callbacks is entirely unusable outside that context.
 
@@ -45,7 +45,7 @@ As far as alternatives go, it is possible to write JavaScript in a functional st
 
 With that in mind there are a number of options worth considering. Many JavaScript libraries provide a class system to emulate similar systems in other languages. <a href="http://mootools.net/" title="MooTools">MooTools</a> is a prime example in that it's <a href="http://mootools.net/docs/core/Class/Class" title="class system">Class</a> constructor supports classical inheritance, mixins, and more. This approach has the obvious benefit of being relatively familiar to developers without a lot of JavaScript experience and if you prefer to work with the DOM via jQuery you can even discard the MooTools DOM API with the download builder.
 
-Additionally a lot of client side software involves state management between JavaScript objects and some DOM representation. Libraries like <a href="http://documentcloud.github.com/backbone/#Model" title="Backbone Model">Backbone</a> and <a href="http://docs.sproutcore.com/#doc=SC.Object&src=false" title="Sproutcore Object">Sproutcore</a> provide models in one form or another that can act as a class replacement. As Yehuda Katz pointed out in his <a href="http://vimeo.com/22687694" title="Getting Truth from the DOM">presentation</a> "Getting Truth Out of the DOM", attempting to manage complex state between the the DOM and JavaScript is best left to an existing solution. Taken with the need to better organize an application these libraries can be invaluable.
+Additionally a lot of client side software involves state management between JavaScript objects and some DOM representation. Libraries like <a href="http://documentcloud.github.com/backbone/#Model" title="Backbone Model">Backbone</a> and <a href="http://docs.sproutcore.com/#doc=SC.Object" title="Sproutcore Object">Sproutcore</a> provide models in one form or another that can act as a class replacement. As Yehuda Katz pointed out in his <a href="http://vimeo.com/22687694" title="Getting Truth from the DOM">presentation</a> "Getting Truth Out of the DOM", attempting to manage complex state between the the DOM and JavaScript is best left to an existing solution. Taken with the need to better organize an application these libraries can be invaluable.
 
 Finally, you can use the (gasp) prototype system provided by JavaScript. The aversion to JavaScript's object model appears to be an unfortunate side effect of the overall lack of experience with the language, but by creating a constructor and then defining methods on it's prototype you can group, organize, and reuse common functionality quite easily<sup>1</sup>. Even when choosing another solution, neglecting to understand JavaScript at this level is an unfortunate misstep.
 
@@ -85,7 +85,7 @@ In this example when the constructor is invoked with some jQuery wrapped DOM obj
 
 This function takes as arguments a context (<code>newThis</code>) and a function (<code>fn</code>). It then creates a new function that, when invoked, will use the <code>apply</code> method of the original function to invoke it with the new context. More commonly this is defined on the function prototype.
 
-    <pre>
+<pre>
 Function.prototype.<span class="function-name">bind</span> = <span class="keyword">function</span>(<span class="js2-function-param">newThis</span>) {
   <span class="keyword">var</span> <span class="variable-name">self</span> = <span class="builtin">this</span>;
 
@@ -170,31 +170,32 @@ The only additional overhead is the function context bindings<sup>2</sup>, typin
 
 Now consider another developer working on the same project needs to manage textareas in a different context with a minor alteration. The closure based solution requires something of an overhaul, but the <code>TextArea</code> prototype can remain nearly untouched while it's repurposed elsewhere.
 
-    <pre>
+<pre>
 <span class="keyword">function</span> <span class="function-name">DialogWarnTextArea</span>( <span class="js2-function-param">$textArea</span>, <span class="js2-function-param">limit</span>, <span class="js2-function-param">$dialog</span> ) {
   TextArea.apply(<span class="builtin">this</span>, arguments);
 
   <span class="builtin">this</span>.$dialog = $dialog;
 }
 
-</span>DialogWarnTextArea.prototype = <span class="keyword">new</span> TextArea();
+DialogWarnTextArea.prototype = <span class="keyword">new</span> TextArea();
 
-</span>DialogWarnTextArea.prototype.<span class="function-name">limitWarn</span> = <span class="keyword">function</span>() {
+DialogWarnTextArea.prototype.<span class="function-name">limitWarn</span> = <span class="keyword">function</span>() {
   <span class="keyword">if</span>( <span class="builtin">this</span>.$textArea.val().length &gt; <span class="builtin">this</span>.limit ) {
     <span class="builtin">this</span>.$dialog.text(<span class="string">"Too much text!"</span>).show();
   }
-};</pre>
+};
+</pre>
 
 A few things to take note of. First, an application of the original <code>TextArea</code> constructor to <code>this</code> in the <code>DialogWarnTextArea</code> constructor makes sure the original attributes are set up properly (ie <code>limit</code> and <code>$textArea</code>). You can think of this as an explicit <code>super</code>.
 
 <pre>
-</span>TextArea.apply(<span class="builtin">this</span>, arguments);
+TextArea.apply(<span class="builtin">this</span>, arguments);
 </pre>
 
 Second, assigning the prototype to a new instance of <code>TextArea</code> places the methods and attributes defined on it's prototype in the chain above those defined (later) on the <code>DialogWarnTextArea</code> prototype. This is referred to by most JavaScript developer's as "prototypal inheritance" for the way it emulates method/attribute lookup in languages with classical inheritance<sup>3</sup>.
 
 <pre>
-</span>DialogWarnTextArea.prototype = <span class="keyword">new</span> TextArea();
+DialogWarnTextArea.prototype = <span class="keyword">new</span> TextArea();
 </pre>
 
 Third, defining a <code>limitWarn</code> attribute on the <code>DialogWarnTextArea</code> prototype means that objects created with the <code>DialogWarnTextArea</code> will use that definition since it appears earlier in the prototype chain.
@@ -250,8 +251,8 @@ My fear, and the motivation for this post, is that developers are not turning qu
 
 <ol>
 	<li>One of the best examples I've found is Google's closure library. Whatever you may think of the library itself, the <a href="http://code.google.com/p/closure-library/source/browse/trunk/closure/goog/demos/samplecomponent.js" title="Sample">code</a> is really nice to look through.
-	<li>Underscore.js provides a nice facility for binding all methods on an object to that object context (<code>_.bindAll</code>), though it requires explicit inclusion of methods defined on the prototype</li>
+  </li>
+	<li>Underscore.js provides a nice facility for binding all methods on an object to that object context (<code>_.bindAll</code>), though it requires explicit inclusion of methods defined on the prototype
+  </li>
 	<li>You can learn more about prototypal inheritance from <a href="http://javascript.crockford.com/prototypal.html" title="prototypal inheritance">Douglas Crockford</a> and <a href="http://yehudakatz.com/2011/08/12/understanding-prototypes-in-javascript/" title="Yehuda Katz - Prototypes">Yehuda Katz</a></li>
 </ol>
-
-

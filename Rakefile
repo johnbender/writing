@@ -94,7 +94,7 @@ end
 
 desc "use the right cmd to prevent asset mis linking"
 task :serve do
-  `jekyll --auto --serve --pygments --url localhost`
+  `jekyll serve --watch`
 end
 
 # Usage: rake post title="A Title" [date="2012-02-09"]

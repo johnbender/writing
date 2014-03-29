@@ -3,9 +3,8 @@
 permalink: /:categories/:year/:month/:day/:title
 
 exclude: [".rvmrc",".rbenv-version", "README.md", "Rakefile", "changelog.md"]
-auto: true
 pygments: true
-markdown: redcarpet2
+markdown: redcarpet
 redcarpet:
   extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
 
@@ -29,6 +28,7 @@ author :
 # Finally if you are pushing to a GitHub project page, include the project name at the end.
 #
 production_url : http://johnbender.github.com
+baseurl: johnbender.github.com
 
 # All Jekyll-Bootstrap specific configurations are namespaced into this hash
 #

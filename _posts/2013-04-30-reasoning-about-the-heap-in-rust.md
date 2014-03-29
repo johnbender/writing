@@ -23,9 +23,9 @@ In the late 1960s [Tony Hoare](http://en.wikipedia.org/wiki/C._A._R._Hoare) prop
 
 A simple example using C with the assertions in comments:
 
-```c++
+```rust
 // { x == n }
-x = x + 1
+x = x + 1;
 // { x == n + 1 }
 ```
 
@@ -33,18 +33,18 @@ Here the triple `{P} C {Q}` asserts that if `x` is equal to some `n` before `x =
 
 In addition to this basic structure it's possible to define axioms for common programming constructs like assignment, branching, while loops, and for loops that allow for more general reasoning and manipulation of assertions. For assignment it takes the form `{P[E/V]} V=E {P}`. That is, substituting `E` for `V` in `P` before the assignment should hold and `P` should hold afterward [[3](#footnotes)].
 
-```c++
+```rust
 // P[E/V]
-x = x + 1
+x = x + 1;
 // P
 ```
 
 Borrowing `Q` from the earlier example here, `P` is `x == n + 1`. Substituting `x + 1` for `x` in `P` gives `x + 1 == n + 1`, or `x == n`, for the precondition.
 
-```c++
+```rust
 // The result of substituting `x + 1` for `x` in `x == n + 1`:
 // { x == n }
-x = x + 1
+x = x + 1;
 // { x == n + 1 }
 ```
 
@@ -68,7 +68,7 @@ There are also some shortcuts for common heap states that are built on top of th
 
 Again we'll turn to C to demonstrate how these assertions fit with common programs [[5](#footnotes)].
 
-```c++
+```rust
 // { emp }
 int *ptr = malloc(sizeof(int));
 *ptr = 5;
@@ -78,7 +78,7 @@ int *ptr = malloc(sizeof(int));
 The first assertions states that the heap is empty (`emp`). After the `malloc` call and assignment there exists a singleton heap with a single cell containing the value `5` that is pointed to by `ptr`.
 
 
-```c++
+```rust
 // { emp }
 int *ptr = malloc(sizeof(int));
 *ptr = 5;
@@ -90,7 +90,7 @@ int *ptr2 = malloc(sizeof(int));
 
 Adding `ptr2` means the addition of another singleton heap and the connective `*`. It's possible to write this as `{ (ptr -> 5) ∧ (ptr2 -> 5) }`, but this assertion provides no information about how the heap is arranged. It simply says that there are two pointers to the value 5 somewhere in a heap. They might be pointing to the same memory location. By using the singleton heap pointer `|->` and the connective `*`, the new assertion makes clear that the two pointers are *not* pointing to the same memory location.
 
-```c++
+```rust
 // { emp }
 int *arry = calloc(3, sizeof(int));
 *arry = 1;
@@ -101,15 +101,15 @@ int *arry = calloc(3, sizeof(int));
 
 Here the comma separated list of values following the singleton pointer in `{ arry |-> 1,2,3 }` denotes contiguous memory. It's simply a shorthand notation for the pointer arithmetic.
 
-```c++
+```
 // { arry |-> 1 * (arry + 1) |-> 2 * (arry + 2) |-> 3 }
 ```
 
 It's worth noting that separating implication, `P -* Q` doesn't appear to have any particularly useful or clear concrete examples. This seems to be the consequence of its relationship to logical implication in that the whole assertion is only false when `Q` is false. Borrowing from Reynolds [[6](#footnotes)], something like `{ x |-> 1 -* Q }` for some assertion `Q` can be extended with the separating implication to show:
 
-```c++
+```rust
 // { x |-> 0 * (x |-> 1 -* Q) }
-*x = 1
+*x = 1;
 // { Q }
 ```
 
