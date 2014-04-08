@@ -92,9 +92,9 @@ task :publish do
   CMD
 end
 
-desc "use the right cmd to prevent asset mis linking"
+desc "use the right cmd to prevent asset mislinking"
 task :serve do
-  `jekyll serve --watch`
+  `jekyll serve --watch --baseurl="/"`
 end
 
 # Usage: rake post title="A Title" [date="2012-02-09"]
