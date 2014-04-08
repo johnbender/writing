@@ -2,7 +2,7 @@
 layout: default
 ---
 {% include JB/setup %}
-{% for post in site.posts limit:5 %}{% if post.listed != false %}
+{% for post in site.posts limit:3 %}{% if post.listed != false %}
 <div class="page-header">
   <h1><a href="{{ BASE_PATH }}{{ post.url }}">{{ post.title }}</a></h1>
 </div>

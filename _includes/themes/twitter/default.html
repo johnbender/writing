@@ -82,19 +82,7 @@
 
     <div class="pagination">
       <ul>
-      {% if first.previous and first.previous.listed != false %}
-        <li class="prev"><a href="{{ BASE_PATH }}{{ first.previous.url }}" title="{{ first.previous.title }}">&larr; Older</a></li>
-      {% else %}
-        <li class="prev disabled"><a>&larr; Older</a></li>
-      {% endif %}
         <li><a href="{{ BASE_PATH }}{{ site.JB.archive_path }}">Archive</a></li>
-      {% if last.next and last.next.listed != false %}
-        <li class="next">
-          <a href="{{ BASE_PATH }}{{ last.next.url }}" title="{{ last.next.title }}">Newer &rarr;</a>
-        </li>
-      {% else %}
-        <li class="next disabled"><a>Newer &rarr;</a>
-      {% endif %}
       </ul>
     </div>
 
