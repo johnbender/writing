@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "A Better SQL, Part 1"
+title: "A Better SQL"
 tags:
 - sql
 status: published
@@ -10,7 +10,7 @@ listed: true
 vote: https://news.ycombinator.com/item?id=6670048
 ---
 
-The relational model for data is ubiquitous. That's in part due to SQL's declarative approach to manipulating and exploring data stored as relations. Unfortunately SQL has its warts. In particular schema changes made in the data definition subset of the language (DDL) [1] can be awkward for creating idempotent migrations. Enough so, that the responsibility is frequently delegated to the application layer where more expressive languages can be employed. In this, the first of two posts proposing improvements to SQL, I'll lay out an alternate semantics for SQL DDL that embraces schema change and expands the expressive power of DDL's declarative core.
+The relational model for data is ubiquitous. That's in part due to SQL's declarative approach to manipulating and exploring data stored as relations. Unfortunately SQL has its warts. In particular schema changes made in the data definition subset of the language (DDL) [1] can be awkward for creating idempotent migrations. Enough so, that the responsibility is frequently delegated to the application layer where more expressive languages can be employed. Here I'll lay out an alternate semantics for SQL DDL that embraces schema change and expands the expressive power of DDL's declarative core.
 
 ## A Common Activity
 
@@ -96,8 +96,6 @@ For the interested reader, I started work on a [preprocessor](https://github.com
 This technique can be extended to other languages that manage system state declaratively like configuration management DSLs or even HTML. Though in the case of configuration management, understanding the mapping between syntax and state is quite complex because system components frequently generate artifacts that are not explicitly declared.
 
 Broadly, the idea of differential semantics is to gather more information about intent from readily available sources so that language runtimes (declarative or otherwise) can make more informed decisions about user intent. The results need not be confined to accurate interpretation of the desired system state.
-
-In the next post we'll look at how a type system applied to SQL might provide some useful safety properties during schema migration and beyond.
 
 ### Footnotes
 
