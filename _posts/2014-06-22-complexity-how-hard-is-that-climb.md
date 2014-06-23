@@ -18,15 +18,22 @@ difficulty of problems
 
 Imagine that a friend came to you and said that she would like you plan a trip up an obscure mountain,  **X**. Obviously you need to know how difficult the trip is going to be to do a good job. If it's only a quick day hike to the top you probably just need some sandwiches and water, but if it's a multi-week expedition then you'll need a more comprehensive set of supplies.
 
-Further, imagine that you are unable to find any information about the difficulty of climbing up mountain **X**! Your intuitive reaction would probably be to find *comparable* mountains to get a sense for the difficulty of mountain **X** using some sort of comparison. Fortunately, right near by there is a mountain Y that is well known. In fact it's close enough their heights (which we'll use as our proxy for difficulty) can be compared visually save for that fact that peak of mountain **X** is constantly covered by clouds.
-
-<insert comparison image>
+Further, imagine that you are unable to find any information about the difficulty of climbing up mountain **X**! Your intuitive reaction would probably be to find *comparable* mountains to get a sense for the difficulty of mountain **X** using some sort of comparison. Fortunately, right near by there is a mountain Y that is well known. In fact it's close enough that a comparison by height (which we'll use as our proxy for difficulty) is possible save for that fact that peak of mountain **X** is constantly covered by clouds.
 
 Now, all we really know about mountains X and Y is that X is taller and therefor more difficult than Y. We need to get some sense for how difficult mountain Y is so that we can then infer something useful about mountain X. Since we're using vision as our measuring device our system of classification is going to be fairly coarse. That is, if we're positive a mountain can be scaled in a day (think, large hill) then it's probably visually pretty small and if it's going to be on the order of a few weeks then it probably looks pretty serious (think, K2).
 
 Lets call these two classes of mountains D and WD, for "Day" and "Weeks and Days". When a mountain will take at least a day to hike we say it's D-hard. When it will take at the least weeks and days to hike then we say it's WD-hard. So if mountain Y is D-hard then clearly mountain X is D-hard and similarly so if Y is WD-hard.
 
-Lets assume that Y is WD-hard, and that means we know that X is WD-hard because it's at least as tall/hard as Y. But there's still a problem, we don't know *exactly* how tall/hard mountain X is because the top is obscured by clouds. We only know that it's as hard as Y to climb and honestly if X ends up being as tall as Olympus Mons we should probably just pack it in.
+Lets assume that Y is "Weeks and Days"-hard, and that means we know that X is too because it's at least as big as Y. But there's still a problem, we don't know *exactly* how big mountain X is because the top is obscured by clouds. We only know that it's as hard as Y to climb. If X ends up being as tall as Olympus Mons we should probably just forget it. So, you wait for a very clear day when the top of mountain X is visible and comparable to the top of mountain Y and verify that mountain X is of roughly similar size to mountain Y! Now we say that mountain X is WD-complete. That is, we know it's at least as hard as another "Weeks and Days" mountain and we feel confident that it will *only* take weeks and days and not, for instance, months and years.
+
+## P, NP, NP-hard, NP-complete
+
+You may not be a climbing fan but this serves to illustrate the basic process of establishing when a problem is NP-complete. To make the analogy clear we'll define, P, NP, NP-hard and NP-complete and link them to climbing.
+
+## Polynomial-time Reduction
+
+We used vision to verify the difficult of mountains but with the complexity of decision problems we'll need some math and the complexity of our device for measurement plays a critical role in it's validity.
+
 
 
 - P = hours, day trip, supplies: water
