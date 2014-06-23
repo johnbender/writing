@@ -20,17 +20,27 @@ Imagine that a friend came to you and said that she would like you plan a trip u
 
 Further, imagine that you are unable to find any information about the difficulty of climbing up mountain **X**! Your intuitive reaction would probably be to find *comparable* mountains to get a sense for the difficulty of mountain **X** using some sort of comparison. Fortunately, right near by there is a mountain Y that is well known. In fact it's close enough that a comparison by height (which we'll use as our proxy for difficulty) is possible save for that fact that peak of mountain **X** is constantly covered by clouds.
 
-Now, all we really know about mountains X and Y is that X is taller and therefor more difficult than Y. We need to get some sense for how difficult mountain Y is so that we can then infer something useful about mountain X. Since we're using vision as our measuring device our system of classification is going to be fairly coarse. That is, if we're positive a mountain can be scaled in a day (think, large hill) then it's probably visually pretty small and if it's going to be on the order of a few weeks then it probably looks pretty serious (think, K2).
+Now, all we really know about mountains X and Y is that X is at least as tall as Y and therefore at least as difficult. We need to get some sense for how difficult mountain Y is so that we can then infer something useful about mountain X. Since we're using vision as our measuring device our system of classification is going to be fairly coarse. That is, if we're positive a mountain can be scaled in a day (think, large hill) then it's probably visually pretty small and if it's going to be on the order of a few weeks then it probably looks pretty serious (think, K2).
 
-Lets call these two classes of mountains D and WD, for "Day" and "Weeks and Days". When a mountain will take at least a day to hike we say it's D-hard. When it will take at the least weeks and days to hike then we say it's WD-hard. So if mountain Y is D-hard then clearly mountain X is at least D-hard and similarly so if Y is WD-hard.
+Lets call these two classes of mountains D and WD, for "Day" and "Weeks and Days". When a mountain will take at least a day to hike we say it's D-hard. When it will take at fdleast weeks and days to hike then we say it's WD-hard. So if mountain Y is D-hard then clearly mountain X is at least D-hard and similarly so if Y is WD-hard.
 
-Lets assume that Y is "Weeks and Days"-hard, and that means we know that X is too because it's at least as big as Y. But there's still a problem, we don't know *exactly* how big mountain X is because the top is obscured by clouds. We only know that it's as hard as Y to climb. If X ends up being as tall as Olympus Mons we should probably just forget it. So, you wait for a very clear day when the top of mountain X is visible and comparable to the top of mountain Y and verify that mountain X is roughly the same size as mountain Y! Now we say that mountain X is WD-complete. That is, we know it's at least as hard as another "Weeks and Days" mountain and we feel confident that it will *only* take weeks and days and not, for instance, months and years. As a result, it can stand as good example of a WD mountain if we need to use it when attempting to classify other mountains.
+Lets assume that Y is "Weeks and Days"-hard, and that means we know that X is too because it's at least as big as Y. But there's still a problem, we don't know *exactly* how big mountain X is because the top is obscured by clouds. We only know that it's as hard as Y to climb. If X ends up being as tall as Olympus Mons we should probably just forget it. So, on a clear day when the top of mountain X is visible and comparable to the top of mountain Y you take a look and verify that mountain X is roughly the same size as mountain Y. Now we say that mountain X is WD-complete. That is, we know it's at least as hard as another "Weeks and Days" mountain and we feel confident that it will *only* take weeks and days and not, for instance, months and years.
+
+This is really great for a couple of reason. First, we have enough information to start planning a trip to the top of mountain X. Second, because we've classified mountain X as being both WD-hard and "in" the class of WD mountains it can stand as good example if we need to use it to classify other mountains. Put another way, we have placed it firmly enough within a class  of mountains to say that it exemplifies that class.
 
 ## P, NP, NP-hard, NP-complete
 
 You may not be a climbing fan but this serves to illustrate the basic process of establishing when a problem is NP-complete. To make the analogy clear we'll define, P, NP, NP-hard and NP-complete and link them to our climbing analogy.
 
-## Polynomial-time Reduction
+## Polynomial Time
+
+A problem is in P if there exists a Turing machine that can solve (note about decide) the problem in time that is a polynomial function of the size of the input. In terms of our analogy P is the same as D, efficiently solvable problems and easily hikeable mountains.
+
+## Non-deterministic Polynomial Time
+
+A problem is solvable in Non-deterministic Polynomial time if there exists a Turing machine that has two transition functions, and there exists a non-deterministic sequence of applications of those transitions functions that runs in time that is a polynomial function of the size of the input. The more familiar definition of NP is that of a verifying Turing machine that can take an instance of a problem and some "certificate" of the solution and check that it is in fact a solution. The definitions are equivalent [footnote] but the second one is easier for most people to understand so we'll proceed with that.
+
+## Polynomial Time Reduction
 
 We used vision to verify the difficult of mountains but with the complexity of decision problems we'll need some math and the complexity of our device for measurement plays a critical role in it's validity.
 
