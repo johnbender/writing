@@ -91,8 +91,8 @@ elem.getAttribute( <span class="string">"foo"</span> ); <span class="comment">//
 elem = compose( a, b )( elem );
 elem.getAttribute( <span class="string">"foo"</span> ); <span class="comment">// "bar"
 </span>elem.getAttribute( <span class="string">"baz"</span> ); <span class="comment">// "bak"
-</span></pre>
-
+</span>
+</pre>
 
 The identity function is trivial and, as noted before, function composition is always associative. We know that the functions in **Html** are closed under composition because of the type guarantees we've placed on them. That is, all the functions accept as their only argument HTMLElements and return only HTMLElements so there's no way to compose two of them that doesn't also have the same type signature. Having met the three requirements for a category with **Html** we can move on to the second, and more complex category **Jqry**.
 
@@ -114,7 +114,8 @@ Sample use of `$.fn.id`:
 <span class="keyword">var</span> <span class="variable-name">$elem</span> = $( <span class="string">"#example-anchor"</span> );
 
 assert($elem.id() == $elem); <span class="comment">// true
-</span></pre>
+</span>
+</pre>
 
 
 As you can see, the value of `this`, and therefore the constraint that the morphisms must be defined on `$.fn`, plays an important roll in the way that the functions behave in the **Jqry** category. If it's unclear why that is, remember that `this` is whatever object the method is invoked on using dot notation in JavaScript. Also recall that `$.fn == $.prototype`, meaning when you call `$("div").foo()` it finds `foo` on the `$.fn` by following the prototype chain.
@@ -159,7 +160,8 @@ $elem.attr( <span class="string">"foo"</span> );         <span class="comment">/
 
 $elem.aAndB().attr( <span class="string">"foo"</span> ); <span class="comment">// "bar"
 </span>$elem.attr( <span class="string">"baz"</span> );         <span class="comment">// "bak"
-</span></pre>
+</span>
+</pre>
 
 Please direct your attention to the fact that you could substitute the `a` and `b` functions from the **Html** `compose` example here for the functions that are mapped using `this.map` (`$.fn.map`) over the set of elements in the jQuery object (represented by `this`). This will be important when defining the Functor from **Html** to **Jqry**.
 
@@ -194,7 +196,8 @@ Sample use for objects:
 <span class="keyword">var</span> <span class="variable-name"><span class="js2-warning">elem</span></span> = document.getElementsById( <span class="string">"example"</span> );
 elem.nodeName;                        <span class="comment">// "A"
 </span>$.Functor( elem ).prop( <span class="string">"nodeName"</span> ); <span class="comment">// "A"
-</span></pre>
+</span>
+</pre>
 
 
 Sample use for functions:
@@ -207,7 +210,8 @@ Sample use for functions:
 
 $( <span class="string">"#example"</span> ).attr( <span class="string">"foo"</span> );              <span class="comment">// undefined
 </span>$( <span class="string">"#example"</span> ).myMorphism().attr( <span class="string">"foo"</span> ); <span class="comment">// "bar"
-</span></pre>
+</span>
+</pre>
 
 In the first example it takes an HTMLElement, the objects onf **Html**, and translates it into a jQuery object by using the `$()` function. In the second example it takes a function from HTMLElements to HTMLElements, a morpishm in **Html**, and translates it to a function from jQuery objects to jQuery objects.
 
@@ -225,7 +229,8 @@ id(a);             <span class="comment">// &lt;a id="example-anchor"&gt;&lt;/a&
 </span>
 $.Functor(a);      <span class="comment">// [&lt;a id="example-anchor"&gt;&lt;/a&gt;]
 </span>$.Functor(a).id(); <span class="comment">// [&lt;a id="example-anchor"&gt;&lt;/a&gt;]
-</span></pre>
+</span>
+</pre>
 
 Whether the identity function is applied before or after the Functor the result should be the same. As you can see the return value of the two expressions is idenitcal. The second law states the the Functor must preserve composition. Assuming a and b from the html compose example:
 
@@ -244,7 +249,8 @@ $.Functor(a);                                        <span class="comment">// fu
 </span><span class="js2-external-variable">$</span>.fn.sndAB = $.compose( $.Functor(a), $.Functor(b) );
 $elem.sndAB().attr(<span class="string">"foo"</span>);                           <span class="comment">// "bar"
 </span>$elem.attr(<span class="string">"baz"</span>);                                   <span class="comment">// "bak"
-</span></pre>
+</span>
+</pre>
 
 This means that composing the functions and then applying the Functor should create a function that behaves identically to a function created by composing two functions that have had the Functor applied already. Essentially, for all input values the output will be the same. We'll see in a second why that distinction is important.
 
