@@ -38,7 +38,7 @@ NP-hard problems like [The Traveling Salesman](http://en.wikipedia.org/wiki/Trav
 
 The distinction between these two characterizations may seem like a minor detail especially given that solving the optimization version gives you an answer to the decision version. Later we'll see the fact that the decision version has a yes or no answer is important when we talk about a problem being "in NP" in the same way that mountain X was discovered to be "in WD".
 
-The final bit of required preamble is the Turing machine. I am going to assume some familiarity with Turing machines for the sake of space but when we talk about algorithms and their complexity we're talking about those algorithms and a corresponding Turing machine. The choice of the Turing machine as the model for discussions in complexity is due to it's incredibly robust and universal nature [church turing, how to mess with a turing machine] though we won't explore that here.
+The final bit of required preamble is the Turing machine. I am going to assume some familiarity with Turing machines for the sake of space but when we talk about algorithms and their complexity we're talking about those algorithms and a corresponding Turing machine. The choice of the Turing machine as the model for discussions in complexity is due to it's incredibly robust and universal nature [church turing, how to mess with a Turing machine] though we won't explore that here. In particular we can feel confident that when we say a Turing machine operates in polynomial time it isn't due to some cleverness that we employed in the construction of the Turing machine [simulation slowdown citation].
 
 ## Polynomial Time
 
@@ -48,7 +48,7 @@ To start, a fairly formal definition of polynomial time problems, i.e. problems 
 
 Again, deciding a problem means determining an instance's inclusion in a the set for the problem (eg, whether a graph and length `<G, l>` are in **TSP**).
 
-In terms of our analogy, P corresponds with the day hike category, D. That is, efficiently solvable problems equate with easily hikeable mountains. I think it's is initially hard to swallow polynomial functions like n<sup>5</sup> as "efficient" since they can clearly grow quite quickly with the size of the input. The key is that polynomial time functions represent some sort of cleverness in finding a solution. With a polynomial time function its certainly *not* the case that all the possibilities for a given input have to be tried to be sure the right answer was found.
+In terms of our analogy, P corresponds with the day hike category, D. That is, efficiently solvable problems equate with easily hikeable mountains. I think it's is initially hard to swallow polynomial functions like n<sup>5</sup> as "efficient" since they can clearly grow quite quickly with the size of the input. The key is that polynomial time functions represent some sort of cleverness in finding a solution. With a polynomial time function it's certainly *not* the case that all the possibilities for a given input have to be tried to be sure the right answer was found.
 
 ## Non-deterministic Polynomial Time
 
@@ -59,6 +59,8 @@ For the purposes of our discussion we're going to use the more popular definitio
 Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! This definition and that of the Non-deterministic Polynomial Time turing machine are equivalent [footnote] but the first is seemingly more intuitive for most people.
 
 In our analogy, NP problems equate with weeks and days long hikes, WD. While WD is fairly abstract in terms of difficulty NP problems are very precise in that they require that a solution can be *verified* in polynomial time given some certificate. Also, just like the mountains, all problems in P are in NP in the same way that all day long hikes can also be done in weeks and days if you like to take your time. The containment of P in NP follows from observing that each polynomial time Turing machine can act as a polynomial time verifier for a problem instance by simply ignoring the certificate and generating the solution directly.
+
+A key departure from our analogy is that the distinction between D and WD is fairly clear. It's possible that in some distant future there will be shortcuts to the top of mountains like K2 and Everest that will make them surmountable in a day, but intuitively day hikes and weeks long hikes are very different things. Not necessarily so for P and NP. For good reason [polynomial hierarchy collapse] it is *strongly* believed that P is not the same as NP though it has yet to be shown conclusively and so whenever we distinguish between P and NP it comes with the caveat that it is still possible they are the same class of problem however unlikely.
 
 ## Polynomial Time Reduction
 
