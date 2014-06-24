@@ -26,25 +26,41 @@ Lets call these two classes of mountains D and WD, for "Day" and "Weeks and Days
 
 Lets assume that Y is "Weeks and Days"-hard, and that means we know that X is too because it's at least as big as Y. But there's still a problem, we don't know *exactly* how big mountain X is because the top is obscured by clouds. We only know that it's as hard as Y to climb. If X ends up being as tall as Olympus Mons we should probably just forget it. So, on a clear day when the top of mountain X is visible and comparable to the top of mountain Y you take a look and verify that mountain X is roughly the same size as mountain Y. Now we say that mountain X is WD-complete. That is, we know it's at least as hard as another "Weeks and Days" mountain and we feel confident that it will *only* take weeks and days and not, for instance, months and years.
 
-This is really great for a couple of reason. First, we have enough information to start planning a trip to the top of mountain X. Second, because we've classified mountain X as being both WD-hard and "in" the class of WD mountains it can stand as good example if we need to use it to classify other mountains. Put another way, we have placed it firmly enough within a class  of mountains to say that it exemplifies that class.
+This is really great for a couple of reasons. First, we have enough information to start planning a trip to the top of mountain X. Second, because we've classified mountain X as being both WD-hard and "in" the class of WD mountains it stands as an exemplar of that class of mountain, which means we can use it to classify other mountains, in the same way we did with mountain Y [note about the fact that we weren't explicit about Y's NP-completeness].
 
 ## P, NP, NP-hard, NP-complete
 
-You may not be a climbing fan but this serves to illustrate the basic process of establishing when a problem is NP-complete. To make the analogy clear we'll define, P, NP, NP-hard and NP-complete and link them to our climbing analogy.
+While you may not be a climbing fan, this serves to illustrate the basic process of establishing when a decision problem is NP-complete by "comparison". To make the analogy clear we'll define, P, NP, NP-hard and NP-complete and link them to the analogy. First though we need to establish exactly what a decision problem is and how Turing machines fit in so that the definitions will make more sense.
+
+Problems like [The Traveling Salesman](http://en.wikipedia.org/wiki/Travelling_salesman_problem) (**TSP**) are often characterized in their optimization form. In this case the problem is to find the *shortest possible route* that visits all cities. The decision version is subtly different. It is whether there *exists* a path less than or equal to some length that visits all the cities. More formally:
+
+> Given a graph of cities `G` and a length of trip `l`, is the pair `<G, l>` in **TSP**? Where **TSP** is the set of all graphs and lengths for which the graph has a trip of length less than or equal to its paired `l`.
+
+The distinction between these two characterizations may seem like a detail especially given that solving the optimization version gives you an answer to the decision version. Later we'll see that the simple fact that the decision version has a yes or no answer is important when we talk about a problem being "in NP" in the same way that mountain X was discovered to be "in WD".
+
+
+
+This raises the obvious question of how do we define when
+
 
 ## Polynomial Time
 
-A problem is in P if there exists a Turing machine that can solve (note about decide) the problem in time that is a polynomial function of the size of the input. In terms of our analogy P is the same as D, efficiently solvable problems and easily hikeable mountains.
+A problem is polynomial time, that is a problem is "in P", if there exists a Turing machine that can decide any instance of the problem in time that is a polynomial function of the size of the input. In terms of our analogy P is the day hike category, efficiently solvable problems equate with easily hikeable mountains.
 
 ## Non-deterministic Polynomial Time
 
-A problem is solvable in Non-deterministic Polynomial time if there exists a Turing machine that has two transition functions, and there exists a non-deterministic sequence of applications of those transitions functions that runs in time that is a polynomial function of the size of the input. The more familiar definition of NP is that of a verifying Turing machine that can take an instance of a problem and some "certificate" of the solution and check that it is in fact a solution. The definitions are equivalent [footnote] but the second one is easier for most people to understand so we'll proceed with that.
+For the purposes of our discussion we're going to use the more popular definition of NP which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the verifier to accept when the instance is in the language. This definition and that of the Non-deterministic Polynomial Time turing machine are equivalent [footnote] but the first is seemingly more intuitive for most people.
 
 ## Polynomial Time Reduction
 
 We used vision to verify the difficult of mountains but with the complexity of decision problems we'll need some math and the complexity of our device for measurement plays a critical role in it's validity.
 
 
+## NP-hard
+
+## NP-complete
+
+NOTE about the fact that optimization problems can't be in NP because verifying whether a solution to an NP-hard problem is optimal, is itself NP-hard!
 
 - P = hours, day trip, supplies: water
 - NP = multiple weeks, supplies: other people, oxygen, food, shelter, wifi
@@ -66,7 +82,6 @@ definitions
 
 ## Decision Problems
 
-Problems like [Traveling Salesman](http://en.wikipedia.org/wiki/Travelling_salesman_problem) are often characterized in their optimization form, in this case "find the shortest possible route that visits all cities". The decision version is whether there exists a path of some predefined length that visits all the cities. Obviously if you can solve the first you know the answer to second but the key difference is that, in the second case the output is a simple yes or no answer. Here we'll concern ourselves with decision problems only [footnote on why].
 
 
 np-completeness
