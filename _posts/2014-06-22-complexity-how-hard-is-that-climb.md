@@ -14,6 +14,8 @@ difficulty of problems
 - efficient vs inefficient
 - Assuming we're looking for a general solution should I bother trying to come up with some clever way of conquering the problem or are we stuck trying all the different possibilities?
 
+The purpose of this post is partly to clarify the definition of NP but mostly to clarify difference between NP-hard and NP-complete problems for developers who, like me, have found that the abstract nature of the definitions makes it difficult to develop and intuition for the terms.
+
 ## Climbing a Mountain
 
 Imagine that a friend came to you and said that she would like you plan a trip up an obscure mountain,  **X**. Obviously you need to know how difficult the trip is going to be to do a good job. If it's only a quick day hike to the top you probably just need some sandwiches and water, but if it's a multi-week expedition then you'll need a more comprehensive set of supplies.
@@ -42,25 +44,27 @@ The final bit of required preamble is the Turing machine. I am going to assume s
 
 ## Polynomial Time
 
-To start, a fairly formal definition of polynomial time problems, i.e. problems "in P".
+Informally the class **P** is the class of problems that can be solved in polynomial time, or the class of problems that can be solved in a number of steps that is a polynomial function of the size of the input. A slightly more formal definition of polynomial time problems:
 
 > A problem is in P if there exists a Turing machine that can decide an instance of the problem in a number of steps that is a polynomial function of the size of the input.
 
-Again, deciding a problem means determining an instance's inclusion in a the set for the problem (eg, whether a graph and length `<G, l>` are in **TSP**).
+Again, deciding a problem means determining an instance's inclusion in the set for the problem (eg, whether a graph and length `<G, l>` are in **TSP**).
 
-In terms of our analogy, P corresponds with the day hike category, D. That is, efficiently solvable problems equate with easily hikeable mountains. I think it's is initially hard to swallow polynomial functions like n<sup>5</sup> as "efficient" since they can clearly grow quite quickly with the size of the input. The key is that polynomial time functions represent some sort of cleverness in finding a solution. With a polynomial time function it's certainly *not* the case that all the possibilities for a given input have to be tried to be sure the right answer was found.
+In terms of our analogy, P corresponds with the day hike category, D. That is, efficiently solvable problems equate with easily hikeable mountains. I think it's initially hard to swallow polynomial functions like n<sup>5</sup> as "efficient" since they can clearly grow quite quickly with the size of the input. The key is that polynomial time functions represent some sort of cleverness in finding a solution. With a polynomial time function it's certainly *not* the case that all the possibilities for a given input have to be tried to determine the answer.
 
 ## Non-deterministic Polynomial Time
 
-For the purposes of our discussion we're going to use the more popular definition of NP which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the Turing machine to decide positively for the instance.
+For the purposes of our discussion we're going to use the more popular definition of **NP** which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the Turing machine to decide positively for the instance.
 
 > A problem is in NP if there exists a Turing machine that can decide an instance of the problem in polynomial time given a certificate of size polynomial in the size of the instance.
 
-Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! This definition and that of the Non-deterministic Polynomial Time turing machine are equivalent [footnote] but the first is seemingly more intuitive for most people.
+Instead of solving the problem directly, problems in NP require a Turing machine that can check the problem given some extra information. In most (all?) cases the certificate is the solution to the problem. For the traveling salesmen, the certificate would be a path that covers all cities in `G` that has a total length less than or equal to `l`.
+
+Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! Again, for **TSP** the certificate is a subset of the edges of the graph so it's linear in the size of the input. This definition and that of the non-deterministic polynomial time Turing machine are equivalent [footnote] but the first requires a less detailed discussion of Turing machine so we adopt it here.
 
 In our analogy, NP problems equate with weeks and days long hikes, WD. While WD is fairly abstract in terms of difficulty NP problems are very precise in that they require that a solution can be *verified* in polynomial time given some certificate. Also, just like the mountains, all problems in P are in NP in the same way that all day long hikes can also be done in weeks and days if you like to take your time. The containment of P in NP follows from observing that each polynomial time Turing machine can act as a polynomial time verifier for a problem instance by simply ignoring the certificate and generating the solution directly.
 
-A key departure from our analogy is that the distinction between D and WD is fairly clear. It's possible that in some distant future there will be shortcuts to the top of mountains like K2 and Everest that will make them surmountable in a day, but intuitively day hikes and weeks long hikes are very different things. Not necessarily so for P and NP. For good reason [polynomial hierarchy collapse] it is *strongly* believed that P is not the same as NP though it has yet to be shown conclusively and so whenever we distinguish between P and NP it comes with the caveat that it is still possible they are the same class of problem however unlikely.
+A slight departure from our analogy is that the distinction between D and WD is fairly clear. It's possible that in some distant future there will be shortcuts to the top of mountains like K2 and Everest that will make them surmountable in a day (teleportation?), but intuitively day hikes and weeks long hikes are very different things. Not necessarily so for P and NP. For good reason [polynomial hierarchy collapse] it is *strongly* believed that P is not the same as NP though it has yet to be shown conclusively. Further, the definitions ask nothing that might automatically differentiate the two classes and so whenever we distinguish between P and NP it comes with the caveat that it is still possible they are the same class of problem however unlikely that may be.
 
 ## Polynomial Time Reduction
 
