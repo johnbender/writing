@@ -32,29 +32,37 @@ This is really great for a couple of reasons. First, we have enough information 
 
 While you may not be a climbing fan, this serves to illustrate the basic process of establishing when a decision problem is NP-complete by "comparison". To make the analogy clear we'll define, P, NP, NP-hard and NP-complete and link them to the analogy. First though we need to establish exactly what a decision problem is and how Turing machines fit in so that the definitions will make more sense.
 
-Problems like [The Traveling Salesman](http://en.wikipedia.org/wiki/Travelling_salesman_problem) (**TSP**) are often characterized in their optimization form. In this case the problem is to find the *shortest possible route* that visits all cities. The decision version is subtly different. It is whether there *exists* a path less than or equal to some length that visits all the cities. More formally:
+NP-hard problems like [The Traveling Salesman](http://en.wikipedia.org/wiki/Travelling_salesman_problem) (**TSP**) are often characterized in their optimization form. In this case the problem is to find the *shortest possible route* that visits all cities. The decision version is subtly different. The question is changed to whether there exists a path, less than or equal to some length, that visits all the cities [note about deciding languages]. More formally:
 
 > Given a graph of cities `G` and a length of trip `l`, is the pair `<G, l>` in **TSP**? Where **TSP** is the set of all graphs and lengths for which the graph has a trip of length less than or equal to its paired `l`.
 
-The distinction between these two characterizations may seem like a detail especially given that solving the optimization version gives you an answer to the decision version. Later we'll see that the simple fact that the decision version has a yes or no answer is important when we talk about a problem being "in NP" in the same way that mountain X was discovered to be "in WD".
+The distinction between these two characterizations may seem like a minor detail especially given that solving the optimization version gives you an answer to the decision version. Later we'll see the fact that the decision version has a yes or no answer is important when we talk about a problem being "in NP" in the same way that mountain X was discovered to be "in WD".
 
-
-
-This raises the obvious question of how do we define when
-
+The final bit of required preamble is the Turing machine. I am going to assume some familiarity with Turing machines for the sake of space but when we talk about algorithms and their complexity we're talking about those algorithms and a corresponding Turing machine. The choice of the Turing machine as the model for discussions in complexity is due to it's incredibly robust and universal nature [church turing, how to mess with a turing machine] though we won't explore that here.
 
 ## Polynomial Time
 
-A problem is polynomial time, that is a problem is "in P", if there exists a Turing machine that can decide any instance of the problem in time that is a polynomial function of the size of the input. In terms of our analogy P is the day hike category, efficiently solvable problems equate with easily hikeable mountains.
+To start, a fairly formal definition of polynomial time problems, i.e. problems "in P".
+
+> A problem is in P if there exists a Turing machine that can decide an instance of the problem in a number of steps that is a polynomial function of the size of the input.
+
+Again, deciding a problem means determining an instance's inclusion in a the set for the problem (eg, whether a graph and length `<G, l>` are in **TSP**).
+
+In terms of our analogy, P corresponds with the day hike category, D. That is, efficiently solvable problems equate with easily hikeable mountains. I think it's is initially hard to swallow polynomial functions like n<sup>5</sup> as "efficient" since they can clearly grow quite quickly with the size of the input. The key is that polynomial time functions represent some sort of cleverness in finding a solution. With a polynomial time function its certainly *not* the case that all the possibilities for a given input have to be tried to be sure the right answer was found.
 
 ## Non-deterministic Polynomial Time
 
-For the purposes of our discussion we're going to use the more popular definition of NP which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the verifier to accept when the instance is in the language. This definition and that of the Non-deterministic Polynomial Time turing machine are equivalent [footnote] but the first is seemingly more intuitive for most people.
+For the purposes of our discussion we're going to use the more popular definition of NP which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the Turing machine to decide positively for the instance.
+
+> A problem is in NP if there exists a Turing machine that can decide an instance of the problem in polynomial time given a certificate of size polynomial in the size of the instance.
+
+Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! This definition and that of the Non-deterministic Polynomial Time turing machine are equivalent [footnote] but the first is seemingly more intuitive for most people.
+
+In our analogy, NP problems equate with weeks and days long hikes, WD. While WD is fairly abstract in terms of difficulty NP problems are very precise in that they require that a solution can be *verified* in polynomial time given some certificate. Also, just like the mountains, all problems in P are in NP in the same way that all day long hikes can also be done in weeks and days if you like to take your time. The containment of P in NP follows from observing that each polynomial time Turing machine can act as a polynomial time verifier for a problem instance by simply ignoring the certificate and generating the solution directly.
 
 ## Polynomial Time Reduction
 
 We used vision to verify the difficult of mountains but with the complexity of decision problems we'll need some math and the complexity of our device for measurement plays a critical role in it's validity.
-
 
 ## NP-hard
 
