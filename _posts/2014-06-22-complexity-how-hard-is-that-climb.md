@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "NP-completeness: How hard is that climb?"
+title: "NP-complete: how hard is that climb?"
 tags:
 - math
 status: draft
@@ -9,12 +9,7 @@ published: true
 listed: false
 ---
 
-difficulty of problems
-- easy vs hard
-- efficient vs inefficient
-- Assuming we're looking for a general solution should I bother trying to come up with some clever way of conquering the problem or are we stuck trying all the different possibilities?
-
-The purpose of this post is partly to clarify the definition of NP but mostly to clarify difference between NP-hard and NP-complete problems for developers who, like me, have found that the abstract nature of the definitions makes it difficult to develop and intuition for the terms.
+The purpose of this is to clarify difference between NP-hard and NP-complete problems for developers who, like me, have found that the abstract nature of the definitions makes it difficult to develop any intuition for it.
 
 ## Climbing a Mountain
 
@@ -22,7 +17,7 @@ Imagine that a friend came to you and said that she would like you plan a trip u
 
 Further, imagine that you are unable to find any information about the difficulty of climbing up mountain **X**! Your intuitive reaction would probably be to find *comparable* mountains to get a sense for the difficulty of mountain **X** using some sort of comparison. Fortunately, right near by there is a mountain Y that is well known. In fact it's close enough that a comparison by height (which we'll use as our proxy for difficulty) is possible save for that fact that peak of mountain **X** is constantly covered by clouds.
 
-Now, all we really know about mountains X and Y is that X is at least as tall as Y and therefore at least as difficult. We need to get some sense for how difficult mountain Y is so that we can then infer something useful about mountain X. Since we're using vision as our measuring device our system of classification is going to be fairly coarse. That is, if we're positive a mountain can be scaled in a day (think, large hill) then it's probably visually pretty small and if it's going to be on the order of a few weeks then it probably looks pretty serious (think, K2).
+All we really know about mountains X and Y is that X is at least as tall as Y and therefore at least as difficult. We need to get some sense for how difficult mountain Y is so that we can then infer something useful about mountain X. Since we're using vision as our measuring device our system of classification is going to be fairly coarse. That is, if we're positive a mountain can be scaled in a day (think, large hill) then it's probably visually pretty small and if it's going to be on the order of a few weeks then it probably looks pretty serious (think, K2).
 
 Lets call these two classes of mountains D and WD, for "Day" and "Weeks and Days". When a mountain will take at least a day to hike we say it's D-hard. When it will take at fdleast weeks and days to hike then we say it's WD-hard. So if mountain Y is D-hard then clearly mountain X is at least D-hard and similarly so if Y is WD-hard.
 
@@ -44,7 +39,7 @@ The final bit of required preamble is the Turing machine. I am going to assume s
 
 ## Polynomial Time
 
-Informally the class **P** is the class of problems that can be solved in polynomial time, or the class of problems that can be solved in a number of steps that is a polynomial function of the size of the input. A slightly more formal definition of polynomial time problems:
+Informally the class **P** is the class of problems that can be solved in polynomial time, or in other words the class of problems that can be solved in a number of steps that is a polynomial function of the size of the input. A slightly more formal definition of polynomial time problems:
 
 > A problem is in P if there exists a Turing machine that can decide an instance of the problem in a number of steps that is a polynomial function of the size of the input.
 
@@ -60,7 +55,7 @@ Contrary to the section title we're going to use the more popular definition of 
 
 Instead of solving the problem directly, problems in NP require a Turing machine that can check the problem given some extra information. In most (all?) cases the certificate is the solution to the problem. For the traveling salesmen, the certificate would be a path that covers all cities in `G` that has a total length less than or equal to `l`.
 
-Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! Again, for **TSP** the certificate is a subset of the edges of the graph so it's linear in the size of the input.
+Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let alone use it for verification! Again, for **TSP** the certificate is a subset of the edges of the graph (a path with length <= `l`) so it's linear in the size of the input.
 
 In our analogy, NP problems equate with weeks and days long hikes, WD. While WD is fairly abstract in terms of difficulty NP problems are very precise in that they require that a solution can be *verified* in polynomial time given some certificate. Also, just like the mountains, all problems in P are in NP in the same way that all day long hikes can also be done in weeks and days if you like to take your time. The containment of P in NP follows from observing that each polynomial time Turing machine can act as a polynomial time verifier for a problem instance by simply ignoring the certificate and generating the solution directly.
 
@@ -68,86 +63,35 @@ A slight departure from our analogy is that the distinction between D and WD is 
 
 ## Polynomial Time Reduction
 
-We used vision to compare mountains but for the complexity of decision problems we need something more precise. The primary tool for comparison in complexity is the reduction. A reduction is a sort of translation from one problem the next and it's valid if the translated problems solution implies a solution to the original problem and vice versa.
+We used vision to compare mountains but for the complexity of decision problems we need something more precise. The primary tool for comparison in complexity is the reduction. A reduction is a sort of translation and it's valid if the translated problem's solution implies a solution to the original problem and vice versa.
 
 > A problem is polynomial time reducible to another problem if there exists a Turing machine that can translate any instance of the first problem to the second such that the original instance has a solution if and only if the reduced instance has a solution and if the reduction operates in polynomial time.
 
-Understanding this is absolutely essential to understanding what it means for a problem to be NP-hard, so we're going to abuse the mountain climbing analogy just a bit to help.
+Understanding this is absolutely essential to understanding what it means for a problem to be NP-hard, so we're going to abuse the mountain climbing analogy just a bit to help. Instead of measuring the relative difficulty of a climb by sight, we have a more serious restriction on how we're allowed to compare mountains. To match the reduction problems we'll require that *bridge* be built between mountains.
 
-Suppose that, instead of measuring the relative difficulty of a climb by sight, we have a more serious restriction on how we're allowed to compare mountains. To match the reduction between problems we'll assume a requirement to build a *bridge* between mountains. Leaving aside the normal lateral distance between mountains it's definitely the case that the bridge used for measurement should only take days to hike, otherwise in the process of crossing the bridge you might end up climbing a different class of mountain!
+Leaving aside the normal lateral distance between most mountains there are some important details that we must consider. First, it's definitely the case that the bridge should only take days to hike, otherwise in the process of crossing the bridge you might end up climbing a different class of mountain! This corresponds to the requirement that our reduction between problems should take polynomial time.
 
-That is, if you could devise some special bridge (teleporter?) that allowed you to cross from the top of a weeks and days mountain to the top of a day trip mountain in the length of a day trip, you'd have a way to scale that weeks and days mountain in around a day by climbing the day trip mountain and then taking the bridge. What an accomplishment that would be! Further, if you have day trip bridges between that first weeks and days mountain and other weeks and days mountains then you could get to the top of any weeks and days mountain in relatively short trip. The hiking world would be changed forever.
+This is important because if you could devise some special bridge (teleporter?) that allowed you to cross from the top of a weeks and days mountain to the top of a day trip mountain in the length of a day trip, you'd have a way to scale that weeks and days mountain in about a day by climbing the day trip mountain and then taking the bridge. In essence you will have shrunk the bigger mountain! Further, if you have "day trip bridges" between that first big mountain and other big mountains then you could get to the top of any them with a relatively short trip. The hiking world would be changed forever. [footnote about the directionality of reductions and SAT/Cook-Levin making the circular reduction possible]
 
 ## NP-hard
 
+It's this type of reduction that defines what it means for a problem to be NP-hard. We say that a problem is NP-hard if it can be compared to any other problem in NP by means of a reduction in the way that we can classify mountain X by means of a "reduction" or "bridge" from mountain Y. The seeming impossibility of building a day trip bridge from a weeks and days mountain to a day trip mountain ensures that if you *can* build that bridge one of two things has happened:
+
+1. You've come up with an absolutely ground breaking bridge building technique.
+2. The target mountain is also *at least* a weeks and days mountain.
+
+In the same way, if you can come up with a polynomial time reduction to some problem from a problem that is NP-hard but also in NP then you've either come up with a ground breaking reduction or your problem is also NP-hard. [footnote about explicitly avoiding P = NP]
+
 ## NP-complete
 
-NOTE about the fact that optimization problems can't be in NP because verifying whether a solution to an NP-hard problem is optimal, is itself NP-hard!
+** confusing **
 
-- P = hours, day trip, supplies: water
-- NP = multiple weeks, supplies: other people, oxygen, food, shelter, wifi
-- reduction = bridge
-- P-reduction = bridge that takes at most a day to cross
-- friend asks you to plan a climb of mountain **X**
-- you don't know anything about mountain **X**
-- you know how hard mountain Y is
+The key is that it's not enough that the problem we reduce from be NP-hard alone. Recall that when a mountain is WD-hard like X was before the clouds cleared we said that it was going to take *at least* weeks and days to climb, it could take more. Again NP-hard gives the same characterization for problems. When we say that something is NP-hard we're simply saying that it's *at least* as hard as any other problem in NP but it could be harder.
 
+So in addition to knowing whether a problem is NP-hard, if we can also show that a problem is in the class NP, we say that it is NP-complete and that it represents a prime example of the class. This is precisely why the optimization form of **TSP** can only be said to be NP-hard and not NP-complete because verifying the optimal solution for a given graph of cities will take as long as generating the solution in the first place. If we tweak the question and ask whether a graph has a solution of a certain length then we can certainly check that in polynomial time placing it firmly in NP!
 
-definitions
-- polynomial time, there exists a turing machine that can decide the inclusion
-- non-determinstic polynomial time
-- certifiable in polynomial time, there exists a turing machine that can verify a solution for the inclusion in
-- containment diagram
-- problems in NP are also in P
-- that is any, problem in P has a turing machine that can also act as a verifier by ignoring the cert.
-- so it's not super useful to just say that a problem is in NP (because that means it could be in P) we want to know whether we think it can be solved in polynomial time.
+## Closing
 
-## Decision Problems
+If we want to know just how hard a problem is in terms of computation it's really not enough to know that it's at least as hard as another problem for the same reason we must know more about a mountain before we can plan to climb it. Ultimately we want to define our problems as complete for some complexity class so that we can clearly say to our hiking friends just how hard the climb will be.
 
-
-
-np-completeness
-- two components
-- "at least as hard" as other problems that are in NP
-- NP-hard means don't try to be clever if you're looking for a general solution
-- also in NP
-
-mountain analogy
-- P = hours, day trip, supplies: water
-- NP = multiple weeks, supplies: other people, oxygen, food, shelter, wifi
-- reduction = bridge
-- P-reduction = bridge that takes at most a day to cross
-- friend asks you to plan a climb of mountain **X**
-- you don't know anything about mountain **X**
-- you know how hard mountain Y is
-
-Lower bound on the difficult of **X**
-- **X** is obscurred by clouds, the bottom of the clouds are the lower bound
-- Set yourself up so you can measure that **X** is at least as tall as mountain Y under the clouds
-- that is, if you were to build a horizontal bridge between the top of mountain Y, then climb mountain **X** up to the level of the bridge, cross the bridge,  you would end up at the top of mountain Y. That means **X** is at least as hard (height wise) as mountain Y.
-- If Y is in NP then **X** is NP-hard
-
-Bridge
-- if it takes the same amount of time to cross the bridge as it would to climb a huge moutain you may have climbed a huge mountain in the process!
-- this is the polynomial time reduction, if you can climb mountain **X** in a few days, then you can certainly climb mountain Y in a few days if only by climbing **X** to the bridge and then taking the bridge across
-- seems backwards, but the thing we're trying to prevent is classifying some mountain Z as being as hard as Y when it's not. So if you couldn't cross that hypothetical bridge from Z to Y and be at the top then Z is not the same as Y. Eg, you can't climb a grassy gnoll and then take a day bridge and be at the top of moutain that takes a week to climb.
-
-Restrictions
-- so far as we know can't build a day trip bridge down from a week long hike mountain to a day trip mountain, the mountain is too tall, the brige won't reach
-- could be possible, teleportation? We don't know!
-- if you could find a way to bridge from a day mountain to a weeks mountain then you could just hop other bridges from that weeks long mountain to any other weeks long mountain in days which would make all weeks long mountain trips take only days instead of weeks!
-- similarly if we could show that there is a reduction from any NP-complete problem to a problem in P then we could use polytime reductions from that NP-complete problem to any other to solve it in polynomial time.
-
-
-- knowing the mountain is at least as hard as something else has value
-- you could call the trip off based just on that
-- ideally show that it's just as hard and not harder
-- eg, k2 and not olympus mons
-- satellite photos etc
-
-notes
-- days vs weeks gulf doesn't capture the gulf between P and NP but serves here
-
-notes on things being omitted for simplicity
- - most (all?) optimization problems that are NP-hard are not in NP since verifying that a solution is optimal is at least as hard as finding the solution itself!
- -
+### Footnotes
