@@ -54,13 +54,13 @@ In terms of our analogy, P corresponds with the day hike category, D. That is, e
 
 ## Non-deterministic Polynomial Time
 
-For the purposes of our discussion we're going to use the more popular definition of **NP** which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the Turing machine to decide positively for the instance.
+Contrary to the section title we're going to use the more popular definition of **NP**, which is that of a verifying Turing machine that can take an instance of a problem and some "certificate" that convinces the Turing machine to decide positively for the instance. This definition and that of the non-deterministic polynomial time Turing machine are equivalent [footnote] but the first requires a less detailed discussion of Turing machine so we adopt it here.
 
 > A problem is in NP if there exists a Turing machine that can decide an instance of the problem in polynomial time given a certificate of size polynomial in the size of the instance.
 
 Instead of solving the problem directly, problems in NP require a Turing machine that can check the problem given some extra information. In most (all?) cases the certificate is the solution to the problem. For the traveling salesmen, the certificate would be a path that covers all cities in `G` that has a total length less than or equal to `l`.
 
-Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! Again, for **TSP** the certificate is a subset of the edges of the graph so it's linear in the size of the input. This definition and that of the non-deterministic polynomial time Turing machine are equivalent [footnote] but the first requires a less detailed discussion of Turing machine so we adopt it here.
+Note that the certificate must be polynomial in the size of the problem instance or the Turing machine wouldn't be able to read the certificate in polynomial time let use it for verification! Again, for **TSP** the certificate is a subset of the edges of the graph so it's linear in the size of the input.
 
 In our analogy, NP problems equate with weeks and days long hikes, WD. While WD is fairly abstract in terms of difficulty NP problems are very precise in that they require that a solution can be *verified* in polynomial time given some certificate. Also, just like the mountains, all problems in P are in NP in the same way that all day long hikes can also be done in weeks and days if you like to take your time. The containment of P in NP follows from observing that each polynomial time Turing machine can act as a polynomial time verifier for a problem instance by simply ignoring the certificate and generating the solution directly.
 
@@ -68,7 +68,15 @@ A slight departure from our analogy is that the distinction between D and WD is 
 
 ## Polynomial Time Reduction
 
-We used vision to verify the difficult of mountains but with the complexity of decision problems we'll need some math and the complexity of our device for measurement plays a critical role in it's validity.
+We used vision to compare mountains but for the complexity of decision problems we need something more precise. The primary tool for comparison in complexity is the reduction. A reduction is a sort of translation from one problem the next and it's valid if the translated problems solution implies a solution to the original problem and vice versa.
+
+> A problem is polynomial time reducible to another problem if there exists a Turing machine that can translate any instance of the first problem to the second such that the original instance has a solution if and only if the reduced instance has a solution and if the reduction operates in polynomial time.
+
+Understanding this is absolutely essential to understanding what it means for a problem to be NP-hard, so we're going to abuse the mountain climbing analogy just a bit to help.
+
+Suppose that, instead of measuring the relative difficulty of a climb by sight, we have a more serious restriction on how we're allowed to compare mountains. To match the reduction between problems we'll assume a requirement to build a *bridge* between mountains. Leaving aside the normal lateral distance between mountains it's definitely the case that the bridge used for measurement should only take days to hike, otherwise in the process of crossing the bridge you might end up climbing a different class of mountain!
+
+That is, if you could devise some special bridge (teleporter?) that allowed you to cross from the top of a weeks and days mountain to the top of a day trip mountain in the length of a day trip, you'd have a way to scale that weeks and days mountain in around a day by climbing the day trip mountain and then taking the bridge. What an accomplishment that would be! Further, if you have day trip bridges between that first weeks and days mountain and other weeks and days mountains then you could get to the top of any weeks and days mountain in relatively short trip. The hiking world would be changed forever.
 
 ## NP-hard
 
