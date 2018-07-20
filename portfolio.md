@@ -4,6 +4,7 @@ title : Portfolio
 link : Portfolio
 header : Portfolio
 group: navigation
+listed: false
 width: 10
 ---
 
